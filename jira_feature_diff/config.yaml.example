@@ -1,0 +1,7 @@
+connection:
+    server: 'http://jira.atlassian.com'
+    verify: False
+
+user:
+    username: 'user'
+    password: 'password'
