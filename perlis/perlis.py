@@ -1,4 +1,6 @@
 #!/bin/env python
+import random 
+
 bigstring = """One man's constant is another man's variable.
 Functions delay binding; data structures induce binding. Moral: Structure data late in the programming process.
 Syntactic sugar causes cancer of the semicolon.
