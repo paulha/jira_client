@@ -1,5 +1,6 @@
 #!/bin/env python
 import random 
+import textwrap
 
 bigstring = """One man's constant is another man's variable.
 Functions delay binding; data structures induce binding. Moral: Structure data late in the programming process.
@@ -124,4 +125,4 @@ Adapting old programs to fit new machines usually means adapting new machines to
 
 if __name__ == "__main__":
     quotes = bigstring.splitlines()
-    print random.choice(quotes)
+    print "\n".join(textwrap.wrap(random.choice(quotes)))
