@@ -5,6 +5,9 @@ from jira.client import JIRA
 import yaml
 import os
 import sqlite3
+import itertools
+import collections
+import pprint
 
 # TODO: do this properly
 import requests
@@ -54,11 +57,11 @@ def main():
     j = init()
     fl = make_field_lookup(j)
 
-    query = 'project = ATP AND fixVersion = "cleanup_test"'
+    query = 'project = AREQ AND issuetype = Task'
     if not query:
         raise Exception('no query provided')
 
-    multifix = 0
+    values = collections.Counter()
     seen = 0
     startAt = 0
     total = None
@@ -74,18 +77,13 @@ def main():
         elif total != issues.total:
             raise Exception('Total changed while running %d != %d'%(total, issues.total))
 
-        for i in issues:
-            fixes = len(i.fields.fixVersions)
-            if fixes > 1:
-                multifix += 1
-                print i.key
-
+        values.update(c.value for c in itertools.chain(*[i.fields.customfield_13603 for i in issues]))
 
         seen += len(issues)
-        print "loaded %d PREQs starting at %d, %d/%d"%(len(issues), startAt, seen, total)
+        print "loaded %d issues starting at %d, %d/%d"%(len(issues), startAt, seen, total)
         startAt += len(issues)
 
-    print "saw %d multiple fixes"%multifix
+    pprint.pprint(sorted(values.items(), lambda a,b:-cmp(a[1],b[1])))
 
 
 if __name__ == main():

@@ -21,6 +21,7 @@ def load_features(query, jira, db, fl):
     total = None
     while 1:
         features = jira.search_issues(query, startAt=startAt)
+        abt_key = fl.reverse('ABT Entry?')
 
         if len(features) == 0:
             print "loaded all %d features"%total
@@ -32,13 +33,20 @@ def load_features(query, jira, db, fl):
             raise Exception('Total changed while running %d != %d'%(total, features.total))
 
         for f in features:
+            abtf = getattr(f.fields, abt_key)
+            if abtf:
+                abtval = abtf.value
+            else:
+                abtval = 'NULL'
+
             vals = (
                 f.key,
                 f.fields.priority.name,
                 f.fields.summary,
                 f.permalink(),
+                abtval
             )
-            c.execute('INSERT INTO areq_features VALUES(?,?,?,?)', vals)
+            c.execute('INSERT INTO areq_features VALUES(?,?,?,?,?)', vals)
 
 
         seen += len(features)

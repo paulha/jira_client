@@ -66,7 +66,8 @@ def init_db(newdb = False, newfeatures=False, newefeatures=False, newpreq=False)
             jkey TEXT PRIMARY KEY,
             priority TEXT,
             summary TEXT,
-            permalink TEXT
+            permalink TEXT,
+            abt TEXT
         )
     """)
 
@@ -107,12 +108,9 @@ def init_db(newdb = False, newfeatures=False, newefeatures=False, newpreq=False)
 
     return conn
     
-
-
-def main():
+def load_ivi_stuff(j):
     db = init_db(newdb=True)
 
-    j = init()
     fl = make_field_lookup(j)
 
     loaders.load_features('project = AREQ AND issuetype = Feature ORDER BY key', j, db, fl)
@@ -124,6 +122,60 @@ def main():
     #PF_QUERY = 'project = PREQ AND issuetype = UCIS AND "Platform/Program" in (Broxton, "Broxton-P IVI") AND "Android Version(s)" in (M, N, O)'
     PF_QUERY = 'project = PREQ AND issuetype = UCIS AND Classification = "Functional Use Case" AND "Platform/Program" in (Broxton, "Broxton-P IVI")'
     loaders.load_preq_features(PF_QUERY, j, db, fl)
+
+
+def copy_components(j, source_project, dest_project):
+    src_comps = j.project_components(project = source_project)
+    dest_comps = j.project_components(project = dest_project)
+
+    src_names = set(c.name for c in src_comps)
+    dest_names = set(c.name for c in dest_comps)
+
+    print src_names - dest_names
+    print dest_names - src_names
+
+    src_comps_by_name = {c.name:c for c in src_comps}
+    dest_comps_by_name = {c.name:c for c in dest_comps}
+
+    for comp in src_comps:
+        ### print comp
+        stuff = {
+            'assigneeType': comp.assigneeType,
+        }
+        try:
+            lead = comp.lead.name
+            stuff['leadUserName']= lead
+        except AttributeError:
+            pass
+
+        try:
+            desc = comp.description
+            stuff['description'] = desc
+        except AttributeError:
+            pass
+        ### print stuff
+
+        if comp.name not in dest_comps_by_name:
+            print "%s does not exist, creating"%comp.name
+            stuff['project'] = dest_project
+            stuff['name'] = comp.name
+            ### print stuff
+            ### print '*'*40
+            j.create_component(**stuff)
+
+        else:
+            print "%s already exists, updating"%comp.name
+            dest = dest_comps_by_name[comp.name]
+            ### print stuff
+            ### print '*'*40
+            dest.update(stuff)
+
+
+def main():
+    j = init()
+    #copy_components(j, 'AREQ', 'CREQ')
+    # load_ivi_stuff(j)
+    print "not doing anything"
 
 
 if __name__ == main():
