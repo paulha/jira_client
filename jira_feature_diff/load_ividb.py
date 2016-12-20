@@ -1,55 +1,15 @@
 #!/usr/bin/env python
 import pprint
 
-from jira.client import JIRA
-import yaml
 import os
 import sqlite3
 
-# TODO: do this properly
-import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
 from jirafields import make_field_lookup
 import jiradump
-import loaders
+from gojira import init_jira, jql_issue_gen
 
 
-CONFIG_FILE = 'config.yaml'
 DB_FILE = 'ivirpt.sqlite3'
-
-
-# set up jira connection
-def init():
-    """Load Configuration"""
-    # Read File
-    try:
-        stream = open(CONFIG_FILE, 'r')
-        config = yaml.load(stream)
-    except:
-        print "Cannot load configuration file."
-        exit(0)
-
-    # Check Options
-    try:
-        config['connection']['server']
-        config['user']['username']
-        config['user']['password']
-    except:
-        print "Cannot load configuration options."
-        exit(0)
-
-    # Connect to JIRA
-    try:
-        auth = (config['user']['username'], config['user']['password'])
-        jira = JIRA(config['connection'], basic_auth=auth)
-    except Exception as e:
-        print e
-        print "Failed to connect to JIRA."
-        exit(0)
-
-    return jira
 
 def init_db(newdb = False, newfeatures=False, newefeatures=False, newpreq=False):
     if newdb:
@@ -107,21 +67,122 @@ def init_db(newdb = False, newfeatures=False, newefeatures=False, newpreq=False)
     conn.commit()
 
     return conn
+
+### c.execute("""
+###     CREATE TABLE areq_features (
+###         jkey TEXT PRIMARY KEY,
+###         priority TEXT,
+###         summary TEXT,
+###         permalink TEXT
+###     )
+### """)
+def load_features(query, jira, db, fl):
+    c = db.cursor()
+    abt_key = fl.reverse('ABT Entry?')
+
+    for f in jql_issue_gen(query, jira, True):
+        abtf = getattr(f.fields, abt_key)
+        if abtf:
+            abtval = abtf.value
+        else:
+            abtval = 'NULL'
+
+        vals = (
+            f.key,
+            f.fields.priority.name,
+            f.fields.summary,
+            f.permalink(),
+            abtval
+        )
+        c.execute('INSERT INTO areq_features VALUES(?,?,?,?,?)', vals)
+
+    db.commit()
+
+
+### c.execute("""
+###     CREATE TABLE IF NOT EXISTS areq_e_features (
+###         jkey TEXT PRIMARY KEY,
+###         feature_jkey TEXT,
+###         platform TEXT,
+###         android_version TEXT,
+###         priority TEXT,
+###         status TEXT,
+###         summary TEXT,
+###         permalink TEXT,
+###         FOREIGN KEY(feature_jkey) REFERENCES areq_features(jkey)
+###     )
+### """)
+def load_e_features(query, jira, db, fl):
+    c = db.cursor()
+
+    andv_key = fl.reverse('Android Version(s)')
+    plat_key = fl.reverse('Platform/Program')
+
+    for f in jql_issue_gen(query, jira, True):
+        vals = (
+            f.key,
+            f.fields.parent.key,
+            getattr(f.fields, plat_key)[0].value,
+            getattr(f.fields, andv_key)[0].value,
+            f.fields.priority.name,
+            f.fields.status.name,
+            (f.fields.status.name == 'Rejected'),
+            f.fields.summary,
+            f.permalink(),
+        )
+        c.execute('INSERT INTO areq_e_features VALUES(?,?,?,?,?,?,?,?,?)', vals)
+
+    db.commit()
+
+###c.execute("""
+###    CREATE TABLE IF NOT EXISTS preq_features (
+###        jkey TEXT PRIMARY KEY,
+###        global_id = TEXT,
+###        platform TEXT,
+###        version TEXT,
+###        priority TEXT,
+###        status TEXT,
+###        summary TEXT,
+###        permalink TEXT,
+###    )
+###""")
+def load_preq_features(query, jira, db, fl):
+    c = db.cursor()
+
+    andv_key = fl.reverse('Android Version(s)')
+    plat_key = fl.reverse('Platform/Program')
+    glob_key = fl.reverse('Global ID')
+
+    for f in jql_issue_gen(query, jira, True):
+        vals = (
+            f.key,
+            getattr(f.fields, glob_key),
+            getattr(f.fields, plat_key)[0].value,
+            getattr(f.fields, andv_key)[0].value,
+            f.fields.priority.name,
+            f.fields.status.name,
+            (f.fields.status.name == 'Rejected'),
+            f.fields.summary,
+            f.permalink(),
+        )
+        c.execute('INSERT INTO preq_features VALUES(?,?,?,?,?,?,?,?,?)', vals)
+
+    db.commit()
     
 def load_ivi_stuff(j):
     db = init_db(newdb=True)
 
     fl = make_field_lookup(j)
 
-    loaders.load_features('project = AREQ AND issuetype = Feature ORDER BY key', j, db, fl)
+    load_features('project = AREQ AND issuetype = Feature ORDER BY key', j, db, fl)
 
     #EF_QUERY = """project = AREQ AND issuetype = E-Feature AND "Android Version(s)" in (M, N, O) AND "Platform/Program" in (Broxton, "Broxton-P IVI")"""
     EF_QUERY = """project = AREQ AND issuetype = E-Feature AND "Platform/Program" in (Broxton, "Broxton-P IVI")"""
-    loaders.load_e_features(EF_QUERY, j, db, fl)
+    load_e_features(EF_QUERY, j, db, fl)
 
     #PF_QUERY = 'project = PREQ AND issuetype = UCIS AND "Platform/Program" in (Broxton, "Broxton-P IVI") AND "Android Version(s)" in (M, N, O)'
     PF_QUERY = 'project = PREQ AND issuetype = UCIS AND Classification = "Functional Use Case" AND "Platform/Program" in (Broxton, "Broxton-P IVI")'
-    loaders.load_preq_features(PF_QUERY, j, db, fl)
+    load_preq_features(PF_QUERY, j, db, fl)
 
 
 def copy_components(j, source_project, dest_project):
@@ -172,9 +233,9 @@ def copy_components(j, source_project, dest_project):
 
 
 def main():
-    j = init()
+    j = init_jira()
     #copy_components(j, 'AREQ', 'CREQ')
-    # load_ivi_stuff(j)
+    load_ivi_stuff(j)
     print "not doing anything"
 
 
