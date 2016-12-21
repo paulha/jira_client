@@ -1,18 +1,11 @@
 #!/usr/bin/env python
 
-import json
-from jira.client import JIRA
-import config
-import sys
+### TODO : project = CREQ AND issuetype = Feature 
 
-import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-
-jira = JIRA(config.options, config.basic_auth)
+from gojira import init_jira, jql_issue_gen
 from jirafields import make_field_lookup
-fl = make_field_lookup(jira)
+
+PROJECT = 'CREQ'
 
 areqs= [
 ('AREQ-16492','Glenview','N','pzou1','ruili1x',['']),
@@ -25,27 +18,41 @@ areqs= [
 ('AREQ-265','Glenview','N','eepshtey','maxiaoso',[''])
 ]
 
-for areq in areqs:
-    print areq
-    # Create target device dict
-    devices = []
-    for device in areq[5]:
-        devices.append({'value':device})
+ASSIGNEE = None
+VAL_LEAD = None
+
+if __name__ == "__main__":
+    i = 0
+
+    j = init_jira()
+    fl = make_field_lookup(j)
 
     val_lead_key = fl.reverse('Validation Lead')
     and_vers_key = fl.reverse('Android Version(s)')
     platprog_key = fl.reverse('Platform/Program')
     exist_on_key = fl.reverse('Exists On')
 
-    # Create Sub-task
-    issue_dict = {
-        'project': {'key': 'AREQ'},
-        'parent': {'key': areq[0]},
-        'summary': 'TBD',
-        'issuetype': {'name': 'E-Feature'},
-        'assignee': {'name': areq[3]},
-        val_lead_key: {'name':areq[4]},
-        and_vers_key: [{'value':areq[2]}],
-        platprog_key: [{'value':areq[1]}],
-        exist_on_key: devices}
-    jira.create_issue(fields=issue_dict)
+    jql = """project = CREQ AND issuetype = Feature AND assignee = swmckeox"""
+    for areq in jql_issue_gen(jql, j):
+        print areq.key, areq.fields.summary
+
+        for platprog in getattr(areq.fields, platprog_key):
+            # Create Sub-task
+            i += 1
+            issue_dict = {
+                'project': {'key': PROJECT},
+                'parent': {'key': areq.key},
+                'summary': 'TBD',
+                'issuetype': {'name': 'E-Feature'},
+                'assignee': {'name': ASSIGNEE},
+                val_lead_key: {'name':VAL_LEAD},
+                #and_vers_key: [{'value':getattr(areq.fields, and_vers_key)[0].value}],
+                platprog_key: [{'value':platprog.value}]
+            }
+
+            print i, areq.key, platprog.value
+            efeature = j.create_issue(fields=issue_dict)
+            new_sum = efeature.fields.summary.replace('[]', '[4.4]')
+            efeature.update(fields={'summary':new_sum})
+            print efeature.key, efeature.fields.summary
+
