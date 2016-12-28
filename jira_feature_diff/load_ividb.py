@@ -195,6 +195,7 @@ def copy_components(j, source_project, dest_project):
     print src_names - dest_names
     print dest_names - src_names
 
+    return
     src_comps_by_name = {c.name:c for c in src_comps}
     dest_comps_by_name = {c.name:c for c in dest_comps}
 
@@ -234,9 +235,9 @@ def copy_components(j, source_project, dest_project):
 
 def main():
     j = init_jira()
-    #copy_components(j, 'AREQ', 'CREQ')
-    load_ivi_stuff(j)
-    print "not doing anything"
+    copy_components(j, 'AREQ', 'CREQ')
+    #load_ivi_stuff(j)
+    #print "not doing anything"
 
 
 if __name__ == main():

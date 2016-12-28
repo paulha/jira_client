@@ -1,7 +1,7 @@
 connection:
     server: 'http://jira.atlassian.com'
     # set verify to either the root cert or False to ignore warnings
-    verify: 'intel_root.cer'
+    verify: 'IntelSHA256RootCA-Base64.crt'
 
 user:
     username: 'user'
