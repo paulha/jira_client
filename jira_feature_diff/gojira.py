@@ -1,11 +1,6 @@
 from jira.client import JIRA
 import yaml
 
-# TODO: do this properly
-import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
 
 CONFIG_FILE = 'config.yaml'
 
@@ -29,6 +24,11 @@ def init_jira():
     except:
         print "Cannot load configuration options."
         exit(0)
+
+    if config['connection']['verify'] is False:
+        import requests
+        from requests.packages.urllib3.exceptions import InsecureRequestWarning
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     # Connect to JIRA
     try:
