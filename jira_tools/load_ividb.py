@@ -235,9 +235,9 @@ def copy_components(j, source_project, dest_project):
 
 def main():
     j = init_jira()
-    copy_components(j, 'AREQ', 'CREQ')
+    #copy_components(j, 'AREQ', 'CREQ')
     #load_ivi_stuff(j)
-    #print "not doing anything"
+    print "not doing anything"
 
 
 if __name__ == main():
