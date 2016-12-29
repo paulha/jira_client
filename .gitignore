@@ -39,5 +39,5 @@ dist
 
 # project specific files
 config.yaml
-jira_feature_diff/reports/*.csv
+jira_tools/reports/*.csv
 *.sqlite3
