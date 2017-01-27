@@ -27,7 +27,8 @@ def init_db(newdb = False, newfeatures=False, newefeatures=False, newpreq=False)
             priority TEXT,
             summary TEXT,
             permalink TEXT,
-            abt TEXT
+            abt TEXT,
+            profile TEXT
         )
     """)
 
@@ -68,17 +69,10 @@ def init_db(newdb = False, newfeatures=False, newefeatures=False, newpreq=False)
 
     return conn
 
-### c.execute("""
-###     CREATE TABLE areq_features (
-###         jkey TEXT PRIMARY KEY,
-###         priority TEXT,
-###         summary TEXT,
-###         permalink TEXT
-###     )
-### """)
 def load_features(query, jira, db, fl):
     c = db.cursor()
     abt_key = fl.reverse('ABT Entry?')
+    profile_key = fl.reverse('Profile/s')
 
     for f in jql_issue_gen(query, jira, True):
         abtf = getattr(f.fields, abt_key)
@@ -87,14 +81,22 @@ def load_features(query, jira, db, fl):
         else:
             abtval = 'NULL'
 
+        profile = getattr(f.fields, profile_key)
+        if profile:
+            pprint.pprint(profile)
+            profval = "|".join([p.value for p in profile])
+        else:
+            profval = "NULL"
+
         vals = (
             f.key,
             f.fields.priority.name,
             f.fields.summary,
             f.permalink(),
-            abtval
+            abtval,
+            profval
         )
-        c.execute('INSERT INTO areq_features VALUES(?,?,?,?,?)', vals)
+        c.execute('INSERT INTO areq_features VALUES(?,?,?,?,?,?)', vals)
 
     db.commit()
 
@@ -174,15 +176,15 @@ def load_ivi_stuff(j):
 
     fl = make_field_lookup(j)
 
-    load_features('project = AREQ AND issuetype = Feature ORDER BY key', j, db, fl)
+    load_features('project = AREQ AND issuetype = Feature AND status = Candidate', j, db, fl)
 
     #EF_QUERY = """project = AREQ AND issuetype = E-Feature AND "Android Version(s)" in (M, N, O) AND "Platform/Program" in (Broxton, "Broxton-P IVI")"""
-    EF_QUERY = """project = AREQ AND issuetype = E-Feature AND "Platform/Program" in (Broxton, "Broxton-P IVI")"""
-    load_e_features(EF_QUERY, j, db, fl)
+    #EF_QUERY = """project = AREQ AND issuetype = E-Feature AND "Platform/Program" in (Broxton, "Broxton-P IVI")"""
+    #load_e_features(EF_QUERY, j, db, fl)
 
     #PF_QUERY = 'project = PREQ AND issuetype = UCIS AND "Platform/Program" in (Broxton, "Broxton-P IVI") AND "Android Version(s)" in (M, N, O)'
-    PF_QUERY = 'project = PREQ AND issuetype = UCIS AND Classification = "Functional Use Case" AND "Platform/Program" in (Broxton, "Broxton-P IVI")'
-    load_preq_features(PF_QUERY, j, db, fl)
+    #PF_QUERY = 'project = PREQ AND issuetype = UCIS AND Classification = "Functional Use Case" AND "Platform/Program" in (Broxton, "Broxton-P IVI")'
+    #load_preq_features(PF_QUERY, j, db, fl)
 
 
 def copy_components(j, source_project, dest_project):
@@ -236,8 +238,8 @@ def copy_components(j, source_project, dest_project):
 def main():
     j = init_jira()
     #copy_components(j, 'AREQ', 'CREQ')
-    #load_ivi_stuff(j)
-    print "not doing anything"
+    load_ivi_stuff(j)
+    #print "not doing anything"
 
 
 if __name__ == main():
