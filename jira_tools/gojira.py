@@ -1,8 +1,22 @@
 from jira.client import JIRA
+import itertools
 import yaml
 
 
 CONFIG_FILE = 'config.yaml'
+
+
+def chunker(iterable, n, fillvalue=None):
+    "Return n at a time, no padding at end of list"
+    
+    # only need 2n items to cause x/n to cycle between 0 & 1,
+    # marking a group
+    r = range(n*2)
+    rc = itertools.cycle(r)
+    l = lambda x: rc.next() / n
+
+    # ...and then strip off the group label
+    return (i[1] for i in itertools.groupby(iterable, l))
 
 
 # set up jira connection
@@ -41,6 +55,7 @@ def init_jira():
 
     return jira
 
+
 def jql_issue_gen(query, jira, show_status=False):
     if not query:
         raise Exception('no query provided')
@@ -71,3 +86,16 @@ def jql_issue_gen(query, jira, show_status=False):
         if show_status:
             print "loaded %d issues starting at %d, %d/%d"%(len(issues), startAt, seen, total)
         startAt += len(issues)
+
+
+def issue_keys_issue_gen(issue_key_list, jira, show_status=False, group_len=20):
+    if not issue_key_list:
+        raise Exception('no issues provided')
+
+    jql = "key in ( {} )"
+
+    key_groups = chunker(issue_key_list, group_len)
+    jqls = (jql.format(" , ".join(key_group)) for key_group in key_groups)
+
+    jql_gens = (jql_issue_gen(j, jira, show_status) for j in jqls)
+    return itertools.chain.from_iterable(jql_gens)
