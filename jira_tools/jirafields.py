@@ -3,10 +3,14 @@
 
 import unittest
 
+_field_lookup = None
 def make_field_lookup(jira):
-    fields = jira.fields()
-    fl = JiraFieldLookup(fields)
-    return fl
+    if not _field_lookup:
+        fields = jira.fields()
+        fl = JiraFieldLookup(fields)
+        _field_lookup = fl
+
+    return _field_lookup
 
 
 class JiraFieldLookup(object):
