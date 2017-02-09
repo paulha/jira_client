@@ -5,7 +5,8 @@ import unittest
 
 _field_lookup = None
 def make_field_lookup(jira):
-    if not _field_lookup:
+    global _field_lookup
+    if _field_lookup is None:
         fields = jira.fields()
         fl = JiraFieldLookup(fields)
         _field_lookup = fl

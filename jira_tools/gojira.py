@@ -56,7 +56,9 @@ def init_jira():
     return jira
 
 
-def jql_issue_gen(query, jira, show_status=False):
+# TODO: add a no_increment_start option to handle queries that reduce the
+#       count of the result set
+def jql_issue_gen(query, jira, show_status=False, count_change_ok=False):
     if not query:
         raise Exception('no query provided')
 
@@ -76,7 +78,7 @@ def jql_issue_gen(query, jira, show_status=False):
 
         if total is None:
             total = issues.total
-        elif total != issues.total:
+        elif total != issues.total and not count_change_ok:
             raise Exception('Total changed while running %d != %d'%(total, issues.total))
 
         for i in issues:
@@ -97,5 +99,5 @@ def issue_keys_issue_gen(issue_key_list, jira, show_status=False, group_len=20):
     key_groups = chunker(issue_key_list, group_len)
     jqls = (jql.format(" , ".join(key_group)) for key_group in key_groups)
 
-    jql_gens = (jql_issue_gen(j, jira, show_status) for j in jqls)
+    jql_gens = (jql_issue_gen(j, jira, show_staus=show_status) for j in jqls)
     return itertools.chain.from_iterable(jql_gens)

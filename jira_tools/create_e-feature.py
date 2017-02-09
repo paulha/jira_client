@@ -38,10 +38,10 @@ def create_from_jql(j):
             #print "\t", efeature.key,efeature.fields.summary, getattr(efeature.fields, and_vers_key)[0].value
 
 def add_value_to_list(issue, key, new_value):
-    values = [x.value for x in getattr(issue.fields, key)
+    values = [x.value for x in getattr(issue.fields, key)]
     if new_value not in values:
         values.append(new_value)
-        update = [{value:v} for v in values]
+        update = [{'value':v} for v in values]
         issue.update(fields = {key: update})
 
 
@@ -61,9 +61,9 @@ def ensure_parent_feature(jira, issue):
 
 def create_e_feature_from_feature(jira, feature, assignee, val_lead, and_ver, platform):
     fl = make_field_lookup(jira)
-    val_lead_key = fields.reverse('Validation Lead')
-    and_vers_key = fields.reverse('Android Version(s)')
-    platprog_key = fields.reverse('Platform/Program')
+    val_lead_key = fl.reverse('Validation Lead')
+    and_vers_key = fl.reverse('Android Version(s)')
+    platprog_key = fl.reverse('Platform/Program')
 
     new_efeature_dict = {
             'project': {'key': feature.fields.project.key},
@@ -85,6 +85,7 @@ def create_from_efeature_key_list(j, filename):
 
     fl = make_field_lookup(j)
     platprog_key = fl.reverse('Platform/Program')
+    and_vers_key = fl.reverse('Android Version(s)')
 
     source_issue_keys = ( line.strip() for line in open(filename) if line.strip() )
 
@@ -105,6 +106,24 @@ def create_from_efeature_key_list(j, filename):
     print "created {} new e-features".format(create_count)
 
 
+def add_dessert(j, jql, dessert):
+    update_count = 0
+
+    fl = make_field_lookup(j)
+    and_vers_key = fl.reverse('Android Version(s)')
+
+    for issue in jql_issue_gen(jql, j, count_change_ok=True):
+        print issue.key
+        add_value_to_list(issue, and_vers_key, 'O')
+        update_count += 1
+
+    print "Updated {} issues".format(update_count)
+
+
+
 if __name__ == "__main__":
     jira = init_jira()
-    create_from_efeature_key_list(jira, 'creq_apollo_lake.txt')
+
+    jql = """project = AREQ and issuetype = Feature and "Android Version(s)" in (N, N-MR0, N-MR1, N-MR2) and "Android Version(s)" != O and  status not in (Rejected, Deprecated)"""
+    add_dessert(jira, jql, "O")
+    #create_from_efeature_key_list(jira, 'creq_apollo_lake.txt')
