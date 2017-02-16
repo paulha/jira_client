@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
-### TODO : project = CREQ AND issuetype = Feature 
-
 from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 from jirafields import make_field_lookup
 
-PROJECT = 'CREQ'
-
-ASSIGNEE = 'arocchia'
-VAL_LEAD = 'arocchia'
-AND_VER = "4.4"
-NEW_PLATFORM = 'Apollo Lake'
+#PROJECT = 'AREQ'
+#ISSUETYPE = 'E-Feature'
+#ASSIGNEE = ''
+#VAL_LEAD = 'wilcoxjx'
+AND_VER = "O"
+#PLATFORM = 'Broxton-P IVI"'
+droid_ver_id = 'customfield_10811'
 
 def create_from_jql(j):
     i = 0
@@ -112,6 +111,7 @@ def add_dessert(j, jql, dessert):
     fl = make_field_lookup(j)
     and_vers_key = fl.reverse('Android Version(s)')
 
+
     for issue in jql_issue_gen(jql, j, count_change_ok=True):
         print issue.key
         add_value_to_list(issue, and_vers_key, 'O')
@@ -119,11 +119,41 @@ def add_dessert(j, jql, dessert):
 
     print "Updated {} issues".format(update_count)
 
+def clone_efeature_add_dessert(j, jql, dessert):
+    update_count = 0
+    fl = make_field_lookup(j)
+    print "JQL: " + jql
+    val_lead_key = fl.reverse('Validation Lead')
+    and_vers_key = fl.reverse('Android Version(s)')
+    platprog_key = fl.reverse('Platform/Program')
 
+    for issue in jql_issue_gen(jql, j, count_change_ok=True):
+        print issue.key
+        print issue.fields.parent.key
+        print issue.fields.summary
+        parent_platform = getattr(issue.fields, 'customfield_13603')[0].value
+        print parent_platform
+        new_efeature_dict = {
+                'project': {'key': issue.fields.project.key},
+                'parent': {'key': issue.fields.parent.key},
+                #'status': issue.fields.status.name,
+                'summary': issue.fields.summary,
+                'issuetype': {'name': 'E-Feature'},
+                'assignee': {'name': issue.fields.assignee.name},
+                and_vers_key: [{'value': 'O'}],
+                platprog_key: [{'value': parent_platform}]
+        }
+        
+        efeature = jira.create_issue(fields=new_efeature_dict) 
+        update_count += 1
+
+    print "Updated {} issues".format(update_count)
 
 if __name__ == "__main__":
     jira = init_jira()
-
-    jql = """project = AREQ and issuetype = Feature and "Android Version(s)" in (N, N-MR0, N-MR1, N-MR2) and "Android Version(s)" != O and  status not in (Rejected, Deprecated)"""
-    add_dessert(jira, jql, "O")
+    jql = """project = AREQ AND issuetype = E-Feature AND status in ("In Progress") AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") AND Source ~ IOTG-TSD"""
+    clone_efeature_add_dessert(jira, jql, "O")
+    #new_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI")"""
+    #old_jql = """project = AREQ and issuetype = Feature and "Android Version(s)" in (N, N-MR0, N-MR1, N-MR2) and "Android Version(s)" != O and  status not in (Rejected, Deprecated)"""
+    #add_dessert(jira, jql, "O")
     #create_from_efeature_key_list(jira, 'creq_apollo_lake.txt')
