@@ -123,28 +123,21 @@ def add_dessert(j, jql, dessert):
 def clone_efeature_add_dessert(j, jql, dessert, plist):
     update_count = 0
     fl = make_field_lookup(j)
-    print "JQL: " + jql
     val_lead_key = fl.reverse('Validation Lead')
     and_vers_key = fl.reverse('Android Version(s)')
     platprog_key = fl.reverse('Platform/Program')
 
     for issue in jql_issue_gen(jql, j, count_change_ok=True):
-        print issue.key
-        this_issue_prio = [{'issue_id': issue.key, 'name': issue.fields.priority.name, 'id': issue.fields.priority.id}]
+        print "Cloning " + issue.key
+        this_issue_prio = [{'issue_id': issue.key, 'name': issue.fields.priority.name, 'id': issue.fields.priority.id}] #capture priority info for csv export
         plist += this_issue_prio
-        print issue.fields.priority.name
-        print issue.fields.status.name
-        print issue.fields.parent.key
-        print issue.fields.summary
-        parent_platform = getattr(issue.fields, 'customfield_13603')[0].value
-        print parent_platform
+        parent_platform = getattr(issue.fields, 'customfield_13603')[0].value #customfield_13603 is Platform/Program
         new_efeature_dict = {
                 'project': {'key': issue.fields.project.key},
                 'parent': {'key': issue.fields.parent.key},
                 'summary': issue.fields.summary,
                 'issuetype': {'name': 'E-Feature'},
                 'assignee': {'name': issue.fields.assignee.name},
-# DOES NOT WORK prio_key: issue.fields.priority.id,
                 and_vers_key: [{'value': 'O'}],
                 platprog_key: [{'value': parent_platform}]
         }
@@ -164,12 +157,9 @@ if __name__ == "__main__":
     test_jql = """project = AREQ AND (key = 'AREQ-22363' OR key = 'AREQ-22369')"""
     
     jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
+    
     prio_list = clone_efeature_add_dessert(jira, test_jql, "O", prio_list)
-    with open("priority_list_O-dess_AREQ.csv",'wb') as resultFile:
+    with open("test00.csv",'wb') as resultFile:
         writer = csv.writer(resultFile, dialect='excel')
         writer.writerows([prio_list])
 
-    #new_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI")"""
-    #old_jql = """project = AREQ and issuetype = Feature and "Android Version(s)" in (N, N-MR0, N-MR1, N-MR2) and "Android Version(s)" != O and  status not in (Rejected, Deprecated)"""
-    #add_dessert(jira, jql, "O")
-    #create_from_efeature_key_list(jira, 'creq_apollo_lake.txt')
