@@ -132,6 +132,20 @@ def clone_efeature_add_dessert(j, jql, dessert, plist):
         this_issue_prio = [{'issue_id': issue.key, 'name': issue.fields.priority.name, 'id': issue.fields.priority.id}] #capture priority info for csv export
         plist += this_issue_prio
         parent_platform = getattr(issue.fields, 'customfield_13603')[0].value #customfield_13603 is Platform/Program
+        print parent_platform
+        # check parent for O-dess subtasks
+        parent_key = issue.fields.parent.key
+        print parent_key
+        
+                                                                                                                        
+        query = "key = %s"%parent_key                                                                       
+                                                                                                                        
+        issues = j.search_issues(query, 0)                                                                
+        for issue in issues:
+            print issue.fields.subtasks                                                                                                                     
+
+            break
+        break
         new_efeature_dict = {
                 'project': {'key': issue.fields.project.key},
                 'parent': {'key': issue.fields.parent.key},
@@ -154,7 +168,7 @@ def clone_efeature_add_dessert(j, jql, dessert, plist):
 if __name__ == "__main__":
     jira = init_jira()
     prio_list = []
-    test_jql = """project = AREQ AND (key = 'AREQ-22363' OR key = 'AREQ-22369')"""
+    test_jql = """key = AREQ-22378"""
     
     jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
     
