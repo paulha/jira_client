@@ -128,44 +128,42 @@ def clone_efeature_add_dessert(j, jql, dessert, plist):
     platprog_key = fl.reverse('Platform/Program')
 
     for issue in jql_issue_gen(jql, j, count_change_ok=True):
-        this_issue_prio = [{'issue_id': issue.key, 'name': issue.fields.priority.name, 'id': issue.fields.priority.id}] #capture priority info for csv export
-        plist += this_issue_prio
-        parent_platform = getattr(issue.fields, platprog_key)[0].value
+#        plist += this_issue_prio
+#        parent_platform = getattr(issue.fields, platprog_key)[0].value
+#        got_it = False
+
         # check parent for O-dess subtasks
-        parent_key = issue.fields.parent.key
-        print "parent %s has the following subtasks:"%parent_key
-        find_parent = "key = %s"%parent_key                                                                       
-        parent_feature = j.search_issues(find_parent, 0)[0]                                                                
+        find_parent = "key = %s"%parent_key
+        parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
         parent_subtasks = list(parent_feature.fields.subtasks)
-        dupe_list = []
-        for index, subtask in enumerate(parent_subtasks):
+#        dupe_list = []
+        for subtask in parent_subtasks:
             find_subtask_dessert = "key = %s"%subtask.key
             subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
             subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
-            print "e-feature: %s"%subtask_dessert_version
             if (subtask_dessert_version == "O"):
-                print "dupe found"
-                dupe_list.append(subtask_info.key)
-                # create dupe list
-        print "dupe checks completed"                                                                       
-        if dupe_list:
-            print "e-feature skipped"
-        else:    
+                this_issue_prio = [{'issue_id': issue.key, 'parent_id': issue.fields.parent.key, 'clone_id': subtask.key, 'pri_name': issue.fields.priority.name, 'pri_id': issue.fields.priority.id}]
+#                dupe_list.append(subtask_info.key)
+#                # create dupe list
+#        if dupe_list:
+#            print "already got %s"%issue.key
+#        else:    
 
-            new_efeature_dict = {
-                    'project': {'key': issue.fields.project.key},
-                    'parent': {'key': issue.fields.parent.key},
-                    'summary': issue.fields.summary,
-                    'issuetype': {'name': 'E-Feature'},
-                    'assignee': {'name': issue.fields.assignee.name},
-                    and_vers_key: [{'value': 'O'}],
-                    platprog_key: [{'value': parent_platform}]
-            }
-        
-            efeature = jira.create_issue(fields=new_efeature_dict) 
-            update_count += 1
+#        new_efeature_dict = {
+#            'project': {'key': issue.fields.project.key},
+#            'parent': {'key': issue.fields.parent.key},
+#            'summary': issue.fields.summary,
+#            'issuetype': {'name': 'E-Feature'},
+#            'assignee': {'name': issue.fields.assignee.name},
+#            and_vers_key: [{'value': 'O'}],
+#            platprog_key: [{'value': parent_platform}]
+#        }
 
-    print "Updated {} issues".format(update_count)
+#        print "creating new clone of %s"%issue.key
+#        efeature = jira.create_issue(fields=new_efeature_dict) 
+        update_count += 1
+        print update_count
+#    print "Updated {} issues".format(update_count)
     return plist
 
 if __name__ == "__main__":
@@ -174,9 +172,8 @@ if __name__ == "__main__":
     test_jql = """key = AREQ-22378 OR key = AREQ-22382"""
     jql = """project = AREQ AND assignee != 'mbergstr' AND assignee != 'bfradin' AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
     
-    
     prio_list = clone_efeature_add_dessert(jira, jql, "O", prio_list)
-    with open("pri_list.csv",'wb') as resultFile:
+    with open("parent_list.csv",'wb') as resultFile:
         writer = csv.writer(resultFile, dialect='excel')
-        writer.writerows([prio_list])
+        writer.writerows(prio_list)
 
