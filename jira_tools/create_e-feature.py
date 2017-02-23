@@ -172,8 +172,8 @@ if __name__ == "__main__":
     jira = init_jira()
     prio_list = []
     test_jql = """key = AREQ-22378 OR key = AREQ-22382"""
+    jql = """project = AREQ AND assignee != 'mbergstr' AND assignee != 'bfradin' AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
     
-    jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
     
     prio_list = clone_efeature_add_dessert(jira, jql, "O", prio_list)
     with open("pri_list.csv",'wb') as resultFile:
