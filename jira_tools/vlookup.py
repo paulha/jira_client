@@ -2,20 +2,25 @@
 
 import json
 from jira.client import JIRA
-import config
+from gojira import init_jira
 import sys
-
+import pyexcel as pe
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-jira = JIRA(config.options, config.basic_auth)
+# jira = JIRA(config.options, config.basic_auth)
 
 
 # (source, destination)
-areqs = [
-('PREQ-22152','PREQ-23770')
-]
+# areqs = [
+# ('PREQ-22152','PREQ-23770')
+# ]
+
+# import .xlsx file where first worksheet
+# areqs = pe.iget_records(file_name="vlookup.xlsx")
+
+
 
 def get_valid_transition(issue, transition_name):
     """Find Valid Transition for Issue"""
@@ -46,9 +51,13 @@ def update_status(source, destination):
     if (transition_id):
         transition_issue(destination, transition_id)
 
+def vlookup_data(map_file):
+    for preq in map_file:
+        # Print
+        print("GID %s matches N-dessert %s and O-dessert %s" % (preq['Global ID'], preq['O-dessert'], preq['N-dessert']))
+        continue
+    return 0
 
-for areq in areqs:
-    # Print
     print areq[0] + " -> " + areq[1]
     source = jira.issue(areq[0])
     destination = jira.issue(areq[1])
@@ -128,3 +137,12 @@ for areq in areqs:
 
     # Reject Source
     jira.transition_issue(source, 51)
+
+
+if __name__ == "__main__":
+#   jira = init_jira()
+#   import .xlsx file where first worksheet
+    preqs = pe.iget_records(file_name="vlookup.xlsx")
+    vlookup_data(preqs)
+    print "Operation complete."
+    
