@@ -54,7 +54,7 @@ def update_status(source, destination):
 def vlookup_data(jira, map_file):
     for preq in map_file:
         # Print
-        print("GID %s matches N-dessert %s and O-dessert %s" % (preq['Global ID'], preq['O-dessert'], preq['N-dessert']))
+        print("GID %s matches N-dessert %s and O-dessert %s" % (preq['Global ID'], preq['N-dessert'], preq['O-dessert']))
         source = jira.issue(preq['N-dessert'])
         destination = jira.issue(preq['O-dessert'])
         # Updated Fields
@@ -149,7 +149,11 @@ def vlookup_data(jira, map_file):
 if __name__ == "__main__":
     jira = init_jira()
 #   import .xlsx file where first worksheet is A1=Global ID, B1=N-dessert, C1=O-dessert
-    preqs = pe.iget_records(file_name="vlookup_test.xlsx")
+
+###
+    sys.exit("edit line 157 in this file and then uncomment it to run .xlsx-based PREQ change script")
+# Rename the file input in the below iget_records function arg
+# TODO make script take file input given as python arg during call
+    preqs = pe.iget_records(file_name="vlookup.xlsx")
     changes_made = vlookup_data(jira, preqs)
-    print "Operation complete. %d changes made."%changes_made
     
