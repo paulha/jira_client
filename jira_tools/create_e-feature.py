@@ -175,7 +175,7 @@ def mycsv_reader(csv_reader):
         continue 
     return
   
-def change_priority_by_id(j, q, v):
+def change_priority_by_id(j, q):
     update_count = 0
 #    for k,v in d.items():
 #        update_priority_dict = {
@@ -185,12 +185,21 @@ def change_priority_by_id(j, q, v):
 #        }
 #        jira.create_issue(fields=update_priority_dict)
 #        print(update_priority_dict)
-    
-        issue = jira.issue(k)
-        issue.update(fields={"priority": v})
-        print("Updated %s"%k)
+    results = j.search_issues(q,0)
+    target_subtasks = []
+    for issue in results:
+        parent_id = issue.fields.parent.key
+        parent_feature = j.search_issues("key=%s"%parent_id, 0)[0]
+        parent_subtasks += parent_feature.fields.subtasks
+        for subtask in parent_subtasks:
+            find_subtask_dessert = "key = %s"%subtask.key
+            subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
+            subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
+            if (subtask_dessert_version == "O"):
+
+
+
         update_count += 1
-        break
 
     return update_count
 
@@ -199,6 +208,10 @@ if __name__ == "__main__":
 #    sibs_list = []
 #    csv_in_list = []
     test_jql = """key = AREQ-18873"""
+#    jql = """project = AREQ AND assignee != 'mbergstr' AND assignee != 'bfradin' AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
+#    ccb_jql = """project = AREQ AND issuetype = E-Feature AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") AND labels in (CCB_InProgress)"""
+#    sib_jql = """key in (AREQ-19472,AREQ-18872,AREQ-19294,AREQ-18909,AREQ-19075,AREQ-19079,AREQ-19091,AREQ-19496,AREQ-19095,AREQ-19103,AREQ-19108,AREQ-19111,AREQ-19115,AREQ-19131,AREQ-19133,AREQ-19168,AREQ-19178,AREQ-19182,AREQ-19187,AREQ-19194,AREQ-19204,AREQ-19205,AREQ-19224,AREQ-19226)"""
+#    blocked_jql = """key in (PREQ-20263,PREQ-20255,PREQ-19860,PREQ-19811,PREQ-20434,PREQ-19690)"""
 #    jql = """project = AREQ AND assignee != 'mbergstr' AND assignee != 'bfradin' AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
 #    ccb_jql = """project = AREQ AND issuetype = E-Feature AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") AND labels in (CCB_InProgress)"""
 #    sib_jql = """key in (AREQ-19472,AREQ-18872,AREQ-19294,AREQ-18909,AREQ-19075,AREQ-19079,AREQ-19091,AREQ-19496,AREQ-19095,AREQ-19103,AREQ-19108,AREQ-19111,AREQ-19115,AREQ-19131,AREQ-19133,AREQ-19168,AREQ-19178,AREQ-19182,AREQ-19187,AREQ-19194,AREQ-19204,AREQ-19205,AREQ-19224,AREQ-19226)"""
@@ -230,6 +243,6 @@ if __name__ == "__main__":
 #    with open('formatted_pri_list.csv', 'rU') as f:
 #        reader = csv.reader(f, dialect=csv.excel_tab)
 #        csv_in_list = list(reader)
-    completed = change_priority_by_id(jira, test_jql, 'O')
+    completed = change_priority_by_id(jira, test_jql)
     print "updated %d rows"%completed
 
