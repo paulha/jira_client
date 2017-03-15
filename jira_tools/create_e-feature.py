@@ -190,12 +190,13 @@ def change_priority_by_id(j, q):
     for issue in results:
         parent_id = issue.fields.parent.key
         parent_feature = j.search_issues("key=%s"%parent_id, 0)[0]
-        parent_subtasks += parent_feature.fields.subtasks
-        for subtask in parent_subtasks:
+        parent_subtask_keys = list(parent_feature.fields.subtasks)
+        for subtask in parent_subtask_keys:
             find_subtask_dessert = "key = %s"%subtask.key
             subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
             subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
             if (subtask_dessert_version == "O"):
+                target_subtasks
 
 
 
