@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 import csv
 
 from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
@@ -164,16 +164,72 @@ def clone_efeature_add_dessert(j, jql, inner_list):
     print "Updated {} issues".format(update_count)
     return inner_list
 
+def mycsv_reader(csv_reader): 
+    while True: 
+        try: 
+            yield next(csv_reader) 
+        except csv.Error: 
+            # error handling what you want.
+            print("error caught inside csv reader.")
+            pass
+        continue 
+    return
+  
+def change_priority_by_id(j, q, v):
+    update_count = 0
+#    for k,v in d.items():
+#        update_priority_dict = {
+#            'key': k,
+#            'project': 'AREQ',
+#            'priority': v
+#        }
+#        jira.create_issue(fields=update_priority_dict)
+#        print(update_priority_dict)
+    
+        issue = jira.issue(k)
+        issue.update(fields={"priority": v})
+        print("Updated %s"%k)
+        update_count += 1
+        break
+
+    return update_count
+
 if __name__ == "__main__":
     jira = init_jira()
-    sibs_list = []
-    test_jql = """key = AREQ-22378 OR key = AREQ-22382"""
-    jql = """project = AREQ AND assignee != 'mbergstr' AND assignee != 'bfradin' AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
-    ccb_jql = """project = AREQ AND issuetype = E-Feature AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") AND labels in (CCB_InProgress)"""
-    sib_jql = """key in (AREQ-19472,AREQ-18872,AREQ-19294,AREQ-18909,AREQ-19075,AREQ-19079,AREQ-19091,AREQ-19496,AREQ-19095,AREQ-19103,AREQ-19108,AREQ-19111,AREQ-19115,AREQ-19131,AREQ-19133,AREQ-19168,AREQ-19178,AREQ-19182,AREQ-19187,AREQ-19194,AREQ-19204,AREQ-19205,AREQ-19224,AREQ-19226)"""
+#    sibs_list = []
+#    csv_in_list = []
+    test_jql = """key = AREQ-18873"""
+#    jql = """project = AREQ AND assignee != 'mbergstr' AND assignee != 'bfradin' AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
+#    ccb_jql = """project = AREQ AND issuetype = E-Feature AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") AND labels in (CCB_InProgress)"""
+#    sib_jql = """key in (AREQ-19472,AREQ-18872,AREQ-19294,AREQ-18909,AREQ-19075,AREQ-19079,AREQ-19091,AREQ-19496,AREQ-19095,AREQ-19103,AREQ-19108,AREQ-19111,AREQ-19115,AREQ-19131,AREQ-19133,AREQ-19168,AREQ-19178,AREQ-19182,AREQ-19187,AREQ-19194,AREQ-19204,AREQ-19205,AREQ-19224,AREQ-19226)"""
 #    blocked_jql = """key in (PREQ-20263,PREQ-20255,PREQ-19860,PREQ-19811,PREQ-20434,PREQ-19690)"""
 #    print_list = clone_efeature_add_dessert(jira, blocked_jql, sibs_list)
-#    with open("blocked_list_27feb20171408.csv",'wb') as resultFile:
-#        writer = csv.writer(resultFile, dialect='excel')
-#        writer.writerows([print_list])
+
+#    colnames = ['id', 'priority']
+#    data = pandas.read_csv('formatted_pri_list.csv', names=colnames)
+#    prilist = data.priority.tolist()
+#    idlist = data.id.tolist()
+#    for i in idlist:
+#        prilist[i].append(idlist[i])
+#    print (prilist)
+
+#    with open('formatted_pri_list.csv', 'rU') as infile:
+#        reader = csv.reader(infile)
+#        mydict = dict(reader)
+# open the file in universal line ending mode 
+#    with open('formatted_pri_list.csv', 'rU') as infile:
+        # read the file as a dictionary for each row ({header : value})
+#        reader = csv.DictReader(infile)
+#        csv_data = {}
+#        for row in reader:
+#            for header, value in row.items():
+#                try:
+#                    csv_data[header].append(value)
+#                except KeyError:
+#                    csv_data[header] = [value]
+#    with open('formatted_pri_list.csv', 'rU') as f:
+#        reader = csv.reader(f, dialect=csv.excel_tab)
+#        csv_in_list = list(reader)
+    completed = change_priority_by_id(jira, test_jql, 'O')
+    print "updated %d rows"%completed
 
