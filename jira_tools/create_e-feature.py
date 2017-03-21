@@ -135,18 +135,18 @@ def clone_efeature_add_dessert(j, jql, inner_list):
         parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
         parent_subtasks = list(parent_feature.fields.subtasks)
 
-#        dupe_list = []
-#        for subtask in parent_subtasks:
-#            find_subtask_dessert = "key = %s"%subtask.key
-#            subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
-#            subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
-#            if (subtask_dessert_version == "O"):
-#                this_issue_prio = [{'issue_id': issue.key, 'parent_id': issue.fields.parent.key, 'clone_id': subtask.key, 'pri_name': issue.fields.priority.name, 'pri_id': issue.fields.priority.id}]
-#                dupe_list.append(subtask_info.key)
-#                # create dupe list
-#        if dupe_list:
-#            print "already got %s"%issue.key
-#        else:    
+        dupe_list = []
+        for subtask in parent_subtasks:
+            find_subtask_dessert = "key = %s"%subtask.key
+            subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
+            subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
+            if (subtask_dessert_version == "O"):
+                this_issue_prio = [{'issue_id': issue.key, 'parent_id': issue.fields.parent.key, 'clone_id': subtask.key, 'pri_name': issue.fields.priority.name, 'pri_id': issue.fields.priority.id}]
+                dupe_list.append(subtask_info.key)
+                # create dupe list
+        if dupe_list:
+            print "already got %s"%issue.key
+        else:    
 
         new_efeature_dict = {
             'project': {'key': issue.fields.project.key},
