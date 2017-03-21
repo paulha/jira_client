@@ -209,7 +209,7 @@ if __name__ == "__main__":
 #    sibs_list = []
 #    csv_in_list = []
     test_jql = """key = AREQ-18873"""
-#    jql = """project = AREQ AND assignee != 'mbergstr' AND assignee != 'bfradin' AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
+    amy_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
 #    ccb_jql = """project = AREQ AND issuetype = E-Feature AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") AND labels in (CCB_InProgress)"""
 #    sib_jql = """key in (AREQ-19472,AREQ-18872,AREQ-19294,AREQ-18909,AREQ-19075,AREQ-19079,AREQ-19091,AREQ-19496,AREQ-19095,AREQ-19103,AREQ-19108,AREQ-19111,AREQ-19115,AREQ-19131,AREQ-19133,AREQ-19168,AREQ-19178,AREQ-19182,AREQ-19187,AREQ-19194,AREQ-19204,AREQ-19205,AREQ-19224,AREQ-19226)"""
 #    blocked_jql = """key in (PREQ-20263,PREQ-20255,PREQ-19860,PREQ-19811,PREQ-20434,PREQ-19690)"""
