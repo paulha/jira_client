@@ -120,7 +120,7 @@ def add_dessert(j, jql, dessert):
 
     print "Updated {} issues".format(update_count)
 
-def clone_efeature_add_dessert(j, jql, doing_list, parent_platform, target_dessert):
+def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_dessert, unassign_new):
     update_count = 0
     fl = make_field_lookup(j)
     val_lead_key = fl.reverse('Validation Lead')
@@ -131,14 +131,19 @@ def clone_efeature_add_dessert(j, jql, doing_list, parent_platform, target_desse
     for issue in jql_issue_gen(jql, j, count_change_ok=True):
         # TODO set up more logging
         # TODO set up more error handling for things like inactive users
+        # TODO encapsulate in such a way that in the future this script should have separate functions to support:
+        # * same platform, new dessert
+        # * same dessert, new platform
+        # current flow is: start with source child -> get to parent by ID -> get parent metadata and cut new e-feature into new platform
         
         # capture some info from each issue as it gets iterated over
-        doing_list += [{'issue_id': issue.key, 'summary': issue.fields.summary}]
+        parent_key = issue.fields.parent.key
+        doing_list += [{'parent': parent_key, 'source_child': issue.key, 'summary': issue.fields.summary}]
 
-        # set platform for the new e-features
+        # the new e-features should hit this as TRUE if the AREQ requester defined this as an SD;NP: request
         if parent_platform:
             child_platform = parent_platform
-        else:
+        else: # new e-features should hit this as FALSE if the AREQ requester defined this as an SP;ND: request
             child_platform = getattr(issue.fields, platprog_key)[0].value
 
         # set the assignee
@@ -146,25 +151,26 @@ def clone_efeature_add_dessert(j, jql, doing_list, parent_platform, target_desse
             target_assign = "Unassigned"
         else:
             target_assign = issue.fields.assignee.name
-        # NAV the parent sub-structure
-        # current flow is: start with child A -> get to parent by ID -> get parent metadata and single out list of sub-tasks -> iterate over subs list and lookup android version
-        parent_key = issue.fields.parent.key
-        find_parent = "key = %s"%parent_key
-        parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
-        parent_subtasks = list(parent_feature.fields.subtasks)
+        
+        if target_dessert: ### TODO NOT WORKING TODO NOT WORKING TODO ###
+            # if a new dessert letter is passed, navigate the parent subtask-list for each source child's parent
+            find_parent = "key = %s"%parent_key
+            parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
+            parent_subtasks = list(parent_feature.fields.subtasks)
 
-        dupe_list = []
-        for subtask in parent_subtasks:
-            find_subtask_dessert = "key = %s"%subtask.key
-            subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
-            subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
-            if (subtask_dessert_version == "O"):
-                this_issue_prio = [{'issue_id': issue.key, 'parent_id': issue.fields.parent.key, 'clone_id': subtask.key, 'pri_name': issue.fields.priority.name, 'pri_id': issue.fields.priority.id}]
-                dupe_list.append(subtask_info.key)
-                # create dupe list
-        if dupe_list:
-            print "already got %s"%issue.key
-        else:    
+            dupe_list = []
+            for subtask in parent_subtasks:
+                find_subtask_dessert = "key = %s"%subtask.key
+                subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
+                subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
+                if (subtask_dessert_version == "O"):
+                    this_issue_prio = [{'issue_id': issue.key, 'parent_id': issue.fields.parent.key, 'clone_id': subtask.key, 'pri_name': issue.fields.priority.name, 'pri_id': issue.fields.priority.id}]
+                    dupe_list.append(subtask_info.key)
+                    # create dupe list
+            if dupe_list:
+                doing_list += [{'source_id': issue.key, 'summary': 'dupe;no-clone'}]
+                print "already got %s"%issue.key
+        else: ### TODO ALL SHOULD CURRENTLY GO THIS ROUTE AS OF 21MAR2017 TODO ###
 
         new_efeature_dict = {
             'project': {'key': issue.fields.project.key},
@@ -178,6 +184,7 @@ def clone_efeature_add_dessert(j, jql, doing_list, parent_platform, target_desse
 
         print "creating new clone of %s"%issue.key
         efeature = jira.create_issue(fields=new_efeature_dict) 
+        print efeature.key
         update_count += 1
     print "Updated {} issues".format(update_count)
     return doing_list
@@ -224,11 +231,22 @@ def change_priority_by_id(j, q):
 
 if __name__ == "__main__":
     jira = init_jira()
-#    test_jql = """key = AREQ-18873"""
+    test_jql = """key = AREQ-18873"""
     done_list = []
-    parent_platform = ""
+
+    # SDNP = same dessert; new platform / SPND = same platform; new dessert
+    # set this according to AREQ request
+    SDNP = True
+    SPND = False
+    if SDNP:
+        target_platform = "Icelake-U SDC"
+        target_dessert = ""
+    else:
+        target_platform = ""
+        target_dessert = "O"
+
     amy_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
-    completed = clone_efeature_add_dessert(jira, amy_jql, done_list, parent_platform, target_dessert)
+    completed = clone_efeature_add_dessert(jira, amy_jql, done_list, target_platform, target_dessert, True)
 
 #    colnames = ['id', 'priority']
 #    data = pandas.read_csv('formatted_pri_list.csv', names=colnames)
