@@ -120,16 +120,27 @@ def add_dessert(j, jql, dessert):
 
     print "Updated {} issues".format(update_count)
 
-def clone_efeature_add_dessert(j, jql, inner_list):
+def clone_efeature_add_dessert(j, jql, doing_list, parent_platform):
     update_count = 0
     fl = make_field_lookup(j)
     val_lead_key = fl.reverse('Validation Lead')
     and_vers_key = fl.reverse('Android Version(s)')
     platprog_key = fl.reverse('Platform/Program')
 
+    # get the initial list of source issues and iterate
     for issue in jql_issue_gen(jql, j, count_change_ok=True):
-        inner_list += [{'issue_id': issue.key, 'summary': issue.fields.summary}]
-        parent_platform = getattr(issue.fields, platprog_key)[0].value
+        # TODO set up more logging
+        # TODO set up more error handling for things like inactive users
+        
+        # capture some info from each issue as it gets iterated over
+        doing_list += [{'issue_id': issue.key, 'summary': issue.fields.summary}]
+
+        # set platform for the new e-features
+        if parent_platform:
+            child_platform = parent_platform
+        else:
+            child_platform = getattr(issue.fields, platprog_key)[0].value
+        # NAV the parent sub-structure
         parent_key = issue.fields.parent.key
         find_parent = "key = %s"%parent_key
         parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
@@ -162,7 +173,7 @@ def clone_efeature_add_dessert(j, jql, inner_list):
         efeature = jira.create_issue(fields=new_efeature_dict) 
         update_count += 1
     print "Updated {} issues".format(update_count)
-    return inner_list
+    return doing_list
 
 def mycsv_reader(csv_reader): 
     while True: 
@@ -206,18 +217,10 @@ def change_priority_by_id(j, q):
 
 if __name__ == "__main__":
     jira = init_jira()
-#    sibs_list = []
-#    csv_in_list = []
-    test_jql = """key = AREQ-18873"""
+#    test_jql = """key = AREQ-18873"""
+    done_list = []
     amy_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
-#    ccb_jql = """project = AREQ AND issuetype = E-Feature AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") AND labels in (CCB_InProgress)"""
-#    sib_jql = """key in (AREQ-19472,AREQ-18872,AREQ-19294,AREQ-18909,AREQ-19075,AREQ-19079,AREQ-19091,AREQ-19496,AREQ-19095,AREQ-19103,AREQ-19108,AREQ-19111,AREQ-19115,AREQ-19131,AREQ-19133,AREQ-19168,AREQ-19178,AREQ-19182,AREQ-19187,AREQ-19194,AREQ-19204,AREQ-19205,AREQ-19224,AREQ-19226)"""
-#    blocked_jql = """key in (PREQ-20263,PREQ-20255,PREQ-19860,PREQ-19811,PREQ-20434,PREQ-19690)"""
-#    jql = """project = AREQ AND assignee != 'mbergstr' AND assignee != 'bfradin' AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged) AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
-#    ccb_jql = """project = AREQ AND issuetype = E-Feature AND "Android Version(s)" in (N) AND "Platform/Program" in ("Broxton-P IVI") AND labels in (CCB_InProgress)"""
-#    sib_jql = """key in (AREQ-19472,AREQ-18872,AREQ-19294,AREQ-18909,AREQ-19075,AREQ-19079,AREQ-19091,AREQ-19496,AREQ-19095,AREQ-19103,AREQ-19108,AREQ-19111,AREQ-19115,AREQ-19131,AREQ-19133,AREQ-19168,AREQ-19178,AREQ-19182,AREQ-19187,AREQ-19194,AREQ-19204,AREQ-19205,AREQ-19224,AREQ-19226)"""
-#    blocked_jql = """key in (PREQ-20263,PREQ-20255,PREQ-19860,PREQ-19811,PREQ-20434,PREQ-19690)"""
-#    print_list = clone_efeature_add_dessert(jira, blocked_jql, sibs_list)
+    completed = clone_efeature_add_dessert(jira, amy_jql, done_list)
 
 #    colnames = ['id', 'priority']
 #    data = pandas.read_csv('formatted_pri_list.csv', names=colnames)
@@ -244,6 +247,6 @@ if __name__ == "__main__":
 #    with open('formatted_pri_list.csv', 'rU') as f:
 #        reader = csv.reader(f, dialect=csv.excel_tab)
 #        csv_in_list = list(reader)
-    completed = change_priority_by_id(jira, test_jql)
+#    completed = change_priority_by_id(jira, test_jql)
     print "updated %d rows"%completed
 
