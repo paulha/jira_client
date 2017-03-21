@@ -120,7 +120,7 @@ def add_dessert(j, jql, dessert):
 
     print "Updated {} issues".format(update_count)
 
-def clone_efeature_add_dessert(j, jql, doing_list, parent_platform):
+def clone_efeature_add_dessert(j, jql, doing_list, parent_platform, target_dessert):
     update_count = 0
     fl = make_field_lookup(j)
     val_lead_key = fl.reverse('Validation Lead')
@@ -140,7 +140,14 @@ def clone_efeature_add_dessert(j, jql, doing_list, parent_platform):
             child_platform = parent_platform
         else:
             child_platform = getattr(issue.fields, platprog_key)[0].value
+
+        # set the assignee
+        if unassign_new:
+            target_assign = "Unassigned"
+        else:
+            target_assign = issue.fields.assignee.name
         # NAV the parent sub-structure
+        # current flow is: start with child A -> get to parent by ID -> get parent metadata and single out list of sub-tasks -> iterate over subs list and lookup android version
         parent_key = issue.fields.parent.key
         find_parent = "key = %s"%parent_key
         parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
@@ -164,9 +171,9 @@ def clone_efeature_add_dessert(j, jql, doing_list, parent_platform):
             'parent': {'key': issue.fields.parent.key},
             'summary': issue.fields.summary,
             'issuetype': {'name': 'E-Feature'},
-            'assignee': {'name': issue.fields.assignee.name},
-            and_vers_key: [{'value': 'O'}],
-            platprog_key: [{'value': parent_platform}]
+            'assignee': {'name': target_assign},
+            and_vers_key: [{'value': target_dessert}],
+            platprog_key: [{'value': child_platform}]
         }
 
         print "creating new clone of %s"%issue.key
@@ -219,8 +226,9 @@ if __name__ == "__main__":
     jira = init_jira()
 #    test_jql = """key = AREQ-18873"""
     done_list = []
+    parent_platform = ""
     amy_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
-    completed = clone_efeature_add_dessert(jira, amy_jql, done_list)
+    completed = clone_efeature_add_dessert(jira, amy_jql, done_list, parent_platform, target_dessert)
 
 #    colnames = ['id', 'priority']
 #    data = pandas.read_csv('formatted_pri_list.csv', names=colnames)
