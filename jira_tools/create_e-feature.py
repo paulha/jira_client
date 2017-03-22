@@ -1,7 +1,14 @@
 import argparse
 import csv
+import sys
 from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 from jirafields import make_field_lookup
+
+import logging
+# TODO currently have to set new log file name each time
+# make so that it uses issue key to name the file + timestamp
+LOG_FILENAME = 'AREQ-22968.log'
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 
 #AND_VER = "O"
 #PLATFORM = 'Broxton-P IVI"'
@@ -144,28 +151,31 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
 
             # set the assignee
             if unassign_new:
-                target_assign = "Unassigned"
+                target_assign = ""
             else:
                 target_assign = issue.fields.assignee.name
         
-            if target_dessert: ### TODO NOT WORKING TODO NOT WORKING TODO ###
-                # if a new dessert letter is passed, navigate the parent subtask-list for each source child's parent
-                find_parent = "key = %s"%parent_key
-                parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
-                parent_subtasks = list(parent_feature.fields.subtasks)
+#            if target_dessert: ### TODO NOT WORKING TODO NOT WORKING TODO ###
+#                # if a new dessert letter is passed, navigate the parent subtask-list for each source child's parent
+#                find_parent = "key = %s"%parent_key
+#                parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
+#                parent_subtasks = list(parent_feature.fields.subtasks)
+#
+#                dupe_list = []
+#                for subtask in parent_subtasks:
+#                    find_subtask_dessert = "key = %s"%subtask.key
+#                    subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
+#                    subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
+#                    if (subtask_dessert_version == "O"):
+#                        this_issue_prio = [{'issue_id': issue.key, 'parent_id': issue.fields.parent.key, 'clone_id': subtask.key, 'pri_name': issue.fields.priority.name, 'pri_id': issue.fields.priority.id}]
+#                        dupe_list.append(subtask_info.key)
+#                        # create dupe list
+#                if dupe_list:
+#                    doing_list += [{'source_id': issue.key, 'summary': 'dupe;no-clone'}]
+#                    print "already got %s"%issue.key
 
-                dupe_list = []
-                for subtask in parent_subtasks:
-                    find_subtask_dessert = "key = %s"%subtask.key
-                    subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
-                    subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
-                    if (subtask_dessert_version == "O"):
-                        this_issue_prio = [{'issue_id': issue.key, 'parent_id': issue.fields.parent.key, 'clone_id': subtask.key, 'pri_name': issue.fields.priority.name, 'pri_id': issue.fields.priority.id}]
-                        dupe_list.append(subtask_info.key)
-                        # create dupe list
-                if dupe_list:
-                    doing_list += [{'source_id': issue.key, 'summary': 'dupe;no-clone'}]
-                    print "already got %s"%issue.key
+            if False:
+                print "impossibru!"
             else: ### TODO ALL SHOULD CURRENTLY GO THIS ROUTE AS OF 21MAR2017 TODO ###
                 new_efeature_dict = {
                     'project': {'key': issue.fields.project.key},
@@ -180,8 +190,10 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
             print "creating new clone of %s"%issue.key
             efeature = jira.create_issue(fields=new_efeature_dict) 
             update_count += 1
-        except BaseException:
-            print('cloning process halted and caught fire on issue %s'%issue.key)
+        except:
+            logging.exception('cloning process halted and caught fire on issue %s'%issue.key)
+            doing_list += [{'error_issue': issue.key, 'error_text': sys.exc_info()[0]}]
+            print "caught exception while cloning %s"%issue.key
             return doing_list
  
     print "Updated {} issues".format(update_count)
@@ -210,8 +222,9 @@ if __name__ == "__main__":
 
     amy_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
     completed = clone_efeature_add_dessert(jira, test_jql, done_list, target_platform, target_dessert, True)
-
-    thefile = open('test.txt', 'w')
+    filename = "test.txt"
+    thefile = open('%s'%filename, 'w')
     for item in completed:
         thefile.write("%s\n" % item)
+    print "completion file written in this dir as %s"%filename
 
