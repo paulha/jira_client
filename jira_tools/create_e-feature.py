@@ -7,7 +7,7 @@ from jirafields import make_field_lookup
 import logging
 # TODO currently have to set new log file name each time
 # make so that it uses issue key to name the file + timestamp
-LOG_FILENAME = 'AREQ-22968.log'
+LOG_FILENAME = "AREQ-22968_22MAR0231.log"
 logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 
 #AND_VER = "O"
@@ -221,8 +221,8 @@ if __name__ == "__main__":
         target_dessert = "O"
 
     amy_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
-    completed = clone_efeature_add_dessert(jira, test_jql, done_list, target_platform, target_dessert, True)
-    filename = "test.txt"
+    completed = clone_efeature_add_dessert(jira, amy_jql, done_list, target_platform, target_dessert, True)
+    filename = "AREQ-22968_22MAR0231.txt"
     thefile = open('%s'%filename, 'w')
     for item in completed:
         thefile.write("%s\n" % item)
