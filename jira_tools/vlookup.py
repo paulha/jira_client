@@ -12,11 +12,10 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 # jira = JIRA(config.options, config.basic_auth)
 
 
-# (source, destination)
-# areqs = [
-# ('PREQ-22152','PREQ-23770')
-# ]
-
+reqs = [
+('PREQ-23802','PREQ-24922'),
+('PREQ-24319', 'PREQ-24703')
+]
 # import .xlsx file where first worksheet
 # areqs = pe.iget_records(file_name="vlookup.xlsx")
 
@@ -151,7 +150,7 @@ if __name__ == "__main__":
 #   import .xlsx file where first worksheet is A1=Global ID, B1=N-dessert, C1=O-dessert
 
 ###
-    sys.exit("edit line 157 in this file and then uncomment it to run .xlsx-based PREQ change script")
+    sys.exit("edit line 156 in this file and then uncomment it to run .xlsx-based PREQ change script")
 # Rename the file input in the below iget_records function arg
 # TODO make script take file input given as python arg during call
     preqs = pe.iget_records(file_name="vlookup.xlsx")
