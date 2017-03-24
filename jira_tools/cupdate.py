@@ -35,7 +35,7 @@ def update_new_preq_component_from_old_preq(jira, old_preqs):
 if __name__ == "__main__":
     jira = init_jira()
 # TODO make script take file input given as python arg during call
-    preqs = pe.iget_records(file_name="staging.xlsx")
+    preqs = pe.iget_records(file_name="cupdate.xlsx")
     updates_made = update_new_preq_component_from_old_preq(jira, preqs)
     print "%s updates were made. Today was a good day."%updates_made
 
