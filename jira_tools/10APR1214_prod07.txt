@@ -1,0 +1,50 @@
+{'source_child': u'AREQ-17122', 'parent': u'AREQ-2433', 'summary': u'[N][Cherrytrail-T4] GMS - Calculator'}
+{'source_child': u'AREQ-17123', 'parent': u'AREQ-2392', 'summary': u'[N][Cherrytrail-T4] GMS - Hindi IME'}
+{'source_child': u'AREQ-17124', 'parent': u'AREQ-13924', 'summary': u'[N][Cherrytrail-T4] GMS - Google Device Policy'}
+{'source_child': u'AREQ-17125', 'parent': u'AREQ-9876', 'summary': u'[N][Cherrytrail-T4] GMS - JapaneseIME '}
+{'source_child': u'AREQ-17127', 'parent': u'AREQ-586', 'summary': u'[N][Cherrytrail-T4] GMS - Play Store'}
+{'source_child': u'AREQ-17128', 'parent': u'AREQ-579', 'summary': u'[N][Cherrytrail-T4] GMS - Google Drive'}
+{'source_child': u'AREQ-17129', 'parent': u'AREQ-578', 'summary': u'[N][Cherrytrail-T4] GMS - Hangouts / Talk'}
+{'source_child': u'AREQ-17130', 'parent': u'AREQ-82', 'summary': u'[N][Cherrytrail-T4] GMS - YouTube'}
+{'source_child': u'AREQ-17131', 'parent': u'AREQ-130', 'summary': u'[N][Cherrytrail-T4] GMS - Search by Voice'}
+{'source_child': u'AREQ-17132', 'parent': u'AREQ-120', 'summary': u'[N][Cherrytrail-T4] GMS - Play Movies'}
+{'source_child': u'AREQ-17133', 'parent': u'AREQ-139', 'summary': u'[N][Cherrytrail-T4] GMS - TTS'}
+{'source_child': u'AREQ-17134', 'parent': u'AREQ-125', 'summary': u'[N][Cherrytrail-T4] GMS - Maps'}
+{'source_child': u'AREQ-17135', 'parent': u'AREQ-154', 'summary': u'[N][Cherrytrail-T4] GMS - Play Newsstand'}
+{'source_child': u'AREQ-17136', 'parent': u'AREQ-93', 'summary': u'[N][Cherrytrail-T4] GMS - Search'}
+{'source_child': u'AREQ-17138', 'parent': u'AREQ-142', 'summary': u'[N][Cherrytrail-T4] GMS - Google Now'}
+{'source_child': u'AREQ-17140', 'parent': u'AREQ-175', 'summary': u'[N][Cherrytrail-T4] GMS - Face Unlock'}
+{'source_child': u'AREQ-17142', 'parent': u'AREQ-166', 'summary': u'[N][Cherrytrail-T4] GMS - Chrome Browser'}
+{'source_child': u'AREQ-17143', 'parent': u'AREQ-157', 'summary': u'[N][Cherrytrail-T4] Core Apps - Settings'}
+{'source_child': u'AREQ-17144', 'parent': u'AREQ-636', 'summary': u'[N][Cherrytrail-T4] GMS - Latin IME'}
+{'source_child': u'AREQ-17145', 'parent': u'AREQ-635', 'summary': u'[N][Cherrytrail-T4] GMS - Korean IME'}
+{'source_child': u'AREQ-17146', 'parent': u'AREQ-637', 'summary': u'[N][Cherrytrail-T4] GMS - Pinyin IME'}
+{'source_child': u'AREQ-17149', 'parent': u'AREQ-1880', 'summary': u'[N][Cherrytrail-T4] GMS - Photos'}
+{'source_child': u'AREQ-17150', 'parent': u'AREQ-1737', 'summary': u'[N][Cherrytrail-T4] GMS - Desk Clock'}
+{'source_child': u'AREQ-17151', 'parent': u'AREQ-1736', 'summary': u'[N][Cherrytrail-T4] GMS - Calendar'}
+{'source_child': u'AREQ-17152', 'parent': u'AREQ-155', 'summary': u'[N][Cherrytrail-T4] GMS - TalkBack'}
+{'source_child': u'AREQ-17153', 'parent': u'AREQ-121', 'summary': u'[N][Cherrytrail-T4] Core Apps - Contacts'}
+{'source_child': u'AREQ-17154', 'parent': u'AREQ-173', 'summary': u'[N][Cherrytrail-T4] GMS - Gmail'}
+{'source_child': u'AREQ-17155', 'parent': u'AREQ-9884', 'summary': u'[N][Cherrytrail-T4] GMS - Bugle'}
+{'source_child': u'AREQ-17157', 'parent': u'AREQ-144', 'summary': u'[N][Cherrytrail-T4] GMS - Play Music'}
+{'source_child': u'AREQ-17267', 'parent': u'AREQ-2394', 'summary': u'[N][Cherrytrail-T4] BLE Filtering'}
+{'source_child': u'AREQ-17276', 'parent': u'AREQ-9902', 'summary': u'[N][Cherrytrail-T4] BLE GAP Observer'}
+{'source_child': u'AREQ-17279', 'parent': u'AREQ-9899', 'summary': u'[N][Cherrytrail-T4] BLE GAP Central'}
+{'source_child': u'AREQ-17280', 'parent': u'AREQ-10179', 'summary': u'[N][Cherrytrail-T4] Phone Book Access Profile (PBAP) v1.0'}
+{'source_child': u'AREQ-17283', 'parent': u'AREQ-66', 'summary': u'[N][Cherrytrail-T4] BT RFCOMM'}
+{'source_child': u'AREQ-17284', 'parent': u'AREQ-64', 'summary': u'[N][Cherrytrail-T4] BT Low Energy'}
+{'source_child': u'AREQ-17285', 'parent': u'AREQ-299', 'summary': u'[N][Cherrytrail-T4] BT Profile: PAN'}
+{'source_child': u'AREQ-17287', 'parent': u'AREQ-302', 'summary': u'[N][Cherrytrail-T4] BT Profile: GAP & device discoverability'}
+{'source_child': u'AREQ-17289', 'parent': u'AREQ-307', 'summary': u'[N][Cherrytrail-T4] BT Profile: A2DP'}
+{'source_child': u'AREQ-17290', 'parent': u'AREQ-306', 'summary': u'[N][Cherrytrail-T4] BT Profile: AVRCP 1.3'}
+{'source_child': u'AREQ-17291', 'parent': u'AREQ-300', 'summary': u'[N][Cherrytrail-T4] Bluetooth - HID over GATT'}
+{'source_child': u'AREQ-17292', 'parent': u'AREQ-628', 'summary': u'[N][Cherrytrail-T4] BT - SetPin and confirmation'}
+{'source_child': u'AREQ-17295', 'parent': u'AREQ-65', 'summary': u'[N][Cherrytrail-T4] BT Profile: HID'}
+{'source_child': u'AREQ-17305', 'parent': u'AREQ-11632', 'summary': u'[N][Cherrytrail-T4] Turn OFF Request'}
+{'source_child': u'AREQ-17319', 'parent': u'AREQ-313', 'summary': u'[N][Cherrytrail-T4] Chrome Browser - Playing games'}
+{'source_child': u'AREQ-17388', 'parent': u'AREQ-1918', 'summary': u'[N][Cherrytrail-T4] Display Dynamic Refresh Rate'}
+{'source_child': u'AREQ-17499', 'parent': u'AREQ-3030', 'summary': u'[N][Cherrytrail-T4] Full-disk Encryption'}
+{'source_child': u'AREQ-17540', 'parent': u'AREQ-3236', 'summary': u'[N][Cherrytrail-T4] Enable HS200 on GMin/IRDA'}
+{'source_child': u'AREQ-17666', 'parent': u'AREQ-179', 'summary': u'[N][Cherrytrail-T4] USB-Host'}
+{'source_child': u'AREQ-17725', 'parent': u'AREQ-4073', 'summary': u'[N][Cherrytrail-T4] Multicast DNS'}
+{'error_issue': u'AREQ-17725', 'error_text': <class 'jira.exceptions.JIRAError'>}

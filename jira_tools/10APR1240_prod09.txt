@@ -1,0 +1,8 @@
+{'source_child': u'AREQ-17748', 'parent': u'AREQ-5415', 'summary': u'[N][Cherrytrail-T4] IPv6'}
+{'source_child': u'AREQ-17749', 'parent': u'AREQ-379', 'summary': u'[N][Cherrytrail-T4] TDLS support for Casting'}
+{'source_child': u'AREQ-17750', 'parent': u'AREQ-505', 'summary': u'[N][Cherrytrail-T4] 802.11W Protection Management Frames'}
+{'source_child': u'AREQ-17751', 'parent': u'AREQ-321', 'summary': u'[N][Cherrytrail-T4] WiFi Security'}
+{'source_child': u'AREQ-17753', 'parent': u'AREQ-322', 'summary': u'[N][Cherrytrail-T4] Wi-Fi 802.11b/g/n'}
+{'source_child': u'AREQ-17754', 'parent': u'AREQ-317', 'summary': u'[N][Cherrytrail-T4] WiFi Protocols - WPS'}
+{'source_child': u'AREQ-17755', 'parent': u'AREQ-262', 'summary': u'[N][Cherrytrail-T4] Miracast - WiFi P2P Link'}
+{'source_child': u'AREQ-17756', 'parent': u'AREQ-629', 'summary': u'[N][Cherrytrail-T4] Tunneled Direct Link Setup (TDLS) Support'}

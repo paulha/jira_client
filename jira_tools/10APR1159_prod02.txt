@@ -1,0 +1,4 @@
+{'source_child': u'AREQ-17843', 'parent': u'AREQ-16265', 'summary': u'[N][Cherrytrail-T4] Multi-Window Support - Split-Screen Mode'}
+{'source_child': u'AREQ-17806', 'parent': u'AREQ-16286', 'summary': u'[N][Cherrytrail-T4] GMS - Setup Wizard for Gmail Integration'}
+{'source_child': u'AREQ-17756', 'parent': u'AREQ-629', 'summary': u'[N][Cherrytrail-T4] Tunneled Direct Link Setup (TDLS) Support'}
+{'error_issue': u'AREQ-17756', 'error_text': <class 'jira.exceptions.JIRAError'>}

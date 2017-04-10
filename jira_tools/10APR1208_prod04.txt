@@ -1,0 +1,1 @@
+{'error_issue': u'AREQ-11781', 'error_text': <type 'exceptions.AttributeError'>}
