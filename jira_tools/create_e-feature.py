@@ -128,6 +128,8 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
     val_lead_key = fl.reverse('Validation Lead')
     and_vers_key = fl.reverse('Android Version(s)')
     platprog_key = fl.reverse('Platform/Program')
+    exists_on = fl.reverse('Exists On')
+    print exists_on
 
     # get the initial list of source issues and iterate
     for issue in jql_issue_gen(jql, j, count_change_ok=True):
@@ -142,18 +144,16 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
             # capture some info from each issue as it gets iterated over
             parent_key = issue.fields.parent.key
             doing_list += [{'parent': parent_key, 'source_child': issue.key, 'summary': issue.fields.summary}]
-
             # the new e-features should hit this as TRUE if the AREQ requester defined this as an SD;NP: request
             if target_platform:
                 child_platform = target_platform
             else: # new e-features should hit this as FALSE if the AREQ requester defined this as an SP;ND: request
                 child_platform = getattr(issue.fields, platprog_key)[0].value
-
             # set the assignee
-            if unassign_new:
-                target_assign = ""
-            else:
-                target_assign = issue.fields.assignee.name
+#            if unassign_new:
+#                target_assign = ""
+#            else:
+            target_assign = issue.fields.assignee.name
         
 #            if target_dessert: ### TODO NOT WORKING TODO NOT WORKING TODO ###
 #                # if a new dessert letter is passed, navigate the parent subtask-list for each source child's parent
@@ -173,18 +173,22 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
 #                if dupe_list:
 #                    doing_list += [{'source_id': issue.key, 'summary': 'dupe;no-clone'}]
 #                    print "already got %s"%issue.key
+            print target_dessert
+	    if target_dessert == "":
+                print "assign dessert"
+                child_dessert = getattr(issue.fields, and_vers_key)[0].value
 
-            if False:
-                print "impossibru!"
-            else: ### TODO ALL SHOULD CURRENTLY GO THIS ROUTE AS OF 21MAR2017 TODO ###
+                
+            if True: ### TODO ALL SHOULD CURRENTLY GO THIS ROUTE AS OF 21MAR2017 TODO ###
                 new_efeature_dict = {
                     'project': {'key': issue.fields.project.key},
                     'parent': {'key': issue.fields.parent.key},
                     'summary': issue.fields.summary,
                     'issuetype': {'name': 'E-Feature'},
                     'assignee': {'name': target_assign},
-                    and_vers_key: [{'value': target_dessert}],
-                    platprog_key: [{'value': child_platform}]
+                    and_vers_key: [{'value': child_dessert}],
+                    platprog_key: [{'value': child_platform}],
+                    exists_on: [{'value': 'BXT-Joule'}]
                 }
             
             print "creating new clone of %s"%issue.key
@@ -215,14 +219,14 @@ if __name__ == "__main__":
     hasNewDessert = False
     if hasNewPlatform:
         target_platform = "Broxton"
-        target_dessert = "O" 
+        target_dessert = "" 
     if hasNewDessert:
         target_platform = ""
         target_dessert = "O"
     dustin_jql = """key in (AREQ-23610,AREQ-23710,AREQ-17305,AREQ-17310,AREQ-17319,AREQ-23544,AREQ-23615,AREQ-17388,AREQ-17843,AREQ-23683,NEW,AREQ-13988,AREQ-17499,AREQ-17990,AREQ-17540,AREQ-13946,AREQ-17666,AREQ-17986,AREQ-17957,AREQ-17756,AREQ-17755,AREQ-17754,AREQ-17753,AREQ-17751,AREQ-17750,AREQ-17749,AREQ-17748,AREQ-17747,AREQ-17746,AREQ-17743,AREQ-17730,AREQ-17729,AREQ-17728,AREQ-17727,AREQ-17726,AREQ-17725,AREQ-11787,AREQ-11781,AREQ-17267,AREQ-17276,AREQ-19649,AREQ-17279,AREQ-17280,AREQ-17283,AREQ-17284,AREQ-17285,AREQ-17287,AREQ-17289,AREQ-17290,AREQ-17291,AREQ-17292,AREQ-17295,AREQ-17122,AREQ-17123,AREQ-17124,AREQ-17125,AREQ-17127,AREQ-17128,AREQ-17129,AREQ-17130,AREQ-17131,AREQ-17132,AREQ-17133,AREQ-17134,AREQ-17135,AREQ-17136,AREQ-17138,AREQ-17140,AREQ-17142,AREQ-17143,AREQ-17144,AREQ-17145,AREQ-17146,AREQ-17149,AREQ-17150,AREQ-17151,AREQ-17152,AREQ-17964,AREQ-17153,AREQ-17154,AREQ-17155,AREQ-17157,AREQ-17806)"""
 #    amy_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
-    completed = clone_efeature_add_dessert(jira, test_jql, done_list, target_platform, target_dessert, True)
-    filename = "10APR1000.txt"
+    completed = clone_efeature_add_dessert(jira, dustin_jql, done_list, target_platform, target_dessert, True)
+    filename = "10APR1142_prod01.txt"
     thefile = open('%s'%filename, 'w')
     for item in completed:
         thefile.write("%s\n" % item)
