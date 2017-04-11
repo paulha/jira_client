@@ -129,7 +129,6 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
     and_vers_key = fl.reverse('Android Version(s)')
     platprog_key = fl.reverse('Platform/Program')
     exists_on = fl.reverse('Exists On')
-    print exists_on
 
     # get the initial list of source issues and iterate
     for issue in jql_issue_gen(jql, j, count_change_ok=True):
@@ -177,9 +176,7 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
 #                if dupe_list:
 #                    doing_list += [{'source_id': issue.key, 'summary': 'dupe;no-clone'}]
 #                    print "already got %s"%issue.key
-            print target_dessert
 	    if target_dessert == "":
-                print "assign dessert"
                 child_dessert = getattr(issue.fields, and_vers_key)[0].value
 
                 
@@ -207,6 +204,32 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
     print "Updated {} issues".format(update_count)
     return doing_list
 
+def compare_prios(j, jql, doing_list):
+    for issue in jql_issue_gen(jql, j, count_change_ok=True):
+        if doing_list:
+            print bxt_sub
+        try:
+            # capture some info from each issue as it gets iterated over
+            parent_key = issue.fields.parent.key
+            summary = issue.fields.summary
+            searchable = summary.split("]")
+            ssum = searchable[2].lstrip()
+            print ssum
+            find_parent = "key = %s"%parent_key
+            parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
+            parent_subtasks = list(parent_feature.fields.subtasks)
+            dupe_list = []
+            bxt_sub = j.search_issues("issuetype = E-Feature AND summary ~ '%s' AND \"Platform/Program\" = \"Broxton-P IVI\" AND \"Android Version(s)\" = N"%ssum, 0)[0]
+            print "subtask found for: %s"%bxt_sub.fields.summary
+            doing_list += [{'bxt-id': bxt_sub.key, 'bxt-pri': bxt_sub.fields.priority.name, 'icl-pri': issue.fields.priority.name, 'icl-id': issue.key}]
+
+        except:
+            print "no subtask found for: %s"%bxt_sub.fields.summary
+            doing_list += [{'no BXT match for this e-feature': issue.key}]
+#            return doing_list
+            continue
+    return doing_list
+
 if __name__ == "__main__":
     jira = init_jira()
     test_jql = """key = AREQ-23610"""
@@ -227,10 +250,11 @@ if __name__ == "__main__":
     if hasNewDessert:
         target_platform = ""
         target_dessert = "O"
-    dustin_jql = """key in (AREQ-17748,AREQ-17749,AREQ-17750,AREQ-17751,AREQ-17753,AREQ-17754,AREQ-17755,AREQ-17756) ORDER BY key ASC"""
+    dustin_jql = """project = AREQ AND "Platform/Program" = "Icelake-U SDC" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC"""
 #    amy_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
-    completed = clone_efeature_add_dessert(jira, dustin_jql, done_list, target_platform, target_dessert, True)
-    filename = "10APR1240_prod09.txt"
+#    completed = clone_efeature_add_dessert(jira, dustin_jql, done_list, target_platform, target_dessert, True)
+    completed = compare_prios(jira, dustin_jql, done_list)
+    filename = "11APR1223_AREQ-23851.txt"
     thefile = open('%s'%filename, 'w')
     for item in completed:
         thefile.write("%s\n" % item)
