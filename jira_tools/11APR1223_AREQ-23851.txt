@@ -1,0 +1,584 @@
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23322', 'bxt-id': u'AREQ-19225', 'icl-pri': u'P3-Medium'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23321', 'bxt-id': u'AREQ-19227', 'icl-pri': u'P3-Medium'}
+{'no BXT match for this e-feature': u'AREQ-23076'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23123', 'bxt-id': u'AREQ-19033', 'icl-pri': u'P3-Medium'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23124', 'bxt-id': u'AREQ-19034', 'icl-pri': u'P3-Medium'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23066', 'bxt-id': u'AREQ-18956', 'icl-pri': u'P3-Medium'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23112', 'bxt-id': u'AREQ-19020', 'icl-pri': u'P3-Medium'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23161', 'bxt-id': u'AREQ-19072', 'icl-pri': u'P3-Medium'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23430', 'bxt-id': u'AREQ-19226', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23425', 'bxt-id': u'AREQ-22072', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23426', 'bxt-id': u'AREQ-22159', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23340', 'bxt-id': u'AREQ-19198', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23315', 'bxt-id': u'AREQ-19443', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23305', 'bxt-id': u'AREQ-19514', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23163', 'bxt-id': u'AREQ-19077', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23166', 'bxt-id': u'AREQ-19081', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23173', 'bxt-id': u'AREQ-19089', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23171', 'bxt-id': u'AREQ-19087', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23064', 'bxt-id': u'AREQ-18952', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23078', 'bxt-id': u'AREQ-18972', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23082', 'bxt-id': u'AREQ-18978', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23063', 'bxt-id': u'AREQ-18950', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23070', 'bxt-id': u'AREQ-18961', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23069', 'bxt-id': u'AREQ-18969', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23058', 'bxt-id': u'AREQ-18934', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23042', 'bxt-id': u'AREQ-18913', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23084'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23039', 'bxt-id': u'AREQ-18906', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23455'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23439', 'bxt-id': u'AREQ-19133', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23381', 'bxt-id': u'AREQ-19129', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23408', 'bxt-id': u'AREQ-18868', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23250'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23268', 'bxt-id': u'AREQ-21221', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23191', 'bxt-id': u'AREQ-22040', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23194', 'bxt-id': u'AREQ-22025', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23134', 'bxt-id': u'AREQ-19046', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23138', 'bxt-id': u'AREQ-19049', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23133'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23129', 'bxt-id': u'AREQ-19040', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23135', 'bxt-id': u'AREQ-19045', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23136', 'bxt-id': u'AREQ-19048', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23165', 'bxt-id': u'AREQ-19080', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23081', 'bxt-id': u'AREQ-18977', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23075'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23126', 'bxt-id': u'AREQ-19037', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23093'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23098', 'bxt-id': u'AREQ-19002', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23097', 'bxt-id': u'AREQ-19001', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23002', 'bxt-id': u'AREQ-18863', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23005', 'bxt-id': u'AREQ-18867', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-22997'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23232', 'bxt-id': u'AREQ-21609', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23229', 'bxt-id': u'AREQ-21615', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23244', 'bxt-id': u'AREQ-21439', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23231', 'bxt-id': u'AREQ-21611', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23233', 'bxt-id': u'AREQ-21607', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23230', 'bxt-id': u'AREQ-21613', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23029', 'bxt-id': u'AREQ-18893', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23010', 'bxt-id': u'AREQ-18874', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23465'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23462', 'bxt-id': u'AREQ-18983', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23444'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23459', 'bxt-id': u'AREQ-19098', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23441', 'bxt-id': u'AREQ-19115', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23482', 'bxt-id': u'AREQ-18907', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23276', 'bxt-id': u'AREQ-21175', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23261'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23257', 'bxt-id': u'AREQ-21303', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23262'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23036', 'bxt-id': u'AREQ-18901', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23057', 'bxt-id': u'AREQ-18933', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23037', 'bxt-id': u'AREQ-18902', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23905'}
+{'no BXT match for this e-feature': u'AREQ-23907'}
+{'no BXT match for this e-feature': u'AREQ-23930'}
+{'no BXT match for this e-feature': u'AREQ-23401'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23427', 'bxt-id': u'AREQ-19707', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23287', 'bxt-id': u'AREQ-19679', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23286', 'bxt-id': u'AREQ-19697', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23306', 'bxt-id': u'AREQ-19512', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23259', 'bxt-id': u'AREQ-21344', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23254', 'bxt-id': u'AREQ-21356', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23193', 'bxt-id': u'AREQ-22028', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23144'}
+{'no BXT match for this e-feature': u'AREQ-23151'}
+{'no BXT match for this e-feature': u'AREQ-23140'}
+{'no BXT match for this e-feature': u'AREQ-23145'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23141', 'bxt-id': u'AREQ-19067', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23110', 'bxt-id': u'AREQ-19016', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23155', 'bxt-id': u'AREQ-19067', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23142', 'bxt-id': u'AREQ-19063', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23156', 'bxt-id': u'AREQ-19068', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23152'}
+{'no BXT match for this e-feature': u'AREQ-23148'}
+{'no BXT match for this e-feature': u'AREQ-23150'}
+{'no BXT match for this e-feature': u'AREQ-23158'}
+{'no BXT match for this e-feature': u'AREQ-23153'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23157', 'bxt-id': u'AREQ-19067', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23174'}
+{'no BXT match for this e-feature': u'AREQ-23175'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23111', 'bxt-id': u'AREQ-19017', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23149'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23101', 'bxt-id': u'AREQ-19006', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23154', 'bxt-id': u'AREQ-19067', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23105', 'bxt-id': u'AREQ-19011', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23102'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23143', 'bxt-id': u'AREQ-19053', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23139'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23147', 'bxt-id': u'AREQ-19067', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23127', 'bxt-id': u'AREQ-19038', 'icl-pri': u'P2-High'}
+{'no BXT match for this e-feature': u'AREQ-23128'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23176', 'bxt-id': u'AREQ-19101', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23122', 'bxt-id': u'AREQ-19032', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23204', 'bxt-id': u'AREQ-21776', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23056', 'bxt-id': u'AREQ-18930', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23108', 'bxt-id': u'AREQ-19013', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23107', 'bxt-id': u'AREQ-19014', 'icl-pri': u'P2-High'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23849', 'bxt-id': u'AREQ-18997', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23892'}
+{'no BXT match for this e-feature': u'AREQ-23898'}
+{'no BXT match for this e-feature': u'AREQ-23891'}
+{'no BXT match for this e-feature': u'AREQ-23895'}
+{'no BXT match for this e-feature': u'AREQ-23901'}
+{'no BXT match for this e-feature': u'AREQ-23893'}
+{'no BXT match for this e-feature': u'AREQ-23886'}
+{'no BXT match for this e-feature': u'AREQ-23896'}
+{'no BXT match for this e-feature': u'AREQ-23885'}
+{'no BXT match for this e-feature': u'AREQ-23888'}
+{'no BXT match for this e-feature': u'AREQ-23884'}
+{'no BXT match for this e-feature': u'AREQ-23883'}
+{'no BXT match for this e-feature': u'AREQ-23890'}
+{'no BXT match for this e-feature': u'AREQ-23894'}
+{'no BXT match for this e-feature': u'AREQ-23897'}
+{'no BXT match for this e-feature': u'AREQ-23899'}
+{'no BXT match for this e-feature': u'AREQ-23889'}
+{'no BXT match for this e-feature': u'AREQ-23887'}
+{'no BXT match for this e-feature': u'AREQ-23881'}
+{'no BXT match for this e-feature': u'AREQ-23882'}
+{'no BXT match for this e-feature': u'AREQ-23900'}
+{'no BXT match for this e-feature': u'AREQ-23878'}
+{'no BXT match for this e-feature': u'AREQ-23876'}
+{'no BXT match for this e-feature': u'AREQ-23879'}
+{'no BXT match for this e-feature': u'AREQ-23877'}
+{'no BXT match for this e-feature': u'AREQ-23872'}
+{'no BXT match for this e-feature': u'AREQ-23868'}
+{'no BXT match for this e-feature': u'AREQ-23865'}
+{'no BXT match for this e-feature': u'AREQ-23866'}
+{'no BXT match for this e-feature': u'AREQ-23859'}
+{'no BXT match for this e-feature': u'AREQ-23857'}
+{'no BXT match for this e-feature': u'AREQ-23856'}
+{'no BXT match for this e-feature': u'AREQ-23869'}
+{'no BXT match for this e-feature': u'AREQ-23874'}
+{'no BXT match for this e-feature': u'AREQ-23861'}
+{'no BXT match for this e-feature': u'AREQ-23871'}
+{'no BXT match for this e-feature': u'AREQ-23860'}
+{'no BXT match for this e-feature': u'AREQ-23863'}
+{'no BXT match for this e-feature': u'AREQ-23867'}
+{'no BXT match for this e-feature': u'AREQ-23873'}
+{'no BXT match for this e-feature': u'AREQ-23864'}
+{'no BXT match for this e-feature': u'AREQ-23875'}
+{'no BXT match for this e-feature': u'AREQ-23858'}
+{'no BXT match for this e-feature': u'AREQ-23862'}
+{'no BXT match for this e-feature': u'AREQ-23870'}
+{'no BXT match for this e-feature': u'AREQ-23902'}
+{'no BXT match for this e-feature': u'AREQ-23840'}
+{'no BXT match for this e-feature': u'AREQ-23841'}
+{'no BXT match for this e-feature': u'AREQ-23843'}
+{'no BXT match for this e-feature': u'AREQ-23844'}
+{'no BXT match for this e-feature': u'AREQ-23842'}
+{'no BXT match for this e-feature': u'AREQ-23846'}
+{'no BXT match for this e-feature': u'AREQ-23845'}
+{'no BXT match for this e-feature': u'AREQ-23847'}
+{'no BXT match for this e-feature': u'AREQ-23848'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23839', 'bxt-id': u'AREQ-19130', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23431', 'bxt-id': u'AREQ-19224', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23424', 'bxt-id': u'AREQ-19173', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23429', 'bxt-id': u'AREQ-19472', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23423', 'bxt-id': u'AREQ-19202', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23422', 'bxt-id': u'AREQ-19690', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23409', 'bxt-id': u'AREQ-19455', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23432', 'bxt-id': u'AREQ-19205', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23364', 'bxt-id': u'AREQ-19160', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23362', 'bxt-id': u'AREQ-19163', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23366', 'bxt-id': u'AREQ-19158', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23383'}
+{'no BXT match for this e-feature': u'AREQ-23360'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23354', 'bxt-id': u'AREQ-19175', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23358', 'bxt-id': u'AREQ-19167', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23368', 'bxt-id': u'AREQ-19154', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23363', 'bxt-id': u'AREQ-19161', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23359', 'bxt-id': u'AREQ-19166', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23320', 'bxt-id': u'AREQ-19228', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23336', 'bxt-id': u'AREQ-19203', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23331', 'bxt-id': u'AREQ-19190', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23333'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23313', 'bxt-id': u'AREQ-19479', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23335'}
+{'no BXT match for this e-feature': u'AREQ-23332'}
+{'no BXT match for this e-feature': u'AREQ-23344'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23338', 'bxt-id': u'AREQ-19200', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23351', 'bxt-id': u'AREQ-19213', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23356', 'bxt-id': u'AREQ-19172', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23343'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23337', 'bxt-id': u'AREQ-18960', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23342'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23339', 'bxt-id': u'AREQ-19199', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23327', 'bxt-id': u'AREQ-19217', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23329', 'bxt-id': u'AREQ-19180', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23325'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23316', 'bxt-id': u'AREQ-19440', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23319', 'bxt-id': u'AREQ-19230', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23328', 'bxt-id': u'AREQ-19212', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23341', 'bxt-id': u'AREQ-19196', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23312', 'bxt-id': u'AREQ-19486', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23324'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23330', 'bxt-id': u'AREQ-19214', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23318', 'bxt-id': u'AREQ-19229', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23326'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23378', 'bxt-id': u'AREQ-19139', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23314', 'bxt-id': u'AREQ-19465', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23303', 'bxt-id': u'AREQ-19549', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23309', 'bxt-id': u'AREQ-19509', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23288'}
+{'no BXT match for this e-feature': u'AREQ-23301'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23334', 'bxt-id': u'AREQ-19208', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23296', 'bxt-id': u'AREQ-19556', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23170', 'bxt-id': u'AREQ-19085', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23182', 'bxt-id': u'AREQ-22254', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23183', 'bxt-id': u'AREQ-22179', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23168'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23202', 'bxt-id': u'AREQ-21852', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23167', 'bxt-id': u'AREQ-19082', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23177', 'bxt-id': u'AREQ-22288', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23137', 'bxt-id': u'AREQ-19047', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23162', 'bxt-id': u'AREQ-19072', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23132', 'bxt-id': u'AREQ-19120', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23073'}
+{'no BXT match for this e-feature': u'AREQ-23060'}
+{'no BXT match for this e-feature': u'AREQ-23071'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23047', 'bxt-id': u'AREQ-18919', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23049', 'bxt-id': u'AREQ-18921', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23055'}
+{'no BXT match for this e-feature': u'AREQ-23052'}
+{'no BXT match for this e-feature': u'AREQ-23085'}
+{'no BXT match for this e-feature': u'AREQ-23072'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23067', 'bxt-id': u'AREQ-18957', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23083'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23046', 'bxt-id': u'AREQ-18918', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23068', 'bxt-id': u'AREQ-18958', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23051', 'bxt-id': u'AREQ-18923', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23095', 'bxt-id': u'AREQ-18999', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23088'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23087', 'bxt-id': u'AREQ-18987', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23059', 'bxt-id': u'AREQ-18937', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23062', 'bxt-id': u'AREQ-18943', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23061', 'bxt-id': u'AREQ-18942', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23048', 'bxt-id': u'AREQ-18920', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23089'}
+{'no BXT match for this e-feature': u'AREQ-23090'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23091', 'bxt-id': u'AREQ-18996', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23044', 'bxt-id': u'AREQ-18916', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23053'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23054', 'bxt-id': u'AREQ-18927', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23045', 'bxt-id': u'AREQ-18917', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23050', 'bxt-id': u'AREQ-18922', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23040', 'bxt-id': u'AREQ-18908', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23471'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23437', 'bxt-id': u'AREQ-19178', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23452'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23435', 'bxt-id': u'AREQ-19187', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23436', 'bxt-id': u'AREQ-19182', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23434', 'bxt-id': u'AREQ-19194', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23456', 'bxt-id': u'AREQ-19561', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23453'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23464', 'bxt-id': u'AREQ-18911', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23470'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23438', 'bxt-id': u'AREQ-19168', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23398', 'bxt-id': u'AREQ-19110', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23388'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23384', 'bxt-id': u'AREQ-19126', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23397', 'bxt-id': u'AREQ-19112', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23377', 'bxt-id': u'AREQ-19152', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23380'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23392', 'bxt-id': u'AREQ-19123', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23407', 'bxt-id': u'AREQ-18904', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23389'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23387', 'bxt-id': u'AREQ-19118', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23406', 'bxt-id': u'AREQ-18936', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23391', 'bxt-id': u'AREQ-19119', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23395', 'bxt-id': u'AREQ-19114', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23405', 'bxt-id': u'AREQ-18951', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23379', 'bxt-id': u'AREQ-19135', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23390', 'bxt-id': u'AREQ-19043', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23375'}
+{'no BXT match for this e-feature': u'AREQ-23382'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23394', 'bxt-id': u'AREQ-19150', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23399'}
+{'no BXT match for this e-feature': u'AREQ-23385'}
+{'no BXT match for this e-feature': u'AREQ-23373'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23396', 'bxt-id': u'AREQ-19113', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23376'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23372', 'bxt-id': u'AREQ-19159', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23374', 'bxt-id': u'AREQ-19159', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23370', 'bxt-id': u'AREQ-19116', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23367'}
+{'no BXT match for this e-feature': u'AREQ-23365'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23369', 'bxt-id': u'AREQ-19159', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23412', 'bxt-id': u'AREQ-21995', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23419', 'bxt-id': u'AREQ-21620', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23413', 'bxt-id': u'AREQ-21988', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23249'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23252', 'bxt-id': u'AREQ-21364', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23317', 'bxt-id': u'AREQ-19430', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23304', 'bxt-id': u'AREQ-19519', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23240', 'bxt-id': u'AREQ-21472', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23253', 'bxt-id': u'AREQ-21362', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23270', 'bxt-id': u'AREQ-19096', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23269', 'bxt-id': u'AREQ-21220', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23239'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23213', 'bxt-id': u'AREQ-21696', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23189', 'bxt-id': u'AREQ-22062', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23187', 'bxt-id': u'AREQ-22146', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23190', 'bxt-id': u'AREQ-22044', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23200'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23196', 'bxt-id': u'AREQ-22021', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23197', 'bxt-id': u'AREQ-22018', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23198', 'bxt-id': u'AREQ-22015', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23086', 'bxt-id': u'AREQ-18986', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23092'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23109', 'bxt-id': u'AREQ-19015', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23159', 'bxt-id': u'AREQ-19071', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23096'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23094', 'bxt-id': u'AREQ-18998', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22994'}
+{'no BXT match for this e-feature': u'AREQ-23008'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23001', 'bxt-id': u'AREQ-18862', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22986'}
+{'no BXT match for this e-feature': u'AREQ-22993'}
+{'no BXT match for this e-feature': u'AREQ-22990'}
+{'no BXT match for this e-feature': u'AREQ-22992'}
+{'no BXT match for this e-feature': u'AREQ-22989'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23000', 'bxt-id': u'AREQ-18861', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23014', 'bxt-id': u'AREQ-18878', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23003'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23019', 'bxt-id': u'AREQ-18883', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22987'}
+{'no BXT match for this e-feature': u'AREQ-23007'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23013', 'bxt-id': u'AREQ-18877', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23015', 'bxt-id': u'AREQ-18879', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23017', 'bxt-id': u'AREQ-18881', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23018', 'bxt-id': u'AREQ-18882', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23016', 'bxt-id': u'AREQ-18880', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23004', 'bxt-id': u'AREQ-18866', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23024', 'bxt-id': u'AREQ-18888', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23022', 'bxt-id': u'AREQ-18886', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23006', 'bxt-id': u'AREQ-18869', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23023', 'bxt-id': u'AREQ-18887', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23026', 'bxt-id': u'AREQ-18890', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23228', 'bxt-id': u'AREQ-21618', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23236', 'bxt-id': u'AREQ-21601', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23222', 'bxt-id': u'AREQ-21646', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23203', 'bxt-id': u'AREQ-21779', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23209'}
+{'no BXT match for this e-feature': u'AREQ-23201'}
+{'no BXT match for this e-feature': u'AREQ-23212'}
+{'no BXT match for this e-feature': u'AREQ-23216'}
+{'no BXT match for this e-feature': u'AREQ-23208'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23205', 'bxt-id': u'AREQ-21772', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23267', 'bxt-id': u'AREQ-21266', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23207', 'bxt-id': u'AREQ-21428', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23238', 'bxt-id': u'AREQ-19027', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23219', 'bxt-id': u'AREQ-21659', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23214', 'bxt-id': u'AREQ-21681', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23217', 'bxt-id': u'AREQ-21672', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23234', 'bxt-id': u'AREQ-21605', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23223'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23227', 'bxt-id': u'AREQ-21621', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23218', 'bxt-id': u'AREQ-21662', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23220', 'bxt-id': u'AREQ-21656', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23224'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23210', 'bxt-id': u'AREQ-21709', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23221', 'bxt-id': u'AREQ-21651', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23226'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23225', 'bxt-id': u'AREQ-21653', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23215', 'bxt-id': u'AREQ-21678', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22996'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23025', 'bxt-id': u'AREQ-18889', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23021', 'bxt-id': u'AREQ-18885', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23027', 'bxt-id': u'AREQ-18891', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23041', 'bxt-id': u'AREQ-18910', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23028', 'bxt-id': u'AREQ-18892', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23478'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23461', 'bxt-id': u'AREQ-19090', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23473'}
+{'no BXT match for this e-feature': u'AREQ-23468'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23447', 'bxt-id': u'AREQ-19079', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23457', 'bxt-id': u'AREQ-19169', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23442', 'bxt-id': u'AREQ-19111', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23446', 'bxt-id': u'AREQ-19091', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23484', 'bxt-id': u'AREQ-19204', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23467'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23449', 'bxt-id': u'AREQ-18907', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23450', 'bxt-id': u'AREQ-18872', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23443', 'bxt-id': u'AREQ-19108', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23475'}
+{'no BXT match for this e-feature': u'AREQ-23477'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23458', 'bxt-id': u'AREQ-19162', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23483'}
+{'no BXT match for this e-feature': u'AREQ-23469'}
+{'no BXT match for this e-feature': u'AREQ-23476'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23460', 'bxt-id': u'AREQ-19132', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23445', 'bxt-id': u'AREQ-19095', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23479'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23451', 'bxt-id': u'AREQ-21721', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23440', 'bxt-id': u'AREQ-19131', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23472'}
+{'no BXT match for this e-feature': u'AREQ-23474'}
+{'no BXT match for this e-feature': u'AREQ-23480'}
+{'no BXT match for this e-feature': u'AREQ-23454'}
+{'no BXT match for this e-feature': u'AREQ-23466'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23481', 'bxt-id': u'AREQ-19221', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23448', 'bxt-id': u'AREQ-19075', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23280', 'bxt-id': u'AREQ-21154', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23298', 'bxt-id': u'AREQ-19554', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23281'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23310', 'bxt-id': u'AREQ-19507', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23266', 'bxt-id': u'AREQ-21292', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23311', 'bxt-id': u'AREQ-19505', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23277'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23292', 'bxt-id': u'AREQ-19562', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23279'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23323', 'bxt-id': u'AREQ-19223', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23284'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23308', 'bxt-id': u'AREQ-19510', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23283'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23307', 'bxt-id': u'AREQ-19511', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23260', 'bxt-id': u'AREQ-21326', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23265'}
+{'no BXT match for this e-feature': u'AREQ-23264'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23271', 'bxt-id': u'AREQ-21197', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23263'}
+{'no BXT match for this e-feature': u'AREQ-23278'}
+{'no BXT match for this e-feature': u'AREQ-23282'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23077', 'bxt-id': u'AREQ-18971', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23038', 'bxt-id': u'AREQ-18905', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23065', 'bxt-id': u'AREQ-18954', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23035', 'bxt-id': u'AREQ-18900', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-22973', 'bxt-id': u'AREQ-19558', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22984'}
+{'no BXT match for this e-feature': u'AREQ-22982'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-22972', 'bxt-id': u'AREQ-19558', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22978'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-22971', 'bxt-id': u'AREQ-19558', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23020', 'bxt-id': u'AREQ-18884', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22988'}
+{'no BXT match for this e-feature': u'AREQ-22991'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23012', 'bxt-id': u'AREQ-18876', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22985'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23009', 'bxt-id': u'AREQ-18873', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22980'}
+{'no BXT match for this e-feature': u'AREQ-22983'}
+{'no BXT match for this e-feature': u'AREQ-22981'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-22974', 'bxt-id': u'AREQ-19558', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22977'}
+{'no BXT match for this e-feature': u'AREQ-22979'}
+{'no BXT match for this e-feature': u'AREQ-22970'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-22975', 'bxt-id': u'AREQ-19558', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-22976'}
+{'no BXT match for this e-feature': u'AREQ-23912'}
+{'no BXT match for this e-feature': u'AREQ-23967'}
+{'no BXT match for this e-feature': u'AREQ-23929'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23414', 'bxt-id': u'AREQ-21705', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23418', 'bxt-id': u'AREQ-21623', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23402', 'bxt-id': u'AREQ-19105', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23420'}
+{'no BXT match for this e-feature': u'AREQ-23415'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23417', 'bxt-id': u'AREQ-21653', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23416'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23400', 'bxt-id': u'AREQ-19107', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23411'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23410', 'bxt-id': u'AREQ-22300', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23421'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23404', 'bxt-id': u'AREQ-19102', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23403', 'bxt-id': u'AREQ-19104', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23428', 'bxt-id': u'AREQ-18903', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23433', 'bxt-id': u'AREQ-19191', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23352', 'bxt-id': u'AREQ-19177', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23355', 'bxt-id': u'AREQ-19174', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23371'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23353', 'bxt-id': u'AREQ-19176', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23361', 'bxt-id': u'AREQ-19164', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23347'}
+{'no BXT match for this e-feature': u'AREQ-23357'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23345', 'bxt-id': u'AREQ-19211', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23346', 'bxt-id': u'AREQ-19171', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23348', 'bxt-id': u'AREQ-19186', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23302'}
+{'no BXT match for this e-feature': u'AREQ-23300'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23294', 'bxt-id': u'AREQ-19557', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23295', 'bxt-id': u'AREQ-19558', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23289', 'bxt-id': u'AREQ-19626', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23299'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23297', 'bxt-id': u'AREQ-19555', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23293', 'bxt-id': u'AREQ-19560', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23291', 'bxt-id': u'AREQ-19571', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23290', 'bxt-id': u'AREQ-19612', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23258', 'bxt-id': u'AREQ-21348', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23246', 'bxt-id': u'AREQ-21434', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23243', 'bxt-id': u'AREQ-21440', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23241', 'bxt-id': u'AREQ-21442', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23247', 'bxt-id': u'AREQ-21431', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23275', 'bxt-id': u'AREQ-21180', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23242', 'bxt-id': u'AREQ-21441', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23248'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23245', 'bxt-id': u'AREQ-21436', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23273', 'bxt-id': u'AREQ-21190', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23274', 'bxt-id': u'AREQ-21187', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23251', 'bxt-id': u'AREQ-21368', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23255'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23185', 'bxt-id': u'AREQ-22165', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23199', 'bxt-id': u'AREQ-21939', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23180'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23178', 'bxt-id': u'AREQ-22245', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23192', 'bxt-id': u'AREQ-22034', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23181'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23179', 'bxt-id': u'AREQ-21192', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23172', 'bxt-id': u'AREQ-19088', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23195', 'bxt-id': u'AREQ-22023', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23188', 'bxt-id': u'AREQ-22101', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23186'}
+{'no BXT match for this e-feature': u'AREQ-23114'}
+{'no BXT match for this e-feature': u'AREQ-23118'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23120', 'bxt-id': u'AREQ-19030', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23117'}
+{'no BXT match for this e-feature': u'AREQ-23146'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23160', 'bxt-id': u'AREQ-19070', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23116'}
+{'no BXT match for this e-feature': u'AREQ-23113'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23119', 'bxt-id': u'AREQ-19029', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23130', 'bxt-id': u'AREQ-19041', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23121', 'bxt-id': u'AREQ-19031', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23115'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23104', 'bxt-id': u'AREQ-19229', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23125', 'bxt-id': u'AREQ-19036', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23100', 'bxt-id': u'AREQ-19005', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23106', 'bxt-id': u'AREQ-19012', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23099', 'bxt-id': u'AREQ-19003', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23103'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23272', 'bxt-id': u'AREQ-21776', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23235', 'bxt-id': u'AREQ-21603', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23972'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23350', 'bxt-id': u'AREQ-19183', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23349', 'bxt-id': u'AREQ-19185', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23285', 'bxt-id': u'AREQ-19711', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23211', 'bxt-id': u'AREQ-21702', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23184', 'bxt-id': u'AREQ-22168', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23169', 'bxt-id': u'AREQ-19084', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23080'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23079', 'bxt-id': u'AREQ-18973', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23074', 'bxt-id': u'AREQ-18968', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23043', 'bxt-id': u'AREQ-18914', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23033'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23034', 'bxt-id': u'AREQ-18899', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23032', 'bxt-id': u'AREQ-18897', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23031', 'bxt-id': u'AREQ-18897', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23030'}
+{'no BXT match for this e-feature': u'AREQ-22995'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-23463', 'bxt-id': u'AREQ-18915', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23206', 'bxt-id': u'AREQ-21770', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P2-High', 'icl-id': u'AREQ-22999', 'bxt-id': u'AREQ-18860', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23011', 'bxt-id': u'AREQ-18875', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23969'}
+{'no BXT match for this e-feature': u'AREQ-23968'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23131', 'bxt-id': u'AREQ-19042', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23970'}
+{'no BXT match for this e-feature': u'AREQ-23906'}
+{'bxt-pri': u'P3-Medium', 'icl-id': u'AREQ-23164', 'bxt-id': u'AREQ-19078', 'icl-pri': u'P1-Stopper'}
+{'no BXT match for this e-feature': u'AREQ-23971'}
+{'no BXT match for this e-feature': u'AREQ-23256'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23237', 'bxt-id': u'AREQ-21599', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23393', 'bxt-id': u'AREQ-19124', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-23386', 'bxt-id': u'AREQ-19117', 'icl-pri': u'P1-Stopper'}
+{'bxt-pri': u'P1-Stopper', 'icl-id': u'AREQ-22998', 'bxt-id': u'AREQ-18857', 'icl-pri': u'P1-Stopper'}
