@@ -210,25 +210,26 @@ def compare_prios(j, jql, doing_list):
         parent_key = issue.fields.parent.key
         summary = issue.fields.summary
         searchable = summary.split("]")
-        print "1: %s"%searchable
         ssum = searchable[2].lstrip()
-        print "2: %s"%ssum
         ssum = ssum.replace("-"," ")
-        print "3: %s"%ssum
         find_parent = "key = %s"%parent_key
         parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
         parent_subtasks = list(parent_feature.fields.subtasks)         
         dupe_list = []
+        print "trying %s"%issue.key
         try:
-            bxt_sub = j.search_issues("issuetype = E-Feature AND summary ~ '%s' AND \"Platform/Program\" = \"Broxton-P IVI\""%ssum, 0)[0] # currently does not know difference between android dessert versions
-            print "subtask found for: %s"%bxt_sub.fields.summary
-            doing_list += [{'bxt': bxt_sub.fields.priority.name, 'icl': issue.fields.priority.name, 'join': parent_key}]
+            bxt_sub = j.search_issues("issuetype = E-Feature AND summary ~ '%s' AND \"Platform/Program\" = \"Broxton-P IVI\""%ssum, 0)[0] # dessert agnostic
+            print bxt_sub.fields.priority.id
+            print issue.fields.priority.id
+            if bxt_sub.fields.priority.id == issue.fields.priority.id:
+                print "priority match"
+            else:
+                print "priority mismatch"
+                doing_list += [{'key': issue.key, 'pri': bxt_sub.fields.priority.name}]
         except:
-            print "no subtask found for: %s"%issue.fields.summary
-            doing_list += [{'no BXT match for this e-feature': issue.key}]
-#            return doing_list
-#            continue
-            break
+            print "ISSUE ERROR!"
+            doing_list += [{'no match': issue.key}]
+            continue
     return doing_list
 
 if __name__ == "__main__":
@@ -255,7 +256,7 @@ if __name__ == "__main__":
 #    amy_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
 #    completed = clone_efeature_add_dessert(jira, dustin_jql, done_list, target_platform, target_dessert, True)
     completed = compare_prios(jira, dustin_jql, done_list)
-    filename = "11APR1346_AREQ-23851.txt"
+    filename = "11APR1422_AREQ-23851.txt"
     thefile = open('%s'%filename, 'w')
     for item in completed:
         thefile.write("%s\n" % item)
