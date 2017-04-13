@@ -14,6 +14,26 @@ import logging
 #PLATFORM = 'Broxton-P IVI"'
 #droid_ver_id = 'customfield_10811'
 
+
+## from the create_efeature_add_dessert
+#            if target_dessert: ### TODO NOT WORKING TODO NOT WORKING TODO ###
+#                # if a new dessert letter is passed, navigate the parent subtask-list for each source child's parent
+#                find_parent = "key = %s"%parent_key
+#                parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
+#                parent_subtasks = list(parent_feature.fields.subtasks)
+#
+#                dupe_list = []
+#                for subtask in parent_subtasks:
+#                    find_subtask_dessert = "key = %s"%subtask.key
+#                    subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
+#                    subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
+#                    if (subtask_dessert_version == "O"):
+#                        this_issue_prio = [{'issue_id': issue.key, 'parent_id': issue.fields.parent.key, 'clone_id': subtask.key, 'pri_name': issue.fields.priority.name, 'pri_id': issue.fields.priority.id}]
+#                        dupe_list.append(subtask_info.key)
+#                        # create dupe list
+#                if dupe_list:
+#                    doing_list += [{'source_id': issue.key, 'summary': 'dupe;no-clone'}]
+#                    print "already got %s"%issue.key
 def create_from_jql(j):
     i = 0
 
@@ -158,28 +178,9 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
             else:
                 target_assign = issue.fields.assignee.name
         
-#            if target_dessert: ### TODO NOT WORKING TODO NOT WORKING TODO ###
-#                # if a new dessert letter is passed, navigate the parent subtask-list for each source child's parent
-#                find_parent = "key = %s"%parent_key
-#                parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
-#                parent_subtasks = list(parent_feature.fields.subtasks)
-#
-#                dupe_list = []
-#                for subtask in parent_subtasks:
-#                    find_subtask_dessert = "key = %s"%subtask.key
-#                    subtask_info = j.search_issues(find_subtask_dessert, 0)[0]
-#                    subtask_dessert_version = getattr(subtask_info.fields, and_vers_key)[0].value
-#                    if (subtask_dessert_version == "O"):
-#                        this_issue_prio = [{'issue_id': issue.key, 'parent_id': issue.fields.parent.key, 'clone_id': subtask.key, 'pri_name': issue.fields.priority.name, 'pri_id': issue.fields.priority.id}]
-#                        dupe_list.append(subtask_info.key)
-#                        # create dupe list
-#                if dupe_list:
-#                    doing_list += [{'source_id': issue.key, 'summary': 'dupe;no-clone'}]
-#                    print "already got %s"%issue.key
 	    if target_dessert == "":
                 child_dessert = getattr(issue.fields, and_vers_key)[0].value
-
-                
+    
             if True: ### TODO ALL SHOULD CURRENTLY GO THIS ROUTE AS OF 21MAR2017 TODO ###
                 new_efeature_dict = {
                     'project': {'key': issue.fields.project.key},
@@ -232,6 +233,44 @@ def compare_prios(j, jql, doing_list):
             continue
     return doing_list
 
+def dump_parent_info(j, jql, doing_list, target_platform, target_dessert, unassign_new):
+    fl = make_field_lookup(j)
+    val_lead_key = fl.reverse('Validation Lead')
+    and_vers_key = fl.reverse('Android Version(s)')
+    platprog_key = fl.reverse('Platform/Program')
+    exists_on = fl.reverse('Exists On')
+
+    # get the initial list of source issues and iterate
+    for issue in jql_issue_gen(jql, j, count_change_ok=True):
+        # capture some info from each issue as it gets iterated over
+        parent_key = issue.fields.parent.key
+        find_parent = "key = %s"%parent_key
+        parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
+        parent_subtasks = list(parent_feature.fields.subtasks)         
+        print "trying %s"%parent_key
+        try:
+            parent = j.search_issues(find_parent, 0)[0]
+            p_plats = []
+            p_plats += getattr(parent.fields, platprog_key)
+            print p_plats
+            for plat in p_plats:
+                ICL_found = 0
+                if plat.value == "Icelake-U SDC":
+                    ICL_found += 1
+
+                if ICL_found:
+                    print "ICL num check TRUE"
+                else:
+                    doing_list += [{'key': parent.key}]
+
+        except:
+            print "ISSUE ERROR!"
+            doing_list += [{'error hit inside dump_parent_info sub-issue search': issue.key}]
+            continue
+
+
+    return doing_list
+
 if __name__ == "__main__":
     jira = init_jira()
     test_jql = """key = AREQ-23610"""
@@ -244,7 +283,7 @@ if __name__ == "__main__":
 
     # SDNP = same dessert; new platform / SPND = same platform; new dessert
     # set this according to AREQ request using cmd line args above
-    hasNewPlatform = True
+    hasNewPlatform = False
     hasNewDessert = False
     if hasNewPlatform:
         target_platform = "Broxton"
@@ -252,11 +291,14 @@ if __name__ == "__main__":
     if hasNewDessert:
         target_platform = ""
         target_dessert = "O"
-    dustin_jql = """project = AREQ AND "Platform/Program" = "Icelake-U SDC" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC"""
-#    amy_jql = """project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI") ORDER BY key ASC"""
-#    completed = clone_efeature_add_dessert(jira, dustin_jql, done_list, target_platform, target_dessert, True)
-    completed = compare_prios(jira, dustin_jql, done_list)
-    filename = "11APR1422_AREQ-23851.txt"
+    else:
+        target_platform = ""
+        target_dessert = ""
+#    dustin_jql = """project = AREQ AND "Platform/Program" = "Icelake-U SDC" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC"""
+    amy_jql = """project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "Icelake-U SDC" ORDER BY summary ASC"""
+    completed = dump_parent_info(jira, amy_jql, done_list, target_platform, target_dessert, True)
+#    completed = compare_prios(jira, dustin_jql, done_list)
+    filename = "12APR1438_AREQ-23909.txt"
     thefile = open('%s'%filename, 'w')
     for item in completed:
         thefile.write("%s\n" % item)
