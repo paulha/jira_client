@@ -1,4 +1,0 @@
-* run load_ividb.py to slurp AREQ features/e-features & PREQ UCIS requirements into a local SQLite DB
-* run make_reports.sh to generate CSV files from the queries in sql/ to output them in reports/
-
-ivirpt.sqlite3 is also a great place to do exploratory queryiies
