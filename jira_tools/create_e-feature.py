@@ -206,27 +206,32 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
     return doing_list
 
 def compare_prios(j, jql, doing_list):
+    fl = make_field_lookup(j)
+    val_lead_key = fl.reverse('Validation Lead')
+    and_vers_key = fl.reverse('Android Version(s)')
+    platprog_key = fl.reverse('Platform/Program')
+    gid_finder = fl.reverse('Global ID')
     for issue in jql_issue_gen(jql, j, count_change_ok=True):
         # capture some info from each issue as it gets iterated over
-        parent_key = issue.fields.parent.key
-        summary = issue.fields.summary
-        searchable = summary.split("]")
-        ssum = searchable[2].lstrip()
-        ssum = ssum.replace("-"," ")
-        find_parent = "key = %s"%parent_key
-        parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
-        parent_subtasks = list(parent_feature.fields.subtasks)         
-        dupe_list = []
-        print "trying %s"%issue.key
+#        parent_key = issue.fields.parent.key
+#        summary = issue.fields.summary
+#        searchable = summary.split("]")
+#        ssum = searchable[2].lstrip()
+#        ssum = ssum.replace("-"," ")
+        gid = getattr(issue.fields, gid_finder)
+        find_match = "\"Platform/Program\" = \"Broxton-P IVI\" AND \"Android Version(s)\" = 'O' AND 'Global ID' ~ %s"%gid
+#        parent_subtasks = list(parent_feature.fields.subtasks)
+#        dupe_list = []
+        print "trying %s"%gid
         try:
-            bxt_sub = j.search_issues("issuetype = E-Feature AND summary ~ '%s' AND \"Platform/Program\" = \"Broxton-P IVI\""%ssum, 0)[0] # dessert agnostic
-            print bxt_sub.fields.priority.id
-            print issue.fields.priority.id
-            if bxt_sub.fields.priority.id == issue.fields.priority.id:
+            match = j.search_issues(find_match,0)[0]
+            id1 = match.fields.priority.id
+            id2 = issue.fields.priority.id
+            if id1 == id2:
                 print "priority match"
             else:
                 print "priority mismatch"
-                doing_list += [{'key': issue.key, 'pri': bxt_sub.fields.priority.name}]
+                doing_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
         except:
             print "ISSUE ERROR!"
             doing_list += [{'no match': issue.key}]
@@ -295,10 +300,10 @@ if __name__ == "__main__":
         target_platform = ""
         target_dessert = ""
 #    dustin_jql = """project = AREQ AND "Platform/Program" = "Icelake-U SDC" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC"""
-    amy_jql = """project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "Icelake-U SDC" ORDER BY summary ASC"""
-    completed = dump_parent_info(jira, amy_jql, done_list, target_platform, target_dessert, True)
-#    completed = compare_prios(jira, dustin_jql, done_list)
-    filename = "12APR1438_AREQ-23909.txt"
+    amy_jql = """project = "Platforms Requirements" AND "Platform/Program" = "Icelake-U SDC" ORDER BY "Global ID" ASC"""
+#    completed = dump_parent_info(jira, amy_jql, done_list, target_platform, target_dessert, True)
+    completed = compare_prios(jira, amy_jql, done_list)
+    filename = "17APR1427_AREQ-24084.txt"
     thefile = open('%s'%filename, 'w')
     for item in completed:
         thefile.write("%s\n" % item)
