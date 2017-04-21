@@ -17,7 +17,7 @@ def dump_areq_ef(issue, fl):
         issue.permalink(),
     ]
 
-    print " | ".join(dump_fields)
+    print( " | ".join(dump_fields) )
 
 def dump_areq_f(issue, fl):
     "(e-feature) [AREQ-1234] - desc - platform - version - parent - priority - status"
@@ -36,4 +36,4 @@ def dump_areq_f(issue, fl):
         issue.permalink(),
     ]
 
-    print " | ".join(dump_fields)
+    print( " | ".join(dump_fields) )

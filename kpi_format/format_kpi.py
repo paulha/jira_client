@@ -40,8 +40,8 @@ def format_kpi(k):
     
 
 if __name__ == "__main__":
-    print "-" * 78
+    print( "-" * 78 )
     kpis = read_kpis('Key+Performance+Indicators.txt')
     for k in kpis:
-        print format_kpi(k)
-    print "-" * 78
+        print( format_kpi(k) )
+    print( "-" * 78 )

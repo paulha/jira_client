@@ -125,4 +125,4 @@ Adapting old programs to fit new machines usually means adapting new machines to
 
 if __name__ == "__main__":
     quotes = bigstring.splitlines()
-    print "\n".join(textwrap.wrap(random.choice(quotes)))
+    print( "\n".join(textwrap.wrap(random.choice(quotes))) )

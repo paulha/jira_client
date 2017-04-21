@@ -30,7 +30,7 @@ def init():
         stream = open(CONFIG_FILE, 'r')
         config = yaml.load(stream)
     except:
-        print "Cannot load configuration file."
+        print( "Cannot load configuration file." )
         exit(0)
 
     # Check Options
@@ -39,7 +39,7 @@ def init():
         config['user']['username']
         config['user']['password']
     except:
-        print "Cannot load configuration options."
+        print( "Cannot load configuration options." )
         exit(0)
 
     # Connect to JIRA
@@ -47,8 +47,8 @@ def init():
         auth = (config['user']['username'], config['user']['password'])
         jira = JIRA(config['connection'], basic_auth=auth)
     except Exception as e:
-        print e
-        print "Failed to connect to JIRA."
+        print( e )
+        print( "Failed to connect to JIRA." )
         exit(0)
 
     return jira
@@ -69,7 +69,7 @@ def main():
         issues = j.search_issues(query, startAt=startAt)
 
         if len(issues) == 0:
-            print "loaded all %d issues"%total
+            print( "loaded all %d issues"%total )
             break
 
         if total is None:
@@ -80,7 +80,7 @@ def main():
         values.update(c.value for c in itertools.chain(*[i.fields.customfield_13603 for i in issues]))
 
         seen += len(issues)
-        print "loaded %d issues starting at %d, %d/%d"%(len(issues), startAt, seen, total)
+        print( "loaded %d issues starting at %d, %d/%d"%(len(issues), startAt, seen, total) )
         startAt += len(issues)
 
     pprint.pprint(sorted(values.items(), lambda a,b:-cmp(a[1],b[1])))

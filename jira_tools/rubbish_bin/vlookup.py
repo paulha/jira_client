@@ -27,7 +27,7 @@ def get_valid_transition(issue, transition_name):
 
     # Find Transition ID
     for t in transitions:
-        print t['name']
+        print( t['name'] )
         if (transition_name == t['name']):
             return t['id']
     return None
@@ -36,8 +36,8 @@ def get_valid_transition(issue, transition_name):
 def update_status(source, destination):
     """Attempt to Update Status"""
 
-    print "TRANSITIONS IDS"
-    print  "REJECTED: " + get_valid_transition(destination, "To Rejected")
+    print( "TRANSITIONS IDS" )
+    print(  "REJECTED: " + get_valid_transition(destination, "To Rejected") )
 
     # Check for same status
     if (source.fields.status.name == destination.fields.status.name):
@@ -87,7 +87,7 @@ def vlookup_data(jira, map_file):
         
     return len(updated_fields)
 
-#    print areq[0] + " -> " + areq[1]
+#    print( areq[0] + " -> " + areq[1] )
 #    source = jira.issue(areq[0])
 #    destination = jira.issue(areq[1])
 
