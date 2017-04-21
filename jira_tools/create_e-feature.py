@@ -4,7 +4,8 @@ import sys
 from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 from jirafields import make_field_lookup
 
-import logging
+import logger as log
+
 # TODO currently have to set new log file name each time
 # make so that it uses issue key to name the file + timestamp
 # LOG_FILENAME = "AREQ-22968_22MAR0231.log"
@@ -44,7 +45,7 @@ def create_from_jql(j):
     #jql = """project = CREQ AND issuetype = Feature AND assignee = swmckeox"""
     jql = """project = %s AND issuetype = Feature"""%(PROJECT,)
     for areq in jql_issue_gen(jql, j):
-        print areq.key, areq.fields.summary, getattr(areq.fields, and_vers_key)[0].value
+        log.logger.info(areq.key, areq.fields.summary, getattr(areq.fields, and_vers_key)[0].value)
 
         for platprog in getattr(areq.fields, platprog_key):
             # Create Sub-task
@@ -52,12 +53,13 @@ def create_from_jql(j):
             and_ver = getattr(areq.fields, and_vers_key)[0].value
 
             ### Nerfed for safety
-            #print i, areq.key, platprog.value
-            #efeature=create_e_feature_from_feature(j, areq, ASSIGNEE, VAL_LEAD, and_ver, platprog.value)
-            #new_sum = efeature.fields.summary.replace('[]', '[4.4]')
-            #efeature.update(fields={'summary':new_sum})
-            #print "\t", efeature.key,efeature.fields.summary, getattr(efeature.fields, and_vers_key)[0].value
-            #print "\t", efeature.key,efeature.fields.summary, getattr(efeature.fields, and_vers_key)[0].value
+            # log.logger.info( i, areq.key, platprog.value )
+            # efeature=create_e_feature_from_feature(j, areq, ASSIGNEE, VAL_LEAD, and_ver, platprog.value)
+            # new_sum = efeature.fields.summary.replace('[]', '[4.4]')
+            # efeature.update(fields={'summary':new_sum})
+            # log.logger.info( "\t", efeature.key,efeature.fields.summary, getattr(efeature.fields, and_vers_key)[0].value )
+            # log.logger.info( "\t", efeature.key,efeature.fields.summary, getattr(efeature.fields, and_vers_key)[0].value )
+
 
 def add_value_to_list(issue, key, new_value):
     values = [x.value for x in getattr(issue.fields, key)]
@@ -112,20 +114,20 @@ def create_from_efeature_key_list(j, filename):
     source_issue_keys = ( line.strip() for line in open(filename) if line.strip() )
 
     for source_issue in issue_keys_issue_gen(source_issue_keys, j):
-        print "-"*40
-        print source_issue.key, source_issue.fields.summary
+        log.logger.info("-" * 40)
+        log.logger.info(source_issue.key, source_issue.fields.summary)
 
         feature = ensure_parent_feature(j, source_issue)
 
-        print feature.key, feature.fields.summary
+        log.logger.info(feature.key, feature.fields.summary)
 
         add_value_to_list(feature, platprog_key, NEW_PLATFORM)
         efeature = create_e_feature_from_feature(jira, feature, ASSIGNEE, VAL_LEAD, AND_VER, NEW_PLATFORM)
 
         create_count += 1
-        print efeature.key, efeature.fields.summary, getattr(efeature.fields, and_vers_key)
+        log.logger.info(efeature.key, efeature.fields.summary, getattr(efeature.fields, and_vers_key))
 
-    print "created {} new e-features".format(create_count)
+    log.logger.info("created {} new e-features".format(create_count))
 
 
 def add_dessert(j, jql, dessert):
@@ -136,11 +138,12 @@ def add_dessert(j, jql, dessert):
 
 
     for issue in jql_issue_gen(jql, j, count_change_ok=True):
-        print issue.key
+        log.logger.info(issue.key)
         add_value_to_list(issue, and_vers_key, 'O')
         update_count += 1
 
-    print "Updated {} issues".format(update_count)
+    log.logger.info("Updated {} issues".format(update_count))
+
 
 def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_dessert, unassign_new):
     update_count = 0
@@ -192,17 +195,17 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
                     platprog_key: [{'value': child_platform}],
                     exists_on: [{'value': 'BXT-Joule'}]
                 }
-            
-            print "creating new clone of %s"%issue.key
-            efeature = jira.create_issue(fields=new_efeature_dict) 
+
+            log.logger.info( "creating new clone of %s" % issue.key )
+            efeature = jira.create_issue(fields=new_efeature_dict)
             update_count += 1
         except:
-            logging.exception('cloning process halted and caught fire on issue %s'%issue.key)
+            logging.exception('cloning process halted and caught fire on issue %s' % issue.key)
             doing_list += [{'error_issue': issue.key, 'error_text': sys.exc_info()[0]}]
-            print "caught exception while cloning %s"%issue.key
+            log.logger.error("caught exception while cloning %s" % issue.key)
             return doing_list
  
-    print "Updated {} issues".format(update_count)
+    log.logger.info( "Updated {} issues".format(update_count) )
     return doing_list
 
 def compare_prios(j, jql, doing_list):
@@ -222,18 +225,18 @@ def compare_prios(j, jql, doing_list):
         find_match = "\"Platform/Program\" = \"Broxton-P IVI\" AND \"Android Version(s)\" = 'O' AND 'Global ID' ~ %s"%gid
 #        parent_subtasks = list(parent_feature.fields.subtasks)
 #        dupe_list = []
-        print "trying %s"%gid
+        log.logger.info( "trying %s"%gid )
         try:
             match = j.search_issues(find_match,0)[0]
             id1 = match.fields.priority.id
             id2 = issue.fields.priority.id
             if id1 == id2:
-                print "priority match"
+                log.logger.info("priority match")
             else:
-                print "priority mismatch"
+                log.logger.info("priority mismatch")
                 doing_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
         except:
-            print "ISSUE ERROR!"
+            log.logger.info("ISSUE ERROR!")
             doing_list += [{'no match': issue.key}]
             continue
     return doing_list
@@ -249,27 +252,27 @@ def dump_parent_info(j, jql, doing_list, target_platform, target_dessert, unassi
     for issue in jql_issue_gen(jql, j, count_change_ok=True):
         # capture some info from each issue as it gets iterated over
         parent_key = issue.fields.parent.key
-        find_parent = "key = %s"%parent_key
-        parent_feature = j.search_issues("key=%s"%issue.fields.parent.key, 0)[0]
-        parent_subtasks = list(parent_feature.fields.subtasks)         
-        print "trying %s"%parent_key
+        find_parent = "key = %s" % parent_key
+        parent_feature = j.search_issues("key=%s" % issue.fields.parent.key, 0)[0]
+        parent_subtasks = list(parent_feature.fields.subtasks)
+        log.logger.info("trying %s" % parent_key)
         try:
             parent = j.search_issues(find_parent, 0)[0]
             p_plats = []
             p_plats += getattr(parent.fields, platprog_key)
-            print p_plats
+            log.logger.info(p_plats)
             for plat in p_plats:
                 ICL_found = 0
                 if plat.value == "Icelake-U SDC":
                     ICL_found += 1
 
                 if ICL_found:
-                    print "ICL num check TRUE"
+                    log.logger.info("ICL num check TRUE")
                 else:
                     doing_list += [{'key': parent.key}]
 
         except:
-            print "ISSUE ERROR!"
+            log.logger.error("ISSUE ERROR!")
             doing_list += [{'error hit inside dump_parent_info sub-issue search': issue.key}]
             continue
 
@@ -277,6 +280,7 @@ def dump_parent_info(j, jql, doing_list, target_platform, target_dessert, unassi
     return doing_list
 
 if __name__ == "__main__":
+    log.logger.info("Application Starting!")
     jira = init_jira()
     test_jql = """key = AREQ-23610"""
     done_list = []
@@ -307,5 +311,5 @@ if __name__ == "__main__":
     thefile = open('%s'%filename, 'w')
     for item in completed:
         thefile.write("%s\n" % item)
-    print "completion file written in this dir as %s"%filename
+    log.logger.info( "completion file written in this dir as %s"%filename )
 

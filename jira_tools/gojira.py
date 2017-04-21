@@ -1,7 +1,7 @@
 from jira.client import JIRA
 import itertools
 import yaml
-
+import logger as log
 
 CONFIG_FILE = 'config.yaml'
 
@@ -27,7 +27,7 @@ def init_jira():
         stream = open(CONFIG_FILE, 'r')
         config = yaml.load(stream)
     except:
-        print "Cannot load configuration file."
+        log.logger.info( "Cannot load configuration file." )
         exit(0)
 
     # Check Options
@@ -36,7 +36,7 @@ def init_jira():
         config['user']['username']
         config['user']['password']
     except:
-        print "Cannot load configuration options."
+        log.logger.info( "Cannot load configuration options." )
         exit(0)
 
     if config['connection']['verify'] is False:
@@ -49,8 +49,8 @@ def init_jira():
         auth = (config['user']['username'], config['user']['password'])
         jira = JIRA(config['connection'], basic_auth=auth)
     except Exception as e:
-        print e
-        print "Failed to connect to JIRA."
+        log.logger.info( e )
+        log.logger.info( "Failed to connect to JIRA." )
         exit(0)
 
     return jira
@@ -63,7 +63,7 @@ def jql_issue_gen(query, jira, show_status=False, count_change_ok=False):
         raise Exception('no query provided')
 
     if show_status:
-        print "JQL:", query
+        log.logger.info( "JQL:", query )
 
     seen = 0
     startAt = 0
@@ -73,7 +73,7 @@ def jql_issue_gen(query, jira, show_status=False, count_change_ok=False):
 
         if len(issues) == 0:
             if show_status:
-                print "loaded all %d issues"%total
+                log.logger.info( "loaded all %d issues"%total )
             break
 
         if total is None:
@@ -86,7 +86,7 @@ def jql_issue_gen(query, jira, show_status=False, count_change_ok=False):
 
         seen += len(issues)
         if show_status:
-            print "loaded %d issues starting at %d, %d/%d"%(len(issues), startAt, seen, total)
+            log.logger.info( "loaded %d issues starting at %d, %d/%d"%(len(issues), startAt, seen, total) )
         startAt += len(issues)
 
 
