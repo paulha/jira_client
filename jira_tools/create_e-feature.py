@@ -181,7 +181,7 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
             else:
                 target_assign = issue.fields.assignee.name
         
-	    if target_dessert == "":
+            if target_dessert == "":
                 child_dessert = getattr(issue.fields, and_vers_key)[0].value
     
             if True: ### TODO ALL SHOULD CURRENTLY GO THIS ROUTE AS OF 21MAR2017 TODO ###

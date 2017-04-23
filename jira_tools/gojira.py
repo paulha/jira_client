@@ -1,3 +1,4 @@
+from os.path import expanduser
 from jira.client import JIRA
 import itertools
 import yaml
@@ -21,10 +22,28 @@ def chunker(iterable, n, fillvalue=None):
 
 # set up jira connection
 def init_jira():
-    """Load Configuration"""
-    # Read File
+    """
+    Load Configuration from config.yaml
+    
+    Configuration may be held in either ~/.jira/config.yaml or ./config.yaml
+    """
     try:
-        stream = open(CONFIG_FILE, 'r')
+        # First, try to open config file in current directory
+        config_file = CONFIG_FILE
+        stream = open(config_file, 'r')
+    except:
+        log.logger.warning( "Could not open configuration file %s."%(config_file) )
+        try:
+            # Check to see if it's in user's ~/.jira
+            config_file = expanduser('~/.jira/' + CONFIG_FILE)
+            stream = open(config_file, 'r')
+        except:
+            log.logger.error("Could not open configuration file %s." % (config_file))
+            exit(0)
+
+    # Read the configuration
+    log.logger.info( "found config %s"%(config_file))
+    try:
         config = yaml.load(stream)
     except:
         log.logger.info( "Cannot load configuration file." )
@@ -36,7 +55,7 @@ def init_jira():
         config['user']['username']
         config['user']['password']
     except:
-        log.logger.info( "Cannot load configuration options." )
+        log.logger.info( "Missing configuration options." )
         exit(0)
 
     if config['connection']['verify'] is False:
