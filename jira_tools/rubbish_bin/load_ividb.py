@@ -194,15 +194,15 @@ def copy_components(j, source_project, dest_project):
     src_names = set(c.name for c in src_comps)
     dest_names = set(c.name for c in dest_comps)
 
-    print src_names - dest_names
-    print dest_names - src_names
+    log.logger.info( src_names - dest_names )
+    log.logger.info( dest_names - src_names )
 
     return
     src_comps_by_name = {c.name:c for c in src_comps}
     dest_comps_by_name = {c.name:c for c in dest_comps}
 
     for comp in src_comps:
-        ### print comp
+        ### log.logger.info( comp )
         stuff = {
             'assigneeType': comp.assigneeType,
         }
@@ -217,21 +217,21 @@ def copy_components(j, source_project, dest_project):
             stuff['description'] = desc
         except AttributeError:
             pass
-        ### print stuff
+        ### log.logger.info( stuff )
 
         if comp.name not in dest_comps_by_name:
-            print "%s does not exist, creating"%comp.name
+            log.logger.info( "%s does not exist, creating"%comp.name )
             stuff['project'] = dest_project
             stuff['name'] = comp.name
-            ### print stuff
-            ### print '*'*40
+            ### log.logger.info(stuff)
+            ### log.logger.info( '*'*40 )
             j.create_component(**stuff)
 
         else:
-            print "%s already exists, updating"%comp.name
+            log.logger.info( "%s already exists, updating"%comp.name )
             dest = dest_comps_by_name[comp.name]
-            ### print stuff
-            ### print '*'*40
+            ### log.logger.info( stuff )
+            ### log.logger.info( '*'*40 )
             dest.update(stuff)
 
 
@@ -239,7 +239,7 @@ def main():
     j = init_jira()
     #copy_components(j, 'AREQ', 'CREQ')
     load_ivi_stuff(j)
-    #print "not doing anything"
+    #log.logger.info( "not doing anything" )
 
 
 if __name__ == main():

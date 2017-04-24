@@ -34,7 +34,7 @@ import logger as log
 #                        # create dupe list
 #                if dupe_list:
 #                    doing_list += [{'source_id': issue.key, 'summary': 'dupe;no-clone'}]
-#                    print "already got %s"%issue.key
+#                    log.logger.info( "already got %s"%issue.key )
 def create_from_jql(j):
     i = 0
 

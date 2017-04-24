@@ -8,10 +8,11 @@ import sys
 import pyexcel as pe
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import logger as log
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 def update_new_preq_component_from_old_preq(jira, old_preqs):
-    print "Attempting to copy component information from:"
+    log.logger.info("Attempting to copy component information from:")
     update_count = 0
     fl = make_field_lookup(jira)
     gid_key = fl.reverse('Global ID')
@@ -26,7 +27,7 @@ def update_new_preq_component_from_old_preq(jira, old_preqs):
             updated_fields["components"] = all_components
         destination = jira.search_issues("\"Platform/Program\" = \"Icelake-U SDC\" AND \"Global ID\" ~ \"%s\""%gid, 0)[0]
         if updated_fields:
-            print "%s >>>---%s--->>> %s"%(source.key,all_components,destination.key)
+            log.logger.info( "%s >>>---%s--->>> %s"%(source.key,all_components,destination.key) )
             destination.update(fields=updated_fields)
             update_count += 1
 
@@ -37,5 +38,5 @@ if __name__ == "__main__":
 # TODO make script take file input given as python arg during call
     preqs = pe.iget_records(file_name="cupdate.xlsx")
     updates_made = update_new_preq_component_from_old_preq(jira, preqs)
-    print "%s updates were made. Today was a good day."%updates_made
+    log.logger.info( "%s updates were made. Today was a good day."%updates_made )
 
