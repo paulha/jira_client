@@ -51,25 +51,45 @@ def init_jira():
 
     # Check Options
     try:
-        config['connection']['server']
-        config['user']['username']
-        config['user']['password']
+        if 'servers' in config:
+            # Read from the servers subsection
+            section = config['servers']['jira-t3']
+            auth = (section['username'], section['password'])
+            host = section['host']
+
+            verify = None
+            if 'verify' in section:
+                verify = section['verify']
+
+        else:
+            config['connection']['server']
+            config['user']['username']
+            config['user']['password']
+            auth = (config['user']['username'], config['user']['password'])
+            host = config['connection']
+
+            verify = None
+            if 'verify' in section['connection']['verify']:
+                verify = section['connection']['verify']
+
     except:
-        log.logger.info( "Missing configuration options." )
+        log.logger.error( "Missing configuration options.", extra=section  )
         exit(0)
 
-    if config['connection']['verify'] is False:
+    verified = "verified"
+    if verify is None:
+        verified = "unverified"
         import requests
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     # Connect to JIRA
     try:
-        auth = (config['user']['username'], config['user']['password'])
-        jira = JIRA(config['connection'], basic_auth=auth)
+        log.logger.info( "Connecting to %s using %s connection.", host, verified)
+        jira = JIRA(host, basic_auth=auth)
     except Exception as e:
-        log.logger.info( e )
-        log.logger.info( "Failed to connect to JIRA." )
+        log.logger.fatal( e, exc_info=True )
+        log.logger.fatal( "Failed to connect to JIRA." )
         exit(0)
 
     return jira
