@@ -56,10 +56,12 @@ def init_jira():
             section = config['servers']['jira-t3']
             auth = (section['username'], section['password'])
             host = section['host']
+            server = {'server': host}
 
             verify = None
             if 'verify' in section:
                 verify = section['verify']
+                server['verify'] = verify
 
         else:
             config['connection']['server']
@@ -67,10 +69,12 @@ def init_jira():
             config['user']['password']
             auth = (config['user']['username'], config['user']['password'])
             host = config['connection']['server']
+            server = {'server': host}
 
             verify = None
             if 'verify' in config['connection']:
                 verify = config['connection']['verify']
+                server['verify'] = verify
 
     except:
         log.logger.error( "Missing configuration options.", extra=section  )
@@ -79,6 +83,7 @@ def init_jira():
     verified = "verified"
     if verify is None:
         verified = "unverified"
+        # -- Following code is supposed to ignore a certificate error, but it doesn't. :-(
         import requests
         from requests.packages.urllib3.exceptions import InsecureRequestWarning
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -86,7 +91,7 @@ def init_jira():
     # Connect to JIRA
     try:
         log.logger.info( "Connecting to %s using %s connection.", host, verified)
-        jira = JIRA(host, basic_auth=auth)
+        jira = JIRA(server, basic_auth=auth)
     except Exception as e:
         log.logger.fatal( e, exc_info=True )
         log.logger.fatal( "Failed to connect to JIRA." )
