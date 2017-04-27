@@ -66,11 +66,11 @@ def init_jira():
             config['user']['username']
             config['user']['password']
             auth = (config['user']['username'], config['user']['password'])
-            host = config['connection']
+            host = config['connection']['server']
 
             verify = None
-            if 'verify' in section['connection']['verify']:
-                verify = section['connection']['verify']
+            if 'verify' in config['connection']:
+                verify = config['connection']['verify']
 
     except:
         log.logger.error( "Missing configuration options.", extra=section  )
