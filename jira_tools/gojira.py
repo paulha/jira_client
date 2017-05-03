@@ -2,7 +2,7 @@ from os.path import expanduser
 from jira.client import JIRA
 import itertools
 import yaml
-import logger as log
+import Logger as log
 
 CONFIG_FILE = 'config.yaml'
 

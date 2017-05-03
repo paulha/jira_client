@@ -4,7 +4,7 @@ import sys
 from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 from jirafields import make_field_lookup
 
-import logger as log
+import Logger as log
 
 # TODO currently have to set new log file name each time
 # make so that it uses issue key to name the file + timestamp
