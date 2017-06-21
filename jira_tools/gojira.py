@@ -1,10 +1,12 @@
-from os.path import expanduser
+from os.path import expanduser, pathsep
 from jira.client import JIRA
 import itertools
 import yaml
 import Logger as log
 
-CONFIG_FILE = 'config.yaml'
+from utility_funcs.search import get_server_info
+
+CONFIG_FILE = './config.yaml'+pathsep+'~/.jira/config.yaml'
 
 
 def chunker(iterable, n, fillvalue=None):
@@ -26,6 +28,7 @@ def init_jira():
     Load Configuration from config.yaml
     
     Configuration may be held in either ~/.jira/config.yaml or ./config.yaml
+    """
     """
     try:
         # First, try to open config file in current directory
@@ -79,6 +82,9 @@ def init_jira():
     except:
         log.logger.error( "Missing configuration options.", extra=section  )
         exit(0)
+    """
+    config = get_server_info('jira-t3', CONFIG_FILE)    # possible FileNotFoundError
+    # todo: The shifting around that's going on above needs to be done....
 
     verified = "verified"
     if verify is None:
