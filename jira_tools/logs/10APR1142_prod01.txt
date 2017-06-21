@@ -1,4 +1,0 @@
-{'source_child': u'AREQ-17964', 'parent': u'AREQ-17947', 'summary': u'[N][Cherrytrail-T4] Alternative - Launcher (Launcher3)'}
-{'source_child': u'AREQ-17957', 'parent': u'AREQ-10187', 'summary': u'[N][Cherrytrail-T4] Wi-Fi 802.11ac'}
-{'source_child': u'AREQ-17843', 'parent': u'AREQ-16265', 'summary': u'[N][Cherrytrail-T4] Multi-Window Support - Split-Screen Mode'}
-{'error_issue': u'AREQ-17843', 'error_text': <class 'jira.exceptions.JIRAError'>}

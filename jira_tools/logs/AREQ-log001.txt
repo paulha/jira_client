@@ -1,4 +1,0 @@
-	text: User 'Unassigned' does not exist.
-	
-	response headers = {'X-AUSERNAME': 'wilcoxjx', 'X-AREQUESTID': '135x8615124x10', 'X-Content-Type-Options': 'nosniff', 'Content-Encoding': 'gzip', 'Transfer-Encoding': 'chunked', 'X-Seraph-LoginReason': 'OK', 'Vary': 'User-Agent', 'X-ASESSIONID': '1l2t1at', 'Server': 'Apache-Coyote/1.1', 'Connection': 'close', 'Cache-Control': 'no-cache, no-store, no-transform', 'Date': 'Wed, 22 Mar 2017 09:15:23 GMT', 'Content-Type': 'application/json;charset=UTF-8', 'X-ASEN': 'SEN-2140308'}
-	response text = {"errorMessages":[],"errors":{"assignee":"User 'Unassigned' does not exist."}}

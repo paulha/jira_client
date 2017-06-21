@@ -2,7 +2,7 @@ from os.path import expanduser, pathsep
 from jira.client import JIRA
 import itertools
 import yaml
-import Logger as log
+import logger_yaml as log
 
 from utility_funcs.search import get_server_info
 
@@ -23,71 +23,41 @@ def chunker(iterable, n, fillvalue=None):
 
 
 # set up jira connection
-def init_jira():
+def init_jira(host_alias = "jira-t3"):
     """
     Load Configuration from config.yaml
     
     Configuration may be held in either ~/.jira/config.yaml or ./config.yaml
+
+    This is no longer compatible with previous config.yaml login configuration
     """
-    """
-    try:
-        # First, try to open config file in current directory
-        config_file = CONFIG_FILE
-        stream = open(config_file, 'r')
-    except:
-        log.logger.warning( "Could not open configuration file %s."%(config_file) )
-        try:
-            # Check to see if it's in user's ~/.jira
-            config_file = expanduser('~/.jira/' + CONFIG_FILE)
-            stream = open(config_file, 'r')
-        except:
-            log.logger.error("Could not open configuration file %s." % (config_file))
-            exit(0)
+    config = get_server_info(host_alias, CONFIG_FILE)    # possible FileNotFoundError
+    # -- Check for missing parameters:
+    errors = 0
+    if config is None:
+        errors = 1
+        log.logger.fatal("Configuration section for server %s is missing." % (host_alias))
+        exit(-1)
+    if 'username' not in config:
+        errors += 1
+        log.logger.fatal("username for server %s is missing." % (host_alias))
+    if 'password' not in config:
+        errors += 1
+        log.logger.fatal("password for server %s is missing." % (host_alias))
+    if 'host' not in config:
+        errors += 1
+        log.logger.fatal("host url for server %s is missing." % (host_alias))
+    if errors > 0:
+        log.logger.fatal("configuration errors were found, exiting." )
+        exit(-1)
 
-    # Read the configuration
-    log.logger.info( "found config %s"%(config_file))
-    try:
-        config = yaml.load(stream)
-    except:
-        log.logger.info( "Cannot load configuration file." )
-        exit(0)
-
-    # Check Options
-    try:
-        if 'servers' in config:
-            # Read from the servers subsection
-            section = config['servers']['jira-t3']
-            auth = (section['username'], section['password'])
-            host = section['host']
-            server = {'server': host}
-
-            verify = None
-            if 'verify' in section:
-                verify = section['verify']
-                server['verify'] = verify
-
-        else:
-            config['connection']['server']
-            config['user']['username']
-            config['user']['password']
-            auth = (config['user']['username'], config['user']['password'])
-            host = config['connection']['server']
-            server = {'server': host}
-
-            verify = None
-            if 'verify' in config['connection']:
-                verify = config['connection']['verify']
-                server['verify'] = verify
-
-    except:
-        log.logger.error( "Missing configuration options.", extra=section  )
-        exit(0)
-    """
-    config = get_server_info('jira-t3', CONFIG_FILE)    # possible FileNotFoundError
-    # todo: The shifting around that's going on above needs to be done....
-
-    verified = "verified"
-    if verify is None:
+    auth = (config['username'], config['password'])
+    host = config['host']
+    server = {'server': host}
+    if 'verify' in  config:
+        verified = "verified"
+        server['verify'] = config['verify']
+    else:
         verified = "unverified"
         # -- Following code is supposed to ignore a certificate error, but it doesn't. :-(
         import requests
