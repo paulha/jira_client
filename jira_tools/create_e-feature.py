@@ -279,16 +279,18 @@ def dump_parent_info(j, jql, doing_list, target_platform, target_dessert, unassi
 
     return doing_list
 
-if __name__ == "__main__":
-    log.logger.info("Application Starting!")
-    jira = init_jira()
+def compare_priorities( args ):
+    jira = init_jira( args.name )
     test_jql = """key = AREQ-23610"""
     done_list = []
-    
+
+    test_jql = """key = AREQ-23610"""
+    done_list = []
+
     # get input from cmd line - TODO to be used for direction to either New Platform or New Dessert functions later
-#    parser = argparse.ArgumentParser(description='Use this weird trick to save 600% time on cutting your *NEW* Android Requirement E-Features from home and make $7253 a month that insurance companies in OREGON don\'t want YOU to know!!')
-#    parser.add_argument('-i','--input', help='Input file name',required=False)
-#    args = parser.parse_args()
+    #    parser = argparse.ArgumentParser(description='Use this weird trick to save 600% time on cutting your *NEW* Android Requirement E-Features from home and make $7253 a month that insurance companies in OREGON don\'t want YOU to know!!')
+    #    parser.add_argument('-i','--input', help='Input file name',required=False)
+    #    args = parser.parse_args()
 
     # SDNP = same dessert; new platform / SPND = same platform; new dessert
     # set this according to AREQ request using cmd line args above
@@ -296,20 +298,42 @@ if __name__ == "__main__":
     hasNewDessert = False
     if hasNewPlatform:
         target_platform = "Broxton"
-        target_dessert = "" 
+        target_dessert = ""
     if hasNewDessert:
         target_platform = ""
         target_dessert = "O"
     else:
         target_platform = ""
         target_dessert = ""
-#    dustin_jql = """project = AREQ AND "Platform/Program" = "Icelake-U SDC" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC"""
+        #    dustin_jql = """project = AREQ AND "Platform/Program" = "Icelake-U SDC" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC"""
     amy_jql = """project = "Platforms Requirements" AND "Platform/Program" = "Icelake-U SDC" ORDER BY "Global ID" ASC"""
-#    completed = dump_parent_info(jira, amy_jql, done_list, target_platform, target_dessert, True)
+    #    completed = dump_parent_info(jira, amy_jql, done_list, target_platform, target_dessert, True)
     completed = compare_prios(jira, amy_jql, done_list)
     filename = "17APR1427_AREQ-24084.txt"
-    thefile = open('%s'%filename, 'w')
+    thefile = open('%s' % filename, 'w')
     for item in completed:
         thefile.write("%s\n" % item)
-    log.logger.info( "completion file written in this dir as %s"%filename )
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser( description="This is an OTC tool for working with Jira projects.")
+    connection_group=parser.add_argument_group(title="Connection control", description="About the connectionn to the server")
+    connection_group.add_argument("-n", "--name", nargs='?', default="default", help="Alias for the target host" )
+    connection_group.add_argument("-u", "--user", nargs='?', help="User Name (future)" )
+    connection_group.add_argument("-p", "--password", nargs='?', help="Password (future)" )
+    parser.add_argument("command", choices=['help','compare_priorities'])
+    args = parser.parse_args()
+    args.command = args.command.lower()
+
+    log.logger.debug("Command input: %s", args)
+    if 'help'==args.command:
+        parser.print_help()
+    elif 'compare_priorities'==args.command:
+        compare_priorities( args )
+    else:
+        parser.print_help()
+        exit(1)
+
+    log.logger.info("Application Starting!")
+
+    log.logger.info( "Run completed." )
 
