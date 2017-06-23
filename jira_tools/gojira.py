@@ -6,9 +6,6 @@ import logger_yaml as log
 
 from utility_funcs.search import get_server_info
 
-CONFIG_FILE = './config.yaml'+pathsep+'~/.jira/config.yaml'
-
-
 def chunker(iterable, n, fillvalue=None):
     "Return n at a time, no padding at end of list"
     
@@ -23,7 +20,7 @@ def chunker(iterable, n, fillvalue=None):
 
 
 # set up jira connection
-def init_jira(host_alias = "jira-t3"):
+def init_jira(host_alias = "jira-t3", config={} ):
     """
     Load Configuration from config.yaml
     
@@ -31,26 +28,6 @@ def init_jira(host_alias = "jira-t3"):
 
     This is no longer compatible with previous config.yaml login configuration
     """
-    config = get_server_info(host_alias, CONFIG_FILE)    # possible FileNotFoundError
-    # -- Check for missing parameters:
-    errors = 0
-    if config is None:
-        errors = 1
-        log.logger.fatal("Configuration section for server %s is missing." % (host_alias))
-        exit(-1)
-    if 'username' not in config:
-        errors += 1
-        log.logger.fatal("username for server %s is missing." % (host_alias))
-    if 'password' not in config:
-        errors += 1
-        log.logger.fatal("password for server %s is missing." % (host_alias))
-    if 'host' not in config:
-        errors += 1
-        log.logger.fatal("host url for server %s is missing." % (host_alias))
-    if errors > 0:
-        log.logger.fatal("configuration errors were found, exiting." )
-        exit(-1)
-
     auth = (config['username'], config['password'])
     host = config['host']
     server = {'server': host}

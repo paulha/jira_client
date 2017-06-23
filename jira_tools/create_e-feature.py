@@ -1,10 +1,15 @@
+from os.path import expanduser, pathsep
 import argparse
 import csv
 import sys
 from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 from jirafields import make_field_lookup
+from utility_funcs.search import get_server_info
 
 import logger_yaml as log
+
+CONFIG_FILE = './config.yaml'+pathsep+'~/.jira/config.yaml'
+
 
 # TODO currently have to set new log file name each time
 # make so that it uses issue key to name the file + timestamp
@@ -279,8 +284,8 @@ def dump_parent_info(j, jql, doing_list, target_platform, target_dessert, unassi
 
     return doing_list
 
-def compare_priorities( args ):
-    jira = init_jira( args.name )
+def compare_priorities( args, config ):
+    jira = init_jira( args.name, config )
     test_jql = """key = AREQ-23610"""
     done_list = []
 
@@ -324,16 +329,35 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.command = args.command.lower()
 
-    log.logger.debug("Command input: %s", args)
+    config = get_server_info(args.name, CONFIG_FILE)    # possible FileNotFoundError
+    errors = 0
+    if config is None:
+        errors = 1
+        log.logger.fatal("Configuration section for server %s is missing." % (host_alias))
+        exit(-1)
+    if 'username' not in config:
+        errors += 1
+        log.logger.fatal("username for server %s is missing." % (host_alias))
+    if 'password' not in config:
+        errors += 1
+        log.logger.fatal("password for server %s is missing." % (host_alias))
+    if 'host' not in config:
+        errors += 1
+        log.logger.fatal("host url for server %s is missing." % (host_alias))
+    if errors > 0:
+        log.logger.fatal("configuration errors were found, exiting." )
+        exit(-1)
+
+    # --> Dispatch to action routine:
+    log.logger.info("Application Starting! Comamnd='%s'" % args.command)
+
     if 'help'==args.command:
         parser.print_help()
     elif 'compare_priorities'==args.command:
-        compare_priorities( args )
+        compare_priorities( args, config )
     else:
         parser.print_help()
         exit(1)
-
-    log.logger.info("Application Starting!")
 
     log.logger.info( "Run completed." )
 
