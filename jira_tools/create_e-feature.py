@@ -213,43 +213,43 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
     log.logger.info( "Updated {} issues".format(update_count) )
     return doing_list
 
-def dump_parent_info(j, jql, doing_list, target_platform, target_dessert, unassign_new):
-    fl = make_field_lookup(j)
-    val_lead_key = fl.reverse('Validation Lead')
-    and_vers_key = fl.reverse('Android Version(s)')
-    platprog_key = fl.reverse('Platform/Program')
-    exists_on = fl.reverse('Exists On')
-
-    # get the initial list of source issues and iterate
-    for issue in jql_issue_gen(jql, j, count_change_ok=True):
-        # capture some info from each issue as it gets iterated over
-        parent_key = issue.fields.parent.key
-        find_parent = "key = %s" % parent_key
-        parent_feature = j.search_issues("key=%s" % issue.fields.parent.key, 0)[0]
-        parent_subtasks = list(parent_feature.fields.subtasks)
-        log.logger.info("trying %s" % parent_key)
-        try:
-            parent = j.search_issues(find_parent, 0)[0]
-            p_plats = []
-            p_plats += getattr(parent.fields, platprog_key)
-            log.logger.info(p_plats)
-            for plat in p_plats:
-                ICL_found = 0
-                if plat.value == "Icelake-U SDC":
-                    ICL_found += 1
-
-                if ICL_found:
-                    log.logger.info("ICL num check TRUE")
-                else:
-                    doing_list += [{'key': parent.key}]
-
-        except:
-            log.logger.error("ISSUE ERROR!")
-            doing_list += [{'error hit inside dump_parent_info sub-issue search': issue.key}]
-            continue
-
-
-    return doing_list
+# def dump_parent_info(jira, search_query, doing_list, target_platform, target_dessert, unassign_new):
+#     fl = make_field_lookup(jira)
+#     val_lead_key = fl.reverse('Validation Lead')
+#     and_vers_key = fl.reverse('Android Version(s)')
+#     platprog_key = fl.reverse('Platform/Program')
+#     exists_on = fl.reverse('Exists On')
+#
+#     # get the initial list of source issues and iterate
+#     for issue in jql_issue_gen(search_query, jira, count_change_ok=True):
+#         # capture some info from each issue as it gets iterated over
+#         parent_key = issue.fields.parent.key
+#         find_parent = "key = %s" % parent_key
+#         parent_feature = jira.search_issues("key=%s" % issue.fields.parent.key, 0)[0]
+#         parent_subtasks = list(parent_feature.fields.subtasks)
+#         log.logger.info("trying %s" % parent_key)
+#         try:
+#             parent = jira.search_issues(find_parent, 0)[0]
+#             p_plats = []
+#             p_plats += getattr(parent.fields, platprog_key)
+#             log.logger.info(p_plats)
+#             for plat in p_plats:
+#                 ICL_found = 0
+#                 if plat.value == "Icelake-U SDC":
+#                     ICL_found += 1
+#
+#                 if ICL_found:
+#                     log.logger.info("ICL num check TRUE")
+#                 else:
+#                     doing_list += [{'key': parent.key}]
+#
+#         except:
+#             log.logger.error("ISSUE ERROR!")
+#             doing_list += [{'error hit inside dump_parent_info sub-issue search': issue.key}]
+#             continue
+#
+#
+#     return doing_list
 
 #============= Retired Code =======================================================
 # def compare_priorities( args, config ):
@@ -289,38 +289,58 @@ def dump_parent_info(j, jql, doing_list, target_platform, target_dessert, unassi
 #======================================================================================
 
 
-def compare_prios(j, jql, doing_list):
-    fl = make_field_lookup(j)
-    val_lead_key = fl.reverse('Validation Lead')
-    and_vers_key = fl.reverse('Android Version(s)')
-    platprog_key = fl.reverse('Platform/Program')
-    gid_finder = fl.reverse('Global ID')
-    for issue in jql_issue_gen(jql, j, count_change_ok=True):
-        # capture some info from each issue as it gets iterated over
-#        parent_key = issue.fields.parent.key
-#        summary = issue.fields.summary
-#        searchable = summary.split("]")
-#        ssum = searchable[2].lstrip()
-#        ssum = ssum.replace("-"," ")
-        gid = getattr(issue.fields, gid_finder)
-        find_match = "\"Platform/Program\" = \"Broxton-P IVI\" AND \"Android Version(s)\" = 'O' AND 'Global ID' ~ %s"%gid
-#        parent_subtasks = list(parent_feature.fields.subtasks)
-#        dupe_list = []
-        log.logger.info( "trying %s"%gid )
+def dump_parents(parser, args, config ):
+    #
+    # -- What's the actual goal of this?
+
+    search_query = """project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC""".format_map(vars(args))
+    log.logger.info( "search query is: %s", search_query)
+
+    # TODO: Check: shouldn't this qualify by project as well?
+    # match_query = """ "Platform/Program" = "{tplatform}" AND "Android Version(s)" = '{taversion}' AND 'Global ID' ~ %s""".format_map(vars(args))
+    # log.logger.info( "match query is: %s", match_query)
+
+    done_list = []
+
+    jira = init_jira( args.name, config )
+
+    field_lookup = make_field_lookup(jira)
+    val_lead_key = field_lookup.reverse('Validation Lead')
+    and_vers_key = field_lookup.reverse('Android Version(s)')
+    platprog_key = field_lookup.reverse('Platform/Program')
+    gid_finder = field_lookup.reverse('Global ID')
+
+    for issue in jql_issue_gen(search_query, jira, count_change_ok=True):
+        parent_key = issue.fields.parent.key
+        find_parent = "key = %s" % parent_key
+        # todo: There's also a direct search, would that work?
+        parent_feature = jira.search_issues("key=%s" % issue.fields.parent.key, 0)[0]
+        parent_subtasks = list(parent_feature.fields.subtasks)
+        log.logger.info("trying %s" % parent_key)
         try:
-            match = j.search_issues(find_match,0)[0]
-            id1 = match.fields.priority.id
-            id2 = issue.fields.priority.id
-            if id1 == id2:
-                log.logger.info("priority match")
-            else:
-                log.logger.info("priority mismatch")
-                doing_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
+            parent = jira.search_issues(find_parent, 0)[0]
+            p_plats = []
+            p_plats += getattr(parent.fields, platprog_key)
+            log.logger.info(p_plats)
+            for plat in p_plats:
+                ICL_found = 0
+                # todo: Make Generic!
+                if plat.value == "Icelake-U SDC":
+                    ICL_found += 1
+
+                if ICL_found:
+                    log.logger.info("ICL num check TRUE")
+                else:
+                    done_list += [{'key': parent.key}]
+
         except:
-            log.logger.info("ISSUE ERROR!")
-            doing_list += [{'no match': issue.key}]
+            log.logger.error("ISSUE ERROR!")
+            done_list += [{'error hit inside dump_parent_info sub-issue search': issue.key}]
             continue
-    return doing_list
+
+    with open(args.output,'w') as outfile:
+        for item in done_list:
+            outfile.write("%s\n" % item)
 
 
 def compare_priorities( parser, args, config ):
@@ -362,11 +382,12 @@ def compare_priorities( parser, args, config ):
             continue
 
     with open(args.output,'w') as outfile:
-        for item in completed:
+        for item in done_list:
             outfile.write("%s\n" % item)
 
 
 if __name__ == "__main__":
+    # Todo: add control of log level
     parser = argparse.ArgumentParser( description="This is an OTC tool for working with Jira projects.")
     connection_group=parser.add_argument_group(title="Connection control", description="About the connectionn to the server")
     connection_group.add_argument("-n", "--name", nargs='?', default="default", help="Alias for the target host" )
@@ -378,7 +399,7 @@ if __name__ == "__main__":
     project_group.add_argument("--tplatform", nargs='?', default="Broxton-P IVI", help="Jira source platform" )
     project_group.add_argument("--taversion", nargs='?', default="O", help="Android target version" )
     parser.add_argument("-o","--output",nargs='?',default="output.txt",help="Where to store the result.")
-    parser.add_argument("command", choices=['help','compare_priorities'])
+    parser.add_argument("command", choices=['help','compare_priorities','dump_parents'])
     args = parser.parse_args()
     args.command = args.command.lower()
 
@@ -406,8 +427,10 @@ if __name__ == "__main__":
 
     if 'help'==args.command:
         parser.print_help()
-    elif 'compare_priorities'==args.command:
-        compare_priorities( parser, args, config )
+    elif 'compare_priorities' == args.command:
+        compare_priorities(parser, args, config)
+    elif 'dump_parents' == args.command:
+        dump_parents(parser, args, config)
     else:
         parser.print_help()
         exit(1)
