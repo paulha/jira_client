@@ -5,7 +5,6 @@ import sys
 from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 from jirafields import make_field_lookup
 from utility_funcs.search import get_server_info
-
 import logging
 import logger_yaml as log
 
