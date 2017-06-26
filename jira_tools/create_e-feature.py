@@ -333,17 +333,17 @@ if __name__ == "__main__":
     errors = 0
     if config is None:
         errors = 1
-        log.logger.fatal("Configuration section for server %s is missing." % (host_alias))
+        log.logger.fatal("Configuration section for server %s is missing." % (args.name))
         exit(-1)
     if 'username' not in config:
         errors += 1
-        log.logger.fatal("username for server %s is missing." % (host_alias))
+        log.logger.fatal("username for server %s is missing." % (args.name))
     if 'password' not in config:
         errors += 1
-        log.logger.fatal("password for server %s is missing." % (host_alias))
+        log.logger.fatal("password for server %s is missing." % (args.name))
     if 'host' not in config:
         errors += 1
-        log.logger.fatal("host url for server %s is missing." % (host_alias))
+        log.logger.fatal("host url for server %s is missing." % (args.name))
     if errors > 0:
         log.logger.fatal("configuration errors were found, exiting." )
         exit(-1)
