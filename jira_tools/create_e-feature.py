@@ -6,6 +6,7 @@ from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 from jirafields import make_field_lookup
 from utility_funcs.search import get_server_info
 
+import logging
 import logger_yaml as log
 
 CONFIG_FILE = './config.yaml'+pathsep+'~/.jira/config.yaml'
@@ -293,12 +294,14 @@ def dump_parents(parser, args, config ):
     #
     # -- What's the actual goal of this?
 
-    search_query = """project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC""".format_map(vars(args))
-    log.logger.info( "search query is: %s", search_query)
+    # Apparently PREQ's don't have a parent attribute...
+    # search_query = """project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC""".format_map(vars(args))
+    search_query = """project = AREQ AND "Platform/Program" = "{splatform}" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC""".format_map(vars(args))
+    log.logger.debug( "search query is: %s", search_query)
 
     # TODO: Check: shouldn't this qualify by project as well?
     # match_query = """ "Platform/Program" = "{tplatform}" AND "Android Version(s)" = '{taversion}' AND 'Global ID' ~ %s""".format_map(vars(args))
-    # log.logger.info( "match query is: %s", match_query)
+    # log.logger.debug( "match query is: %s", match_query)
 
     done_list = []
 
@@ -311,17 +314,23 @@ def dump_parents(parser, args, config ):
     gid_finder = field_lookup.reverse('Global ID')
 
     for issue in jql_issue_gen(search_query, jira, count_change_ok=True):
-        parent_key = issue.fields.parent.key
+        log.logger.info("Issue %s: %s", issue.key, issue.fields.summary)
+        try:
+            parent_key = issue.fields.parent.key
+        except AttributeError as e:
+            log.logger.error("Exception %s: Results of the query '%s' do not have a 'parent' field.", e, search_query)
+            return
+
         find_parent = "key = %s" % parent_key
         # todo: There's also a direct search, would that work?
         parent_feature = jira.search_issues("key=%s" % issue.fields.parent.key, 0)[0]
         parent_subtasks = list(parent_feature.fields.subtasks)
-        log.logger.info("trying %s" % parent_key)
+        log.logger.debug("trying %s" % parent_key)
         try:
             parent = jira.search_issues(find_parent, 0)[0]
             p_plats = []
             p_plats += getattr(parent.fields, platprog_key)
-            log.logger.info(p_plats)
+            log.logger.debug(p_plats)
             for plat in p_plats:
                 ICL_found = 0
                 # todo: Make Generic!
@@ -329,7 +338,7 @@ def dump_parents(parser, args, config ):
                     ICL_found += 1
 
                 if ICL_found:
-                    log.logger.info("ICL num check TRUE")
+                    log.logger.debug("ICL num check TRUE")
                 else:
                     done_list += [{'key': parent.key}]
 
@@ -344,13 +353,12 @@ def dump_parents(parser, args, config ):
 
 
 def compare_priorities( parser, args, config ):
-
     search_query = """project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC""".format_map(vars(args))
-    log.logger.info( "search query is: %s", search_query)
+    log.logger.debug( "search query is: %s", search_query)
 
     # TODO: Check: shouldn't this qualify by project as well?
     match_query = """ "Platform/Program" = "{tplatform}" AND "Android Version(s)" = '{taversion}' AND 'Global ID' ~ %s""".format_map(vars(args))
-    log.logger.info( "match query is: %s", match_query)
+    log.logger.debug( "match query is: %s", match_query)
 
     done_list = []
 
@@ -363,8 +371,9 @@ def compare_priorities( parser, args, config ):
     gid_finder = field_lookup.reverse('Global ID')
 
     for issue in jql_issue_gen(search_query, jira, count_change_ok=True):
+        log.logger.info("Issue %s: %s", issue.key, issue.fields.summary)
         gid = getattr(issue.fields, gid_finder)
-        log.logger.info( "trying %s"%gid )
+        log.logger.debug( "trying %s"%gid )
         # substitute in the gid at the last moment...
         query = match_query % gid
         try:
@@ -372,12 +381,12 @@ def compare_priorities( parser, args, config ):
             id1 = match.fields.priority.id
             id2 = issue.fields.priority.id
             if id1 == id2:
-                log.logger.info("priority match")
+                log.logger.debug("priority match")
             else:
-                log.logger.info("priority mismatch")
+                log.logger.debug("priority mismatch")
                 done_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
         except:
-            log.logger.info("ISSUE ERROR!")
+            log.logger.warn("ISSUE ERROR!")
             done_list += [{'no match': issue.key}]
             continue
 
@@ -399,8 +408,13 @@ if __name__ == "__main__":
     project_group.add_argument("--tplatform", nargs='?', default="Broxton-P IVI", help="Jira source platform" )
     project_group.add_argument("--taversion", nargs='?', default="O", help="Android target version" )
     parser.add_argument("-o","--output",nargs='?',default="output.txt",help="Where to store the result.")
+    parser.add_argument("-l", "--log_level", choices=['debug','info','warn','error','fatal'])
     parser.add_argument("command", choices=['help','compare_priorities','dump_parents'])
     args = parser.parse_args()
+
+    if args.log_level is not None:
+        log.logger.setLevel( logging.getLevelName(args.log_level.upper()))
+
     args.command = args.command.lower()
 
     config = get_server_info(args.name, CONFIG_FILE)    # possible FileNotFoundError
