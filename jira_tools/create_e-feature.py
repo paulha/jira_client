@@ -213,39 +213,6 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
     log.logger.info( "Updated {} issues".format(update_count) )
     return doing_list
 
-def compare_prios(j, jql, doing_list):
-    fl = make_field_lookup(j)
-    val_lead_key = fl.reverse('Validation Lead')
-    and_vers_key = fl.reverse('Android Version(s)')
-    platprog_key = fl.reverse('Platform/Program')
-    gid_finder = fl.reverse('Global ID')
-    for issue in jql_issue_gen(jql, j, count_change_ok=True):
-        # capture some info from each issue as it gets iterated over
-#        parent_key = issue.fields.parent.key
-#        summary = issue.fields.summary
-#        searchable = summary.split("]")
-#        ssum = searchable[2].lstrip()
-#        ssum = ssum.replace("-"," ")
-        gid = getattr(issue.fields, gid_finder)
-        find_match = "\"Platform/Program\" = \"Broxton-P IVI\" AND \"Android Version(s)\" = 'O' AND 'Global ID' ~ %s"%gid
-#        parent_subtasks = list(parent_feature.fields.subtasks)
-#        dupe_list = []
-        log.logger.info( "trying %s"%gid )
-        try:
-            match = j.search_issues(find_match,0)[0]
-            id1 = match.fields.priority.id
-            id2 = issue.fields.priority.id
-            if id1 == id2:
-                log.logger.info("priority match")
-            else:
-                log.logger.info("priority mismatch")
-                doing_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
-        except:
-            log.logger.info("ISSUE ERROR!")
-            doing_list += [{'no match': issue.key}]
-            continue
-    return doing_list
-
 def dump_parent_info(j, jql, doing_list, target_platform, target_dessert, unassign_new):
     fl = make_field_lookup(j)
     val_lead_key = fl.reverse('Validation Lead')
@@ -284,40 +251,147 @@ def dump_parent_info(j, jql, doing_list, target_platform, target_dessert, unassi
 
     return doing_list
 
-def compare_priorities( args, config ):
+#============= Retired Code =======================================================
+# def compare_priorities( args, config ):
+#     jira = init_jira( args.name, config )
+#     test_jql = """key = AREQ-23610"""
+#     done_list = []
+#
+#     test_jql = """key = AREQ-23610"""
+#     done_list = []
+#
+#     # get input from cmd line - TODO to be used for direction to either New Platform or New Dessert functions later
+#     #    parser = argparse.ArgumentParser(description='Use this weird trick to save 600% time on cutting your *NEW* Android Requirement E-Features from home and make $7253 a month that insurance companies in OREGON don\'t want YOU to know!!')
+#     #    parser.add_argument('-i','--input', help='Input file name',required=False)
+#     #    args = parser.parse_args()
+#
+#     # SDNP = same dessert; new platform / SPND = same platform; new dessert
+#     # set this according to AREQ request using cmd line args above
+#     hasNewPlatform = False
+#     hasNewDessert = False
+#     if hasNewPlatform:
+#         target_platform = "Broxton"
+#         target_dessert = ""
+#     if hasNewDessert:
+#         target_platform = ""
+#         target_dessert = "O"
+#     else:
+#         target_platform = ""
+#         target_dessert = ""
+#         #    dustin_jql = """project = AREQ AND "Platform/Program" = "Icelake-U SDC" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC"""
+#     amy_jql = """project = "Platforms Requirements" AND "Platform/Program" = "Icelake-U SDC" ORDER BY "Global ID" ASC"""
+#     #    completed = dump_parent_info(jira, amy_jql, done_list, target_platform, target_dessert, True)
+#     completed = compare_prios(jira, amy_jql, done_list)
+#     filename = "17APR1427_AREQ-24084.txt"
+#     thefile = open('%s' % filename, 'w')
+#     for item in completed:
+#         thefile.write("%s\n" % item)
+#======================================================================================
+
+
+def compare_prios(j, jql, doing_list):
+    fl = make_field_lookup(j)
+    val_lead_key = fl.reverse('Validation Lead')
+    and_vers_key = fl.reverse('Android Version(s)')
+    platprog_key = fl.reverse('Platform/Program')
+    gid_finder = fl.reverse('Global ID')
+    for issue in jql_issue_gen(jql, j, count_change_ok=True):
+        # capture some info from each issue as it gets iterated over
+#        parent_key = issue.fields.parent.key
+#        summary = issue.fields.summary
+#        searchable = summary.split("]")
+#        ssum = searchable[2].lstrip()
+#        ssum = ssum.replace("-"," ")
+        gid = getattr(issue.fields, gid_finder)
+        find_match = "\"Platform/Program\" = \"Broxton-P IVI\" AND \"Android Version(s)\" = 'O' AND 'Global ID' ~ %s"%gid
+#        parent_subtasks = list(parent_feature.fields.subtasks)
+#        dupe_list = []
+        log.logger.info( "trying %s"%gid )
+        try:
+            match = j.search_issues(find_match,0)[0]
+            id1 = match.fields.priority.id
+            id2 = issue.fields.priority.id
+            if id1 == id2:
+                log.logger.info("priority match")
+            else:
+                log.logger.info("priority mismatch")
+                doing_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
+        except:
+            log.logger.info("ISSUE ERROR!")
+            doing_list += [{'no match': issue.key}]
+            continue
+    return doing_list
+
+
+def refactored_compare_prios(jira, jira_query, done_list):
+    fl = make_field_lookup(jira)
+    val_lead_key = fl.reverse('Validation Lead')
+    and_vers_key = fl.reverse('Android Version(s)')
+    platprog_key = fl.reverse('Platform/Program')
+    gid_finder = fl.reverse('Global ID')
+    for issue in jql_issue_gen(jira_query, jira, count_change_ok=True):
+        gid = getattr(issue.fields, gid_finder)
+        find_match = "\"Platform/Program\" = \"Broxton-P IVI\" AND \"Android Version(s)\" = 'O' AND 'Global ID' ~ %s"%gid
+        log.logger.info( "trying %s"%gid )
+        try:
+            match = jira.search_issues(find_match, 0)[0]
+            id1 = match.fields.priority.id
+            id2 = issue.fields.priority.id
+            if id1 == id2:
+                log.logger.info("priority match")
+            else:
+                log.logger.info("priority mismatch")
+                done_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
+        except:
+            log.logger.info("ISSUE ERROR!")
+            done_list += [{'no match': issue.key}]
+            continue
+
+    return done_list
+
+
+def compare_priorities( parser, args, config ):
+
+    search_query = """project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC""".format_map(vars(args))
+    log.logger.info( "search query is: %s", search_query)
+
+    # TODO: Check: shouldn't this qualify by project as well?
+    match_query = """ "Platform/Program" = "{tplatform}" AND "Android Version(s)" = '{taversion}' AND 'Global ID' ~ %s""".format_map(vars(args))
+    log.logger.info( "match query is: %s", match_query)
+
+    done_list = []
+
     jira = init_jira( args.name, config )
-    test_jql = """key = AREQ-23610"""
-    done_list = []
 
-    test_jql = """key = AREQ-23610"""
-    done_list = []
+    field_lookup = make_field_lookup(jira)
+    val_lead_key = field_lookup.reverse('Validation Lead')
+    and_vers_key = field_lookup.reverse('Android Version(s)')
+    platprog_key = field_lookup.reverse('Platform/Program')
+    gid_finder = field_lookup.reverse('Global ID')
 
-    # get input from cmd line - TODO to be used for direction to either New Platform or New Dessert functions later
-    #    parser = argparse.ArgumentParser(description='Use this weird trick to save 600% time on cutting your *NEW* Android Requirement E-Features from home and make $7253 a month that insurance companies in OREGON don\'t want YOU to know!!')
-    #    parser.add_argument('-i','--input', help='Input file name',required=False)
-    #    args = parser.parse_args()
+    for issue in jql_issue_gen(search_query, jira, count_change_ok=True):
+        gid = getattr(issue.fields, gid_finder)
+        log.logger.info( "trying %s"%gid )
+        # substitute in the gid at the last moment...
+        query = match_query % gid
+        try:
+            match = jira.search_issues(query, 0)[0]
+            id1 = match.fields.priority.id
+            id2 = issue.fields.priority.id
+            if id1 == id2:
+                log.logger.info("priority match")
+            else:
+                log.logger.info("priority mismatch")
+                done_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
+        except:
+            log.logger.info("ISSUE ERROR!")
+            done_list += [{'no match': issue.key}]
+            continue
 
-    # SDNP = same dessert; new platform / SPND = same platform; new dessert
-    # set this according to AREQ request using cmd line args above
-    hasNewPlatform = False
-    hasNewDessert = False
-    if hasNewPlatform:
-        target_platform = "Broxton"
-        target_dessert = ""
-    if hasNewDessert:
-        target_platform = ""
-        target_dessert = "O"
-    else:
-        target_platform = ""
-        target_dessert = ""
-        #    dustin_jql = """project = AREQ AND "Platform/Program" = "Icelake-U SDC" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC"""
-    amy_jql = """project = "Platforms Requirements" AND "Platform/Program" = "Icelake-U SDC" ORDER BY "Global ID" ASC"""
-    #    completed = dump_parent_info(jira, amy_jql, done_list, target_platform, target_dessert, True)
-    completed = compare_prios(jira, amy_jql, done_list)
-    filename = "17APR1427_AREQ-24084.txt"
-    thefile = open('%s' % filename, 'w')
-    for item in completed:
-        thefile.write("%s\n" % item)
+    with open(args.output,'w') as outfile:
+        for item in completed:
+            outfile.write("%s\n" % item)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser( description="This is an OTC tool for working with Jira projects.")
@@ -325,6 +399,12 @@ if __name__ == "__main__":
     connection_group.add_argument("-n", "--name", nargs='?', default="default", help="Alias for the target host" )
     connection_group.add_argument("-u", "--user", nargs='?', help="User Name (future)" )
     connection_group.add_argument("-p", "--password", nargs='?', help="Password (future)" )
+    project_group=parser.add_argument_group(title="Project control", description="Selecting which projects...")
+    project_group.add_argument("--sproject", nargs='?', default="Platforms Requirements", help="Jira source project" )
+    project_group.add_argument("--splatform", nargs='?', default="Icelake-U SDC", help="Jira source platform" )
+    project_group.add_argument("--tplatform", nargs='?', default="Broxton-P IVI", help="Jira source platform" )
+    project_group.add_argument("--taversion", nargs='?', default="O", help="Android target version" )
+    parser.add_argument("-o","--output",nargs='?',default="output.txt",help="Where to store the result.")
     parser.add_argument("command", choices=['help','compare_priorities'])
     args = parser.parse_args()
     args.command = args.command.lower()
@@ -354,7 +434,7 @@ if __name__ == "__main__":
     if 'help'==args.command:
         parser.print_help()
     elif 'compare_priorities'==args.command:
-        compare_priorities( args, config )
+        compare_priorities( parser, args, config )
     else:
         parser.print_help()
         exit(1)
