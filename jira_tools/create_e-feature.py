@@ -323,33 +323,6 @@ def compare_prios(j, jql, doing_list):
     return doing_list
 
 
-def refactored_compare_prios(jira, jira_query, done_list):
-    fl = make_field_lookup(jira)
-    val_lead_key = fl.reverse('Validation Lead')
-    and_vers_key = fl.reverse('Android Version(s)')
-    platprog_key = fl.reverse('Platform/Program')
-    gid_finder = fl.reverse('Global ID')
-    for issue in jql_issue_gen(jira_query, jira, count_change_ok=True):
-        gid = getattr(issue.fields, gid_finder)
-        find_match = "\"Platform/Program\" = \"Broxton-P IVI\" AND \"Android Version(s)\" = 'O' AND 'Global ID' ~ %s"%gid
-        log.logger.info( "trying %s"%gid )
-        try:
-            match = jira.search_issues(find_match, 0)[0]
-            id1 = match.fields.priority.id
-            id2 = issue.fields.priority.id
-            if id1 == id2:
-                log.logger.info("priority match")
-            else:
-                log.logger.info("priority mismatch")
-                done_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
-        except:
-            log.logger.info("ISSUE ERROR!")
-            done_list += [{'no match': issue.key}]
-            continue
-
-    return done_list
-
-
 def compare_priorities( parser, args, config ):
 
     search_query = """project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC""".format_map(vars(args))
