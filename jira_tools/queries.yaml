@@ -13,7 +13,7 @@ servers:
 
         dump_parents:
             search:     'project = AREQ AND "Platform/Program" = "{splatform}" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC'
-            match:      'key = %s'
+            match:      'key = "{key}"'
 
     jira-t3:
         query1:     'https://jira-t3.devtools.intel.com'

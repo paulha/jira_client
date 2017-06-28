@@ -297,15 +297,28 @@ def clone_efeature_add_dessert(jira, jira_query, doing_list, target_platform, ta
 def dump_parents(parser, args, config, queries ):
     #
     # -- What's the actual goal of this?
+    #
+    if dump_parents.__name__ not in queries:
+        log.logger.fatal( "Query section for %s is missing: %s", dump_parents.__name__, queries)
+        exit(-1)
 
-    # Apparently PREQ's don't have a parent attribute...
-    # search_query = """project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC""".format_map(vars(args))
-    search_query = """project = AREQ AND "Platform/Program" = "{splatform}" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC""".format_map(vars(args))
+    items=queries[dump_parents.__name__]
+
+    # -- Make sure search query is defined
+    if 'search' not in items:
+        log.logger.fatal( "Search query for %s.search is missing: %s", dump_parents.__name__, queries)
+        exit(-1)
+
+    # -- Get and format it:
+    search_query = items['search'].format_map(vars(args))
     log.logger.debug( "search query is: %s", search_query)
 
-    # TODO: Check: shouldn't this qualify by project as well?
-    # match_query = """ "Platform/Program" = "{tplatform}" AND "Android Version(s)" = '{taversion}' AND 'Global ID' ~ %s""".format_map(vars(args))
-    # log.logger.debug( "match query is: %s", match_query)
+    # -- Make sure the match query is defined. (Don't fill it out yet though...)
+    if 'match' not in items:
+        log.logger.fatal( "Search query for %s.match is missing: %s", dump_parents.__name__, queries)
+        exit(-1)
+    match_query=items['match']
+    log.logger.debug( "Match query is: %s", match_query)
 
     done_list = []
 
@@ -319,17 +332,21 @@ def dump_parents(parser, args, config, queries ):
 
     for issue in jql_issue_gen(search_query, jira, count_change_ok=True):
         log.logger.info("Issue %s: %s", issue.key, issue.fields.summary)
+
+        # -- Guarded access to parent key (may not exist!)
         try:
             parent_key = issue.fields.parent.key
+
         except AttributeError as e:
             log.logger.error("Exception %s: Results of the query '%s' do not have a 'parent' field.", e, search_query)
             return
 
-        find_parent = "key = %s" % parent_key
-        # todo: There's also a direct search, would that work?
-        parent_feature = jira.search_issues("key=%s" % issue.fields.parent.key, 0)[0]
-        parent_subtasks = list(parent_feature.fields.subtasks)
-        log.logger.debug("trying %s" % parent_key)
+        # -- fill out the match search
+        temp_dict = {'key': parent_key}     # What we're really looking for...
+        temp_dict.update(vars(args))        # other values that might be useful in a complex query
+        find_parent = match_query.format_map(temp_dict)
+        log.logger.debug("match query is: %s", find_parent)
+
         try:
             parent = jira.search_issues(find_parent, 0)[0]
             p_plats = []
@@ -351,6 +368,7 @@ def dump_parents(parser, args, config, queries ):
             done_list += [{'error hit inside dump_parent_info sub-issue search': issue.key}]
             continue
 
+    # -- Dump the output file
     with open(args.output,'w') as outfile:
         for item in done_list:
             outfile.write("%s\n" % item)
