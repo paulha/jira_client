@@ -9,7 +9,7 @@ from utility_funcs.search import get_server_info
 import logger_yaml as log
 
 CONFIG_FILE = './config.yaml'+pathsep+'~/.jira/config.yaml'
-
+QUERIES_FILE = './queries.yaml'+pathsep+'~/.jira/queries.yaml'
 
 # TODO currently have to set new log file name each time
 # make so that it uses issue key to name the file + timestamp
@@ -404,6 +404,8 @@ if __name__ == "__main__":
     args.command = args.command.lower()
 
     config = get_server_info(args.name, CONFIG_FILE)    # possible FileNotFoundError
+    queries = get_server_info(args.name, QUERIES_FILE)   # possible FileNotFoundError
+
     errors = 0
     if config is None:
         errors = 1
