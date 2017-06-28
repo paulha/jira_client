@@ -150,16 +150,16 @@ def add_dessert(j, jql, dessert):
     log.logger.info("Updated {} issues".format(update_count))
 
 
-def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_dessert, unassign_new):
+def clone_efeature_add_dessert(jira, jira_query, doing_list, target_platform, target_dessert, unassign_new):
     update_count = 0
-    fl = make_field_lookup(j)
+    fl = make_field_lookup(jira)
     val_lead_key = fl.reverse('Validation Lead')
     and_vers_key = fl.reverse('Android Version(s)')
     platprog_key = fl.reverse('Platform/Program')
     exists_on = fl.reverse('Exists On')
 
     # get the initial list of source issues and iterate
-    for issue in jql_issue_gen(jql, j, count_change_ok=True):
+    for issue in jql_issue_gen(jira_query, jira, count_change_ok=True):
         # TODO set up more logging
         # TODO set up more error handling for things like inactive users
         # TODO encapsulate in such a way that in the future this script should have separate functions to support:
@@ -176,6 +176,8 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
                 child_platform = target_platform
             else: # new e-features should hit this as FALSE if the AREQ requester defined this as an SP;ND: request
                 child_platform = getattr(issue.fields, platprog_key)[0].value
+
+            # Note: This looks like a tangiential issue not strictly related to the close...
             # set the assignee
             if issue.fields.assignee.name == 'danunora':
                 target_assign = 'daqualls'
@@ -188,7 +190,8 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
         
             if target_dessert == "":
                 child_dessert = getattr(issue.fields, and_vers_key)[0].value
-    
+
+            # Note: These are the values for the record to be created...
             if True: ### TODO ALL SHOULD CURRENTLY GO THIS ROUTE AS OF 21MAR2017 TODO ###
                 new_efeature_dict = {
                     'project': {'key': issue.fields.project.key},
@@ -202,6 +205,8 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
                 }
 
             log.logger.info( "creating new clone of %s" % issue.key )
+            # fixme: This  doesn't seem right -- would try to create result from new_efeature_dict,
+            #        even if it was left over from the previous iteration...
             efeature = jira.create_issue(fields=new_efeature_dict)
             update_count += 1
         except:
