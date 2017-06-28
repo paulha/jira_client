@@ -9,7 +9,7 @@ import logging
 import logger_yaml as log
 
 CONFIG_FILE = './config.yaml'+pathsep+'~/.jira/config.yaml'
-QUERIES_FILE = './queries.yaml'+pathsep+'~/.jira/queries.yaml'
+
 
 # TODO currently have to set new log file name each time
 # make so that it uses issue key to name the file + timestamp
@@ -351,7 +351,7 @@ def dump_parents(parser, args, config, queries ):
             outfile.write("%s\n" % item)
 
 
-def compare_priorities( parser, args, config, queries ):
+def compare_priorities( parser, args, config ):
     search_query = """project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC""".format_map(vars(args))
     log.logger.debug( "search query is: %s", search_query)
 
@@ -417,8 +417,6 @@ if __name__ == "__main__":
     args.command = args.command.lower()
 
     config = get_server_info(args.name, CONFIG_FILE)    # possible FileNotFoundError
-    queries = get_server_info(args.name, QUERIES_FILE)   # possible FileNotFoundError
-
     errors = 0
     if config is None:
         errors = 1
@@ -443,9 +441,9 @@ if __name__ == "__main__":
     if 'help'==args.command:
         parser.print_help()
     elif 'compare_priorities' == args.command:
-        compare_priorities(parser, args, config, queries)
+        compare_priorities(parser, args, config)
     elif 'dump_parents' == args.command:
-        dump_parents(parser, args, config, queries)
+        dump_parents(parser, args, config)
     else:
         parser.print_help()
         exit(1)
