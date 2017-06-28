@@ -1,0 +1,35 @@
+#
+#   This file should be located in ~/.jira/config.yaml
+#
+
+#
+# -- Change to enable server dependent queries
+#
+servers:
+    default:
+        compare_priorities:
+            search:     'project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC'
+            match:      '"Platform/Program" = "{tplatform}" AND "Android Version(s)" = "{taversion}" AND "Global ID" ~ %s'
+
+        dump_parents:
+            search:     'project = AREQ AND "Platform/Program" = "{splatform}" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC'
+            match:      'key = %s'
+
+    jira-t3:
+        query1:     'https://jira-t3.devtools.intel.com'
+        query2:     'IntelSHA256RootCA-Base64.crt'
+        query3:     'user'
+        query4:     'password'
+
+    jira01:
+        query1:     'https://jira-t3.devtools.intel.com'
+        query2:     'IntelSHA256RootCA-Base64.crt'
+        query3:     'user'
+        query4:     'password'
+
+    jira-stg:
+        query1:     'https://jira-t3.devtools.intel.com'
+        query2:     'IntelSHA256RootCA-Base64.crt'
+        query3:     'user'
+        query4:     'password'
+
