@@ -289,7 +289,7 @@ def clone_efeature_add_dessert(j, jql, doing_list, target_platform, target_desse
 #======================================================================================
 
 
-def dump_parents(parser, args, config, queries ):
+def dump_parents(parser, args, config ):
     #
     # -- What's the actual goal of this?
 
