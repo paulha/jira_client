@@ -365,31 +365,19 @@ def dump_parents(parser, args, config, queries ):
             #           True in that case, instead of the correct False.
             #
 
-            # -- The new way
-            new_printed=False
-            if "Icelake-U SDC" not in p_plats:
-                log.logger.debug( "New      -- Icelake not in %s", parent.key )
-                new_printed=True
-
-            # -- The old way
+            # todo: Make Generic! (I'm not clear on exactly what this is trying to do...)
             ICL_NOT_found = True
             for plat in p_plats:
                 log.logger.debug( "plat is '%s'", plat)
-                ICL_NOT_found = False if "Icelake-U SDC" == plat else ICL_NOT_found
+                ICL_NOT_found = False if "Icelake-U SDC" == plat.value else ICL_NOT_found
 
             if ICL_NOT_found:
-                log.logger.debug("Original -- Icelake not in %s", parent.key)
+                log.logger.info("Icelake not in %s", parent.key)
                 done_list += [{'key': parent.key}]
                 old_printed=True
 
-            # -- Compare the resuls
-            if ICL_NOT_found != new_printed:
-                log.logger.error("=======================> Results don't match. -- %s", p_plats)
-                log.logger.error("Old value: %s", ICL_NOT_found)
-                log.logger.error("New value: %s", new_printed)
-
-        except:
-            log.logger.error("ISSUE ERROR!")
+        except Exception as e:
+            log.logger.error("ISSUE ERROR! %s", e)
             done_list += [{'error hit inside dump_parent_info sub-issue search': issue.key}]
             continue
 
