@@ -9,7 +9,8 @@ servers:
     default:
         compare_priorities:
             search:     'project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC'
-            match:      '"Platform/Program" = "{tplatform}" AND "Android Version(s)" = "{taversion}" AND "Global ID" ~ %s'
+            # TODO: Check: shouldn't this qualify by project as well?
+            match:      '"Platform/Program" = "{tplatform}" AND "Android Version(s)" = "{taversion}" AND "Global ID" ~ {gid}'
 
         dump_parents:
             search:     'project = AREQ AND "Platform/Program" = "{splatform}" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC'

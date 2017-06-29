@@ -352,16 +352,41 @@ def dump_parents(parser, args, config, queries ):
             p_plats = []
             p_plats += getattr(parent.fields, platprog_key)
             log.logger.debug(p_plats)
-            for plat in p_plats:
-                ICL_found = 0
-                # todo: Make Generic!
-                if plat.value == "Icelake-U SDC":
-                    ICL_found += 1
+            # todo: Make Generic! (I'm not clear on exactly what this is trying to do...)
+            # Looks like this is finding the cases where Icelake is NOT found in p_plats
+            #
+            #   Note:   This is odd because you should be able to use
+            #
+            #               if "Icelake-U SDC" not in p_plats:
+            #                   log.logger.info( "New      -- Icelake not in %s", parent.key )
+            #
+            #           but it doesn't work correctly in the case where there's only
+            #           a single "Icelake-U SDC" entry in p_plats. It always returns
+            #           True in that case, instead of the correct False.
+            #
 
-                if ICL_found:
-                    log.logger.debug("ICL num check TRUE")
-                else:
-                    done_list += [{'key': parent.key}]
+            # -- The new way
+            new_printed=False
+            if "Icelake-U SDC" not in p_plats:
+                log.logger.debug( "New      -- Icelake not in %s", parent.key )
+                new_printed=True
+
+            # -- The old way
+            ICL_NOT_found = True
+            for plat in p_plats:
+                log.logger.debug( "plat is '%s'", plat)
+                ICL_NOT_found = False if "Icelake-U SDC" == plat else ICL_NOT_found
+
+            if ICL_NOT_found:
+                log.logger.debug("Original -- Icelake not in %s", parent.key)
+                done_list += [{'key': parent.key}]
+                old_printed=True
+
+            # -- Compare the resuls
+            if ICL_NOT_found != new_printed:
+                log.logger.error("=======================> Results don't match. -- %s", p_plats)
+                log.logger.error("Old value: %s", ICL_NOT_found)
+                log.logger.error("New value: %s", new_printed)
 
         except:
             log.logger.error("ISSUE ERROR!")
@@ -375,12 +400,27 @@ def dump_parents(parser, args, config, queries ):
 
 
 def compare_priorities( parser, args, config, queries ):
-    search_query = """project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC""".format_map(vars(args))
+    if compare_priorities.__name__ not in queries:
+        log.logger.fatal( "Query section for %s is missing: %s", dump_parents.__name__, queries)
+        exit(-1)
+
+    items=queries[compare_priorities.__name__]
+
+    # -- Make sure search query is defined
+    if 'search' not in items:
+        log.logger.fatal( "Search query for %s.search is missing: %s", compare_priorities.__name__, queries)
+        exit(-1)
+
+    # -- Get and format it:
+    search_query = items['search'].format_map(vars(args))
     log.logger.debug( "search query is: %s", search_query)
 
-    # TODO: Check: shouldn't this qualify by project as well?
-    match_query = """ "Platform/Program" = "{tplatform}" AND "Android Version(s)" = '{taversion}' AND 'Global ID' ~ %s""".format_map(vars(args))
-    log.logger.debug( "match query is: %s", match_query)
+    # -- Make sure the match query is defined. (Don't fill it out yet though...)
+    if 'match' not in items:
+        log.logger.fatal( "Search query for %s.match is missing: %s", dump_parents.__name__, queries)
+        exit(-1)
+    match_query=items['match']
+    log.logger.debug( "Match query is: %s", match_query)
 
     done_list = []
 
@@ -396,20 +436,30 @@ def compare_priorities( parser, args, config, queries ):
         log.logger.info("Issue %s: %s", issue.key, issue.fields.summary)
         gid = getattr(issue.fields, gid_finder)
         log.logger.debug( "trying %s"%gid )
-        # substitute in the gid at the last moment...
-        query = match_query % gid
+
+        # -- substitute in the gid at the last moment...
+        temp_dict = {'gid': gid}            # What we're really looking for...
+        temp_dict.update(vars(args))        # other values that might be useful in a complex query
+        query = match_query.format_map(temp_dict)
+        log.logger.debug("match query is: %s", query)
         try:
-            match = jira.search_issues(query, 0)[0]
-            id1 = match.fields.priority.id
-            id2 = issue.fields.priority.id
-            if id1 == id2:
-                log.logger.debug("priority match")
+            matches = jira.search_issues(query, 0)
+            if isinstance(matches, object) and len(matches)>0:
+                match = matches[0]
+                id1 = match.fields.priority.id
+                id2 = issue.fields.priority.id
+                if id1 == id2:
+                    log.logger.debug("priority match")
+                else:
+                    log.logger.debug("priority mismatch")
+                    done_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
             else:
-                log.logger.debug("priority mismatch")
-                done_list += [{'key': issue.key, 'pri': match.fields.priority.name}]
-        except:
-            log.logger.warn("ISSUE ERROR!")
-            done_list += [{'no match': issue.key}]
+                log.logger.info("No match found! -- %s", query)
+                done_list += [{'no match': issue.key}]
+
+        except Exception as e:
+            # No errors should happen now...
+            log.logger.warn("Error occured processing issue -- %s %s", e.__class__, e.__cause__)
             continue
 
     with open(args.output,'w') as outfile:
@@ -418,7 +468,6 @@ def compare_priorities( parser, args, config, queries ):
 
 
 if __name__ == "__main__":
-    # Todo: add control of log level
     parser = argparse.ArgumentParser( description="This is an OTC tool for working with Jira projects.")
     connection_group=parser.add_argument_group(title="Connection control", description="About the connectionn to the server")
     connection_group.add_argument("-n", "--name", nargs='?', default="default", help="Alias for the target host" )
