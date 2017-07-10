@@ -455,7 +455,7 @@ def compare_priorities( parser, args, config, queries ):
             outfile.write("%s\n" % item)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser( description="This is an OTC tool for working with Jira projects.")
     connection_group=parser.add_argument_group(title="Connection control", description="About the connectionn to the server")
     connection_group.add_argument("-n", "--name", nargs='?', default="default", help="Alias for the target host" )
@@ -511,4 +511,11 @@ if __name__ == "__main__":
         exit(1)
 
     log.logger.info( "Run completed." )
+    return
+
+
+if __name__ == "__main__":
+    main()
+    exit(0)
+
 
