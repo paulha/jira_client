@@ -387,7 +387,7 @@ def dump_parents(parser, args, config, queries ):
             outfile.write("%s\n" % item)
 
 
-def compare_priorities( parser, args, config, queries ):
+def compare_priorities(parser, args, config, queries):
     if compare_priorities.__name__ not in queries:
         log.logger.fatal( "Query section for %s is missing: %s", dump_parents.__name__, queries)
         exit(-1)
@@ -455,6 +455,60 @@ def compare_priorities( parser, args, config, queries ):
             outfile.write("%s\n" % item)
 
 
+def areq_24628(parser, args, config, queries):
+    """Create O-MR1 dessert AREQ eFeatures for BXT-P IVI based on O dessert
+
+    Attributes:
+        parser (argparse.ArgumentParser): Can be used for option specific parsing of arguments.
+        args (Namespace): Dictionary like list of arguments and values from the command line. NOT iterable!
+        config (YAML): Hierarchical list of configuration settings based on server name command argument
+        queries (YAML): Also a hierarchical list of queries to use...
+
+    Processing:
+        * For each AREQ eFeature by this JQL query:
+                project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked)
+                            AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI")
+            - If there is NOT an O-MR1 dessert eFeature mapping to the same Parent:
+
+                * Clone the existing "O" **feature** entry (not the e-feature!)
+                * set state to "OPEN"
+                * set android version(s) to "O-MR1"
+                * (Be sure that Priority, Owner, Exists On are set from the (existing) "O" version of the e-feature.
+                   Note that most of these fields should copy from the Feature, even though we're createing an
+                   e-feature!)
+                * Set title to the O-MR1 dessert version format
+                * Save and link to the parent feature
+
+
+    :return: Nothing on success, exits on error.
+    """
+    if areq_24628.__name__ not in queries:
+        log.logger.fatal( "Query section for %s is missing: %s", areq_24628.__name__, queries)
+        exit(-1)
+
+    items=queries[areq_24628.__name__]
+
+    # -- Make sure search query is defined
+    if 'candidate_e-features' not in items:
+        log.logger.fatal( "Search query for %s.search is missing: %s", candidate_e-features, queries)
+        exit(-1)
+
+    # -- Get and format it:
+    candidate_efeatures_query = items['candidate_e-features'].format_map(vars(args))
+    log.logger.debug( "search query is: %s", candidate_efeatures_query)
+
+    jira = init_jira( args.name, config )
+
+    #field_lookup = make_field_lookup(jira)
+    #val_lead_key = field_lookup.reverse('Validation Lead')
+    #and_vers_key = field_lookup.reverse('Android Version(s)')
+    #platprog_key = field_lookup.reverse('Platform/Program')
+    #gid_finder = field_lookup.reverse('Global ID')
+
+    for e_feature in jql_issue_gen(candidate_efeatures_query, jira, count_change_ok=True):
+        log.logger.info("Issue %s: %s", e_feature.key, e_feature.fields.summary)
+
+
 def main():
     parser = argparse.ArgumentParser( description="This is an OTC tool for working with Jira projects.")
     connection_group=parser.add_argument_group(title="Connection control", description="About the connectionn to the server")
@@ -468,7 +522,7 @@ def main():
     project_group.add_argument("--taversion", nargs='?', default="O", help="Android target version" )
     parser.add_argument("-o","--output",nargs='?',default="output.txt",help="Where to store the result.")
     parser.add_argument("-l", "--log_level", choices=['debug','info','warn','error','fatal'])
-    parser.add_argument("command", choices=['help','compare_priorities','dump_parents'])
+    parser.add_argument("command", choices=['help','compare_priorities','dump_parents','areq-24628'])
     args = parser.parse_args()
 
     if args.log_level is not None:
@@ -506,6 +560,8 @@ def main():
         compare_priorities(parser, args, config, queries)
     elif 'dump_parents' == args.command:
         dump_parents(parser, args, config, queries)
+    elif 'areq-24628' == args.command:
+        areq_24628(parser, args, config, queries)
     else:
         parser.print_help()
         exit(1)
