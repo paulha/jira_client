@@ -5,7 +5,17 @@ formatters:
     simple:
         format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(filename)s::%(funcName)s::%(lineno)d"
 
+    file:
+        format: "%(message)s"
+
 handlers:
+    file:
+        class: logging.FileHandler
+        level: NOTSET
+        formatter: file
+        filename: logs/otc_tool.dat
+        encoding: utf8
+
     console:
         class: logging.StreamHandler
         level: NOTSET
@@ -31,6 +41,10 @@ handlers:
         encoding: utf8
 
 loggers:
+    file:
+        handlers:   [file]
+        propagate:  no
+
     console:
         level: DEBUG
         handlers: [console]

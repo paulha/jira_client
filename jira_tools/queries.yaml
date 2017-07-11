@@ -19,6 +19,8 @@ servers:
         areq_24628:
             # -- Find entries to (potentially) clone and modify...
             candidate_e-features:     'project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in (O) AND "Platform/Program" in ("Broxton-P IVI")'
+            parent_query:             'key = "{parent_key}"'
+            sibling_query:            'parent="{parent_key}" and "Android Version(s)" in (O-MR1) AND "Platform/Program" in ("Broxton-P IVI")'
 
     jira-t3:
         query1:     'https://jira-t3.devtools.intel.com'

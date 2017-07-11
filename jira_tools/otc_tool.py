@@ -11,10 +11,10 @@ import logger_yaml as log
 CONFIG_FILE = './config.yaml'+pathsep+'~/.jira/config.yaml'
 QUERIES_FILE = './queries.yaml'+pathsep+'~/.jira/queries.yaml'
 
-# TODO currently have to set new log file name each time
-# make so that it uses issue key to name the file + timestamp
-# LOG_FILENAME = "AREQ-22968_22MAR0231.log"
-# logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+# -- See logger.yaml:
+log_file = logging.getLogger("file")
+log_file.info("Hello World!")
+
 
 #AND_VER = "O"
 #PLATFORM = 'Broxton-P IVI"'
@@ -455,6 +455,26 @@ def compare_priorities(parser, args, config, queries):
             outfile.write("%s\n" % item)
 
 
+def query_one_item(jira, item_query, param_dict):
+    formatted_query = item_query.format_map(param_dict)
+    log.logger.debug("get_one_item formatted_query is: %s", formatted_query)
+    try:
+        item = jira.search_issues(formatted_query, 0)
+        if isinstance(item, list) and len(item) > 0:
+            item = item[0]
+            log.logger.debug("\tget_one_item item found: %s: %s", item.key, item.fields.summary)
+        else:
+            item = None
+            log.logger.debug("No item found for query '%s'!", formatted_query)
+
+    except Exception as e:
+        # No errors should happen now...
+        log.logger.warn("Error occured processing issue -- %s %s", e.__class__, e.__cause__)
+
+    # -- parent_feature containst the parent or is None.
+    return item
+
+
 def areq_24628(parser, args, config, queries):
     """Create O-MR1 dessert AREQ eFeatures for BXT-P IVI based on O dessert
 
@@ -490,23 +510,94 @@ def areq_24628(parser, args, config, queries):
 
     # -- Make sure search query is defined
     if 'candidate_e-features' not in items:
-        log.logger.fatal( "Search query for %s.search is missing: %s", candidate_e-features, queries)
+        log.logger.fatal( "Search query for %s.search is missing: %s", 'candidate_e-features', queries)
         exit(-1)
 
     # -- Get and format it:
     candidate_efeatures_query = items['candidate_e-features'].format_map(vars(args))
     log.logger.debug( "search query is: %s", candidate_efeatures_query)
 
-    jira = init_jira( args.name, config )
+    # -- Make sure parent_query is defined
+    if 'parent_query' not in items:
+        log.logger.fatal( "Parent query for %s.search is missing: %s", 'parent_query', queries)
+        exit(-1)
 
-    #field_lookup = make_field_lookup(jira)
-    #val_lead_key = field_lookup.reverse('Validation Lead')
-    #and_vers_key = field_lookup.reverse('Android Version(s)')
-    #platprog_key = field_lookup.reverse('Platform/Program')
-    #gid_finder = field_lookup.reverse('Global ID')
+    parent_query = items['parent_query']
+    log.logger.debug( "parent query is: %s", parent_query)
 
-    for e_feature in jql_issue_gen(candidate_efeatures_query, jira, count_change_ok=True):
-        log.logger.info("Issue %s: %s", e_feature.key, e_feature.fields.summary)
+    # -- Make sure parent_query is defined
+    if 'sibling_query' not in items:
+        log.logger.fatal( "Sibling query for %s.search is missing: %s", 'sibling_query', queries)
+        exit(-1)
+
+    sibling_query = items['sibling_query']
+    log.logger.debug( "sibling query is: %s", sibling_query)
+
+    # -- Get and format it:
+    jira = init_jira(args.name, config)
+
+    field_lookup = make_field_lookup(jira)
+    and_vers_key = field_lookup.reverse('Android Version(s)')
+    platprog_key = field_lookup.reverse('Platform/Program')
+    exists_on = field_lookup.reverse('Exists On')
+
+    update_count = 0
+    for current_e_feature in jql_issue_gen(candidate_efeatures_query, jira, count_change_ok=True):
+        log.logger.debug("Checking Issue %s: %s", current_e_feature.key, current_e_feature.fields.summary)
+
+        # -- OK so now we have found the source e-feature. We want to get its parent
+        param_dict = {'parent_key': current_e_feature.fields.parent}     # What we're really looking for...
+        param_dict.update(vars(args))                                    # other values that might be useful in a complex query
+
+        # -- Check for duplicate sibling feature, if found no need to create a new one.
+        sibling_feature = query_one_item(jira, sibling_query, param_dict)
+        if sibling_feature is not None:
+            # -- Sibling already exists
+            log.logger.info("\tSibling already exists: %s %s", sibling_feature.key, sibling_feature.fields.summary)
+            continue
+
+        parent_feature = query_one_item(jira, parent_query, param_dict)
+        if parent_feature is None:
+            # -- Sibling without parent
+            log.logger.warning("E-Feature %s has no parent", current_e_feature.key)
+            continue
+
+        # -- Code to fill out new sibling goes here.
+        log.logger.debug("Create Sibling from E-Feature: %s %s", parent_feature.key, parent_feature.fields.summary)
+
+        try:
+            if current_e_feature.fields.assignee is None:
+                log.logger.debug("Assigning new e-feature to None (is that valid?)")
+                target_assign = None
+            elif current_e_feature.fields.assignee.name in ['danunora', 'etang1', 'atena']:
+                log.logger.debug("Assigning new e-feature to 'daqualls'")
+                target_assign = 'daqualls'
+            else:
+                target_assign = current_e_feature.fields.assignee.name
+        except Exception as e:
+            log.logger.error(e, exc_info=True)
+            pass
+
+        child_dessert="FIG"
+        child_platform="Merry-Go-Round"
+        exists_on_platform="Everywhere"
+
+        new_sibling_dict = {
+            'project': {'key': parent_feature.fields.project.key},
+            'parent': {'key': parent_feature.key},
+            'summary': parent_feature.fields.summary,
+            'issuetype': {'name': 'E-Feature'},
+            'assignee': {'name': target_assign},
+            and_vers_key: [{'value': child_dessert}],
+            platprog_key: [{'value': child_platform}],
+            exists_on: [{'value': exists_on_platform}]
+        }
+
+        log.logger.info("creating new clone of %s:%s" % (current_e_feature.key, new_sibling_dict))
+        # sibling_e_feature = jira.create_issue(fields=new_efeature_dict)
+        update_count += 1
+
+    log.logger.info("%s new efeatures would have been created.", update_count)
 
 
 def main():
