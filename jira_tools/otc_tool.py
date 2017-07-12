@@ -499,9 +499,22 @@ def areq_24628(parser, args, config, queries):
                 * Set title to the O-MR1 dessert version format
                 * Save and link to the parent feature
 
+    Note:
+        * In verify mode:
+            - If sibling_e_feature is found, then it should be compared to the parent_feature from which it
+              should have been cloned
+            - If sibling_e_feature is NOT found, there is a missing entry which should be logged.
+
+        * In update mode:
+            - If sibling_e_feature is found, then update can be short circuited
+            - If sibling_e_feature is NOT found, there is a missing entry which should be created.
+
 
     :return: Nothing on success, exits on error.
     """
+    update = True if args.update is not None else False
+    verify = True if args.verify is not None else False
+
     if areq_24628.__name__ not in queries:
         log.logger.fatal( "Query section for %s is missing: %s", areq_24628.__name__, queries)
         exit(-1)
@@ -541,8 +554,12 @@ def areq_24628(parser, args, config, queries):
     platprog_key = field_lookup.reverse('Platform/Program')
     exists_on = field_lookup.reverse('Exists On')
 
+    features_scanned = 0
     update_count = 0
+    verify_failures = 0
+    processing_errors = 0
     for current_e_feature in jql_issue_gen(candidate_efeatures_query, jira, count_change_ok=True):
+        features_scanned += 1
         log.logger.debug("Checking Issue %s: %s", current_e_feature.key, current_e_feature.fields.summary)
 
         # -- OK so now we have found the source e-feature. We want to get its parent
@@ -550,54 +567,81 @@ def areq_24628(parser, args, config, queries):
         param_dict.update(vars(args))                                    # other values that might be useful in a complex query
 
         # -- Check for duplicate sibling feature, if found no need to create a new one.
-        sibling_feature = query_one_item(jira, sibling_query, param_dict)
-        if sibling_feature is not None:
+        sibling_e_feature = query_one_item(jira, sibling_query, param_dict)
+        if sibling_e_feature is not None:
             # -- Sibling already exists
-            log.logger.info("\tSibling already exists: %s %s", sibling_feature.key, sibling_feature.fields.summary)
+            if update:
+                # -- no need to output a E-Feature
+                log.logger.info("Sibling to E-Feature already exists: %s %s", sibling_e_feature.key, sibling_e_feature.fields.summary)
+
+            if verify:
+                # -- Look up the parent, to make a comparison
+                parent_feature = query_one_item(jira, parent_query, param_dict)
+                if parent_feature is None:
+                    # -- Sibling without parent
+                    log.logger.warning("E-Feature %s has no parent", current_e_feature.key)
+                    processing_errors += 1
+                # todo: compare the found sibling to the parent, output on compare fail...
+                # verify_failures += 1
+
             continue
 
         parent_feature = query_one_item(jira, parent_query, param_dict)
         if parent_feature is None:
             # -- Sibling without parent
             log.logger.warning("E-Feature %s has no parent", current_e_feature.key)
+            processing_errors += 1
             continue
 
-        # -- Code to fill out new sibling goes here.
-        log.logger.debug("Create Sibling from E-Feature: %s %s", parent_feature.key, parent_feature.fields.summary)
+        # -- Note: Code to fill out new sibling goes here.
+        if verify:
+            log.logger.warning("Sibling to E-Feature is missing. %s %s", current_e_feature.key, current_e_feature.fields.summary)
+            verify_failures += 1
 
-        try:
-            if current_e_feature.fields.assignee is None:
-                log.logger.debug("Assigning new e-feature to None (is that valid?)")
-                target_assign = None
-            elif current_e_feature.fields.assignee.name in ['danunora', 'etang1', 'atena']:
-                log.logger.debug("Assigning new e-feature to 'daqualls'")
-                target_assign = 'daqualls'
-            else:
-                target_assign = current_e_feature.fields.assignee.name
-        except Exception as e:
-            log.logger.error(e, exc_info=True)
-            pass
+        if update:
+            log.logger.info("Creating E-Feature Sibling for Feature: %s %s", parent_feature.key, parent_feature.fields.summary)
 
-        child_dessert="FIG"
-        child_platform="Merry-Go-Round"
-        exists_on_platform="Everywhere"
+            try:
+                if current_e_feature.fields.assignee is None:
+                    log.logger.debug("Assigning new e-feature to None (is that valid?)")
+                    target_assign = None
+                elif current_e_feature.fields.assignee.name in ['danunora', 'etang1', 'atena']:
+                    log.logger.debug("Assigning new e-feature to 'daqualls'")
+                    target_assign = 'daqualls'
+                else:
+                    target_assign = current_e_feature.fields.assignee.name
+            except Exception as e:
+                log.logger.error(e, exc_info=True)
+                pass
 
-        new_sibling_dict = {
-            'project': {'key': parent_feature.fields.project.key},
-            'parent': {'key': parent_feature.key},
-            'summary': parent_feature.fields.summary,
-            'issuetype': {'name': 'E-Feature'},
-            'assignee': {'name': target_assign},
-            and_vers_key: [{'value': child_dessert}],
-            platprog_key: [{'value': child_platform}],
-            exists_on: [{'value': exists_on_platform}]
-        }
+            child_dessert="FIG"
+            child_platform="Merry-Go-Round"
+            exists_on_platform="Everywhere"
 
-        log.logger.info("creating new clone of %s:%s" % (current_e_feature.key, new_sibling_dict))
-        # sibling_e_feature = jira.create_issue(fields=new_efeature_dict)
-        update_count += 1
+            new_sibling_dict = {
+                'project': {'key': parent_feature.fields.project.key},
+                'parent': {'key': parent_feature.key},
+                'summary': parent_feature.fields.summary,
+                'issuetype': {'name': 'E-Feature'},
+                'assignee': {'name': target_assign},
+                and_vers_key: [{'value': child_dessert}],
+                platprog_key: [{'value': child_platform}],
+                exists_on: [{'value': exists_on_platform}]
+            }
 
-    log.logger.info("%s new efeatures would have been created.", update_count)
+            log.logger.info("creating new clone of %s:%s" % (current_e_feature.key, new_sibling_dict))
+            # sibling_e_feature = jira.create_issue(fields=new_efeature_dict)
+            update_count += 1
+
+    log.logger.info("%s source E-Features considered. ", features_scanned)
+
+    if verify:
+        log.logger.info("%s E-Feature comparison failures. ", verify_failures)
+
+    if update:
+        log.logger.info("%s new E-Features were created. ", update_count)
+
+    log.logger.info("%s processing errors. ", processing_errors)
 
 
 def main():
@@ -611,6 +655,8 @@ def main():
     project_group.add_argument("--splatform", nargs='?', default="Icelake-U SDC", help="Jira source platform" )
     project_group.add_argument("--tplatform", nargs='?', default="Broxton-P IVI", help="Jira source platform" )
     project_group.add_argument("--taversion", nargs='?', default="O", help="Android target version" )
+    project_group.add_argument("--update", nargs='?', default=True, help="Update target" )
+    project_group.add_argument("--verify", nargs='?', default=True, help="Verify target" )
     parser.add_argument("-o","--output",nargs='?',default="output.txt",help="Where to store the result.")
     parser.add_argument("-l", "--log_level", choices=['debug','info','warn','error','fatal'])
     parser.add_argument("command", choices=['help','compare_priorities','dump_parents','areq-24628'])
