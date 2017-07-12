@@ -475,6 +475,18 @@ def query_one_item(jira, item_query, param_dict):
     return item
 
 
+def is_this_the_same_feature(parent_feature, source_e_feature, target_e_feature):
+    """Compare: is target_e_feature a copy of the parent Feature?"""
+    if parent_feature.fields.description != target_e_feature.fields.description:
+        raise ValueError("Descriptions don't match")
+
+    if parent_feature.fields.summary not in target_e_feature.fields.summary:
+        raise ValueError("Feature summary not contained in E-Feature")
+
+    return True
+
+
+# Note: this maybe should be called "e_feature_scan"...
 def areq_24628(parser, args, config, queries):
     """Create O-MR1 dessert AREQ eFeatures for BXT-P IVI based on O dessert
 
@@ -512,9 +524,6 @@ def areq_24628(parser, args, config, queries):
 
     :return: Nothing on success, exits on error.
     """
-    update = True if args.update is not None else False
-    verify = True if args.verify is not None else False
-
     if areq_24628.__name__ not in queries:
         log.logger.fatal( "Query section for %s is missing: %s", areq_24628.__name__, queries)
         exit(-1)
@@ -546,6 +555,13 @@ def areq_24628(parser, args, config, queries):
     sibling_query = items['sibling_query']
     log.logger.debug( "sibling query is: %s", sibling_query)
 
+    log.logger.info("Examining source platform {splatform}, source android version {sversion}, target android version {tversion}".format_map(vars(args)))
+
+    verify = args.verify
+    update = args.update
+    log.logger.info("Verify is %s and Update is %s", verify, update)
+    log.logger.info("=================================================================")
+
     # -- Get and format it:
     jira = init_jira(args.name, config)
 
@@ -557,6 +573,7 @@ def areq_24628(parser, args, config, queries):
     features_scanned = 0
     update_count = 0
     verify_failures = 0
+    update_failures = 0
     processing_errors = 0
     for current_e_feature in jql_issue_gen(candidate_efeatures_query, jira, count_change_ok=True):
         features_scanned += 1
@@ -572,7 +589,7 @@ def areq_24628(parser, args, config, queries):
             # -- Sibling already exists
             if update:
                 # -- no need to output a E-Feature
-                log.logger.info("Sibling to E-Feature already exists: %s %s", sibling_e_feature.key, sibling_e_feature.fields.summary)
+                log.logger.debug("Sibling to E-Feature already exists, no need to create it: %s %s", sibling_e_feature.key, sibling_e_feature.fields.summary)
 
             if verify:
                 # -- Look up the parent, to make a comparison
@@ -582,7 +599,12 @@ def areq_24628(parser, args, config, queries):
                     log.logger.warning("E-Feature %s has no parent", current_e_feature.key)
                     processing_errors += 1
                 # todo: compare the found sibling to the parent, output on compare fail...
-                # verify_failures += 1
+                try:
+                    is_this_the_same_feature(parent_feature, current_e_feature, sibling_e_feature)
+                except ValueError as e:
+                    log.logger.error("E-Feature %s does not match Feature %s. Exception '%s'",
+                                     sibling_e_feature.key, parent_feature.key, e)
+                    verify_failures += 1
 
             continue
 
@@ -595,12 +617,15 @@ def areq_24628(parser, args, config, queries):
 
         # -- Note: Code to fill out new sibling goes here.
         if verify:
-            log.logger.warning("Sibling to E-Feature is missing. %s %s", current_e_feature.key, current_e_feature.fields.summary)
+            # -- Missing E-Feature:
+            log.logger.warning("E-Feature missing {splatform} version {tversion}. Parent Feature is %s. Version {sversion} E-Feature is %s %s"
+                               .format_map(vars(args)),
+                               parent_feature.key, current_e_feature.key, current_e_feature.fields.summary)
             verify_failures += 1
 
         if update:
-            log.logger.info("Creating E-Feature Sibling for Feature: %s %s", parent_feature.key, parent_feature.fields.summary)
-
+            log.logger.info("Creating missing E-Feature {splatform} version {tversion} for Feature %s: %s".format_map(vars(args)),
+                            parent_feature.key, parent_feature.fields.summary)
             try:
                 if current_e_feature.fields.assignee is None:
                     log.logger.debug("Assigning new e-feature to None (is that valid?)")
@@ -614,34 +639,39 @@ def areq_24628(parser, args, config, queries):
                 log.logger.error(e, exc_info=True)
                 pass
 
-            child_dessert="FIG"
-            child_platform="Merry-Go-Round"
-            exists_on_platform="Everywhere"
-
-            new_sibling_dict = {
+            # -- Note: Creating an E-Feature (sub-type of Feature) causes appropriate fields of the parent Feature
+            # --       to be copied into the E-Feature *automatically*.
+            new_e_feature_dict = {
                 'project': {'key': parent_feature.fields.project.key},
                 'parent': {'key': parent_feature.key},
                 'summary': parent_feature.fields.summary,
                 'issuetype': {'name': 'E-Feature'},
                 'assignee': {'name': target_assign},
-                and_vers_key: [{'value': child_dessert}],
-                platprog_key: [{'value': child_platform}],
-                exists_on: [{'value': exists_on_platform}]
+                and_vers_key: [{'value': args.tversion}],
+                platprog_key: [{'value': args.splatform}],
             }
 
-            log.logger.info("creating new clone of %s:%s" % (current_e_feature.key, new_sibling_dict))
-            # sibling_e_feature = jira.create_issue(fields=new_efeature_dict)
+            log.logger.debug("Creating E-Feature clone of Feature %s -- %s" % (parent_feature.key, new_e_feature_dict))
+            sibling_e_feature = jira.create_issue(fields=new_e_feature_dict)
             update_count += 1
+            try:
+                is_this_the_same_feature(parent_feature, current_e_feature, sibling_e_feature)
+            except ValueError as e:
+                log.logger.error("E-Feature %s does not match Feature %s. Exception '%s'",
+                                 sibling_e_feature.key, parent_feature.key, e)
+                update_failures += 1
+            break   # todo: This line is temporary!
 
-    log.logger.info("%s source E-Features considered. ", features_scanned)
+    log.logger.info("-----------------------------------------------------------------")
+    log.logger.info("%s source E-Feature(s) were considered. ", features_scanned)
 
     if verify:
-        log.logger.info("%s E-Feature comparison failures. ", verify_failures)
+        log.logger.info("%s E-Feature comparison failure(s). ", verify_failures)
 
     if update:
-        log.logger.info("%s new E-Features were created. ", update_count)
+        log.logger.info("%s new E-Feature(s) were created, %s update failures. ", update_count, update_failures)
 
-    log.logger.info("%s processing errors. ", processing_errors)
+    log.logger.info("%s processing error(s). ", processing_errors)
 
 
 def main():
@@ -651,12 +681,14 @@ def main():
     connection_group.add_argument("-u", "--user", nargs='?', help="User Name (future)" )
     connection_group.add_argument("-p", "--password", nargs='?', help="Password (future)" )
     project_group=parser.add_argument_group(title="Project control", description="Selecting which projects...")
-    project_group.add_argument("--sproject", nargs='?', default="Platforms Requirements", help="Jira source project" )
-    project_group.add_argument("--splatform", nargs='?', default="Icelake-U SDC", help="Jira source platform" )
-    project_group.add_argument("--tplatform", nargs='?', default="Broxton-P IVI", help="Jira source platform" )
-    project_group.add_argument("--taversion", nargs='?', default="O", help="Android target version" )
-    project_group.add_argument("--update", nargs='?', default=True, help="Update target" )
-    project_group.add_argument("--verify", nargs='?', default=True, help="Verify target" )
+    project_group.add_argument("--sproject", nargs='?', default="Platforms Requirements", help="Jira source project")
+    project_group.add_argument("--splatform", nargs='?', default="Icelake-U SDC", help="Jira source platform")
+    project_group.add_argument("--sversion", nargs='?', default="O", help="Jira source android version")
+    project_group.add_argument("--tplatform", nargs='?', default="Broxton-P IVI", help="Jira source platform")
+    project_group.add_argument("--taversion", nargs='?', default="O", help="Android target version")
+    project_group.add_argument("--tversion", nargs='?', default="O-MR1", help="Jira target android version")
+    project_group.add_argument("--update", default=False, action="store_true", help="Update target")
+    project_group.add_argument("--verify", default=False, action="store_true", help="Verify target")
     parser.add_argument("-o","--output",nargs='?',default="output.txt",help="Where to store the result.")
     parser.add_argument("-l", "--log_level", choices=['debug','info','warn','error','fatal'])
     parser.add_argument("command", choices=['help','compare_priorities','dump_parents','areq-24628'])
