@@ -653,6 +653,13 @@ def areq_24628(parser, args, config, queries):
 
             log.logger.debug("Creating E-Feature clone of Feature %s -- %s" % (parent_feature.key, new_e_feature_dict))
             sibling_e_feature = jira.create_issue(fields=new_e_feature_dict)
+            # -- Having created the issue, now other fields can be updated:
+            sibling_e_feature.update(notify=False, fields={
+                # 'status':       {'name': 'Open'},       # "text: Field 'status' cannot be set. It is not on the appropriate screen, or unknown."
+                'priority':     {'name': 'P1-Stopper'},
+                'assignee':     {'name': target_assign},
+                exists_on:      getattr(current_e_feature.fields, exists_on) if getattr(current_e_feature.fields, exists_on) is not None else []
+            })
             update_count += 1
             try:
                 is_this_the_same_feature(parent_feature, current_e_feature, sibling_e_feature)
