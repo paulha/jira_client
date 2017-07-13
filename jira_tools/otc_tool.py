@@ -675,6 +675,9 @@ def areq_24628(parser, args, config, queries):
                 log.logger.error("Created E-Feature %s does not match Feature %s. Exception '%s'",
                                  sibling_e_feature.key, parent_feature.key, e)
                 update_failures += 1
+
+            # -- TODO: Add a comment to the created E-Feature (should come from the command line with a default option.)
+
             break   # todo: This line is temporary!
 
     log.logger.info("-----------------------------------------------------------------")
