@@ -477,21 +477,23 @@ def query_one_item(jira, item_query, param_dict):
 
 def is_this_the_same_feature(parent_feature, source_e_feature, target_e_feature):
     """Compare: is target_e_feature a copy of the parent Feature?"""
+    errors=[]
     if parent_feature.fields.description != target_e_feature.fields.description:
-        raise ValueError("Descriptions don't match")
+        errors += "Descriptions don't match"
 
     if parent_feature.fields.summary not in target_e_feature.fields.summary:
-        raise ValueError("Feature summary not contained in E-Feature")
+        errors += "Feature summary not contained in E-Feature"
 
-    if source_e_feature.fields.assignee not in target_e_feature.fields.assignee:
-        raise ValueError("Source E-Feature assignee %s not contained in E-Feature assignee %s"
-                         % (source_e_feature.fields.assignee.name, target_e_feature.fields.assignee.name))
-
+    if source_e_feature.fields.assignee != target_e_feature.fields.assignee:
+        errors += "Source E-Feature assignee %s not contained in E-Feature assignee %s" \
+                        % (source_e_feature.fields.assignee.name, target_e_feature.fields.assignee.name)
+    if errors:
+        raise ValueError(errors)
     return True
 
 
 # Note: this maybe should be called "e_feature_scan"...
-def areq_24628(parser, args, config, queries):
+def e_feature_scanner(parser, args, config, queries):
     """Create O-MR1 dessert AREQ eFeatures for BXT-P IVI based on O dessert
 
     Attributes:
@@ -528,11 +530,11 @@ def areq_24628(parser, args, config, queries):
 
     :return: Nothing on success, exits on error.
     """
-    if areq_24628.__name__ not in queries:
-        log.logger.fatal( "Query section for %s is missing: %s", areq_24628.__name__, queries)
+    if e_feature_scanner.__name__ not in queries:
+        log.logger.fatal( "Query section for %s is missing: %s", e_feature_scanner.__name__, queries)
         exit(-1)
 
-    items=queries[areq_24628.__name__]
+    items=queries[e_feature_scanner.__name__]
 
     # -- Make sure search query is defined
     if 'candidate_e-features' not in items:
@@ -581,7 +583,7 @@ def areq_24628(parser, args, config, queries):
     processing_errors = 0
     for current_e_feature in jql_issue_gen(candidate_efeatures_query, jira, count_change_ok=True):
         features_scanned += 1
-        log.logger.debug("Checking Issue %s: %s", current_e_feature.key, current_e_feature.fields.summary)
+        log.logger.info("Checking on E-Feature %s: %s", current_e_feature.key, current_e_feature.fields.summary)
 
         # -- OK so now we have found the source e-feature. We want to get its parent
         param_dict = {'parent_key': current_e_feature.fields.parent}     # What we're really looking for...
@@ -602,7 +604,8 @@ def areq_24628(parser, args, config, queries):
                     # -- Sibling without parent
                     log.logger.warning("E-Feature %s has no parent", current_e_feature.key)
                     processing_errors += 1
-                # todo: compare the found sibling to the parent, output on compare fail...
+
+                # -- compare the found sibling to the parent, output on compare fail...
                 try:
                     is_this_the_same_feature(parent_feature, current_e_feature, sibling_e_feature)
                 except ValueError as e:
@@ -622,13 +625,13 @@ def areq_24628(parser, args, config, queries):
         # -- Note: Code to fill out new sibling goes here.
         if verify:
             # -- Missing E-Feature:
-            log.logger.warning("E-Feature missing {splatform} version {tversion}. Parent Feature is %s. Version {sversion} E-Feature is %s %s"
+            log.logger.warning("An E-Feature is missing. {splatform} version {tversion}. Parent Feature is %s. Version {sversion} E-Feature is %s %s"
                                .format_map(vars(args)),
                                parent_feature.key, current_e_feature.key, current_e_feature.fields.summary)
             verify_failures += 1
 
         if update:
-            log.logger.info("Creating missing E-Feature {splatform} version {tversion} for Feature %s: %s".format_map(vars(args)),
+            log.logger.warning("Creating E-Feature {splatform} version {tversion} for Feature %s: %s".format_map(vars(args)),
                             parent_feature.key, parent_feature.fields.summary)
             # Note: This is special code making Dustin the assignee for three other possible assignees.
             try:
@@ -647,8 +650,8 @@ def areq_24628(parser, args, config, queries):
                 # -- Something happened; log the error and continue.
                 log.logger.error(e, exc_info=True)
 
-            # -- Note: Creating an E-Feature (sub-type of Feature) causes appropriate fields of the parent Feature
-            #          to be copied into the E-Feature *automatically*.
+            # -- Creating an E-Feature (sub-type of Feature) causes appropriate fields of the parent Feature
+            #    to be copied into the E-Feature *automatically*.
             new_e_feature_dict = {
                 'project': {'key': parent_feature.fields.project.key},
                 'parent': {'key': parent_feature.key},
@@ -665,10 +668,31 @@ def areq_24628(parser, args, config, queries):
             # -- Having created the issue, now other fields of the E-Feature can be updated:
             sibling_e_feature.update(notify=False, fields={
                 'priority':     {'name': 'P1-Stopper'},
+                # todo: check, is this right?
                 exists_on:      getattr(current_e_feature.fields, exists_on) if getattr(current_e_feature.fields, exists_on) is not None else []
             })
+
+            # # -- TODO: What about attachments? Something like this, maybe
+            # for attachment in current_e_feature.fields.attachment:
+            #     content = attachment.get()  # Could be memory intensive...
+            #     import StringIO
+            #     new_attachment = StringIO.StringIO()
+            #     new_attachment.write(data)
+            #     jira.add_attachment(issue=sibling_e_feature, attachment=new_attachment, filename=attachment.filename)
+
+            # -- TODO: Add a comment to the created E-Feature (should come from the command line with a default option.)
+            jira.add_comment(sibling_e_feature,
+                             """This E-Feature was created by {command}.
+
+                             Parent Feature is %s and source E-Feature is %s.
+
+                             %s""".format_map(vars(args))
+                             % (parent_feature.key, current_e_feature.key,
+                                args.comment if args.comment is not None else ""))
+
             update_count += 1
 
+            # -- Validate that the create and update actually worked! :-)
             try:
                 is_this_the_same_feature(parent_feature, current_e_feature, sibling_e_feature)
             except ValueError as e:
@@ -676,10 +700,8 @@ def areq_24628(parser, args, config, queries):
                                  sibling_e_feature.key, parent_feature.key, e)
                 update_failures += 1
 
-            # -- TODO: Add a comment to the created E-Feature (should come from the command line with a default option.)
-            jira.add_comment(sibling_e_feature, 'Comment text')
-
-            break   # todo: This line is temporary!
+            if args.createmax and update_count>=args.createmax:
+                break
 
     log.logger.info("-----------------------------------------------------------------")
     log.logger.info("%s source E-Feature(s) were considered. ", features_scanned)
@@ -708,9 +730,11 @@ def main():
     project_group.add_argument("--tversion", nargs='?', default="O-MR1", help="Jira target android version")
     project_group.add_argument("--update", default=False, action="store_true", help="Update target")
     project_group.add_argument("--verify", default=False, action="store_true", help="Verify target")
-    parser.add_argument("-o","--output",nargs='?',default="output.txt",help="Where to store the result.")
-    parser.add_argument("-l", "--log_level", choices=['debug','info','warn','error','fatal'])
-    parser.add_argument("command", choices=['help','compare_priorities','dump_parents','areq-24628'])
+    parser.add_argument("--createmax", nargs='?', default=0, help="Max number of E-Features to create.",type=int)
+    parser.add_argument("-c","--comment", nargs='?', default=None, help="Comment for created items.")
+    parser.add_argument("-o","--output", nargs='?', default="output.txt", help="Where to store the result.")
+    parser.add_argument("-l", "--log_level", choices=['debug', 'info', 'warn', 'error', 'fatal'])
+    parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner'])
     args = parser.parse_args()
 
     if args.log_level is not None:
@@ -748,8 +772,8 @@ def main():
         compare_priorities(parser, args, config, queries)
     elif 'dump_parents' == args.command:
         dump_parents(parser, args, config, queries)
-    elif 'areq-24628' == args.command:
-        areq_24628(parser, args, config, queries)
+    elif 'e_feature_scanner' == args.command:
+        e_feature_scanner(parser, args, config, queries)
     else:
         parser.print_help()
         exit(1)

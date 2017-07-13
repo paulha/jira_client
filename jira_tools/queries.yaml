@@ -16,7 +16,7 @@ servers:
             search:     'project = AREQ AND "Platform/Program" = "{splatform}" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC'
             match:      'key = "{key}"'
 
-        areq_24628:
+        e_feature_scanner:
             # -- Find entries to (potentially) clone and modify...
             candidate_e-features:     'project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             parent_query:             'key = "{parent_key}"'
