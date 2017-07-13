@@ -677,6 +677,7 @@ def areq_24628(parser, args, config, queries):
                 update_failures += 1
 
             # -- TODO: Add a comment to the created E-Feature (should come from the command line with a default option.)
+            jira.add_comment(sibling_e_feature, 'Comment text')
 
             break   # todo: This line is temporary!
 
