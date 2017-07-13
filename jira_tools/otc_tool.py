@@ -483,6 +483,10 @@ def is_this_the_same_feature(parent_feature, source_e_feature, target_e_feature)
     if parent_feature.fields.summary not in target_e_feature.fields.summary:
         raise ValueError("Feature summary not contained in E-Feature")
 
+    if source_e_feature.fields.assignee not in target_e_feature.fields.assignee:
+        raise ValueError("Source E-Feature assignee %s not contained in E-Feature assignee %s"
+                         % (source_e_feature.fields.assignee.name, target_e_feature.fields.assignee.name))
+
     return True
 
 
@@ -626,21 +630,25 @@ def areq_24628(parser, args, config, queries):
         if update:
             log.logger.info("Creating missing E-Feature {splatform} version {tversion} for Feature %s: %s".format_map(vars(args)),
                             parent_feature.key, parent_feature.fields.summary)
+            # Note: This is special code making Dustin the assignee for three other possible assignees.
             try:
                 if current_e_feature.fields.assignee is None:
+                    # -- if it's unassigned, leave it that way
                     log.logger.debug("Assigning new e-feature to None (is that valid?)")
                     target_assign = None
                 elif current_e_feature.fields.assignee.name in ['danunora', 'etang1', 'atena']:
+                    # -- Change assignee to Dustin
                     log.logger.debug("Assigning new e-feature to 'daqualls'")
                     target_assign = 'daqualls'
                 else:
+                    # -- It's assigned to someone else, leave it that way.
                     target_assign = current_e_feature.fields.assignee.name
             except Exception as e:
+                # -- Something happened; log the error and continue.
                 log.logger.error(e, exc_info=True)
-                pass
 
             # -- Note: Creating an E-Feature (sub-type of Feature) causes appropriate fields of the parent Feature
-            # --       to be copied into the E-Feature *automatically*.
+            #          to be copied into the E-Feature *automatically*.
             new_e_feature_dict = {
                 'project': {'key': parent_feature.fields.project.key},
                 'parent': {'key': parent_feature.key},
@@ -653,18 +661,18 @@ def areq_24628(parser, args, config, queries):
 
             log.logger.debug("Creating E-Feature clone of Feature %s -- %s" % (parent_feature.key, new_e_feature_dict))
             sibling_e_feature = jira.create_issue(fields=new_e_feature_dict)
-            # -- Having created the issue, now other fields can be updated:
+
+            # -- Having created the issue, now other fields of the E-Feature can be updated:
             sibling_e_feature.update(notify=False, fields={
-                # 'status':       {'name': 'Open'},       # "text: Field 'status' cannot be set. It is not on the appropriate screen, or unknown."
                 'priority':     {'name': 'P1-Stopper'},
-                'assignee':     {'name': target_assign},
                 exists_on:      getattr(current_e_feature.fields, exists_on) if getattr(current_e_feature.fields, exists_on) is not None else []
             })
             update_count += 1
+
             try:
                 is_this_the_same_feature(parent_feature, current_e_feature, sibling_e_feature)
             except ValueError as e:
-                log.logger.error("E-Feature %s does not match Feature %s. Exception '%s'",
+                log.logger.error("Created E-Feature %s does not match Feature %s. Exception '%s'",
                                  sibling_e_feature.key, parent_feature.key, e)
                 update_failures += 1
             break   # todo: This line is temporary!
