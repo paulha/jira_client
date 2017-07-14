@@ -20,7 +20,7 @@ def chunker(iterable, n, fillvalue=None):
 
 
 # set up jira connection
-def init_jira(host_alias = "jira-t3", config={} ):
+def init_jira(host_alias = "jira-t3", config={}):
     """
     Load Configuration from config.yaml
     
@@ -33,7 +33,9 @@ def init_jira(host_alias = "jira-t3", config={} ):
     server = {'server': host}
     if 'verify' in  config:
         verified = "verified"
-        server['verify'] = config['verify']
+        # Make certificate file relative to config file...
+        config_directory = "" if 'config_directory' not in config else config['config_directory']
+        server['verify'] = config_directory+config['verify']
     else:
         verified = "unverified"
         # -- Following code is supposed to ignore a certificate error, but it doesn't. :-(

@@ -8,8 +8,8 @@ from utility_funcs.search import get_server_info
 import logging
 import logger_yaml as log
 
-CONFIG_FILE = './config.yaml'+pathsep+'~/.jira/config.yaml'
-QUERIES_FILE = './queries.yaml'+pathsep+'~/.jira/queries.yaml'
+CONFIG_FILE = os.path.dirname(os.path.realpath(sys.argv[0]))+'./config.yaml'+pathsep+'~/.jira/config.yaml'
+QUERIES_FILE = os.path.dirname(os.path.realpath(sys.argv[0]))+'./queries.yaml'+pathsep+'~/.jira/queries.yaml'
 
 # -- See logger.yaml:
 log_file = logging.getLogger("file")
