@@ -41,3 +41,4 @@ dist
 config.yaml
 jira_tools/reports/*.csv
 *.sqlite3
+/otc_tool.dat
