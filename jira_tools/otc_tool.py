@@ -8,6 +8,7 @@ from jirafields import make_field_lookup
 from utility_funcs.search import get_server_info
 import utility_funcs.logger_yaml as log
 
+LOG_CONFIG_FILE = 'logging.yaml'+pathsep+dirname(realpath(sys.argv[0]))+'/logging.yaml'
 CONFIG_FILE = dirname(realpath(sys.argv[0]))+'/config.yaml'+pathsep+'~/.jira/config.yaml'
 QUERIES_FILE = dirname(realpath(sys.argv[0]))+'/queries.yaml'+pathsep+'~/.jira/queries.yaml'
 
@@ -715,6 +716,7 @@ def e_feature_scanner(parser, args, config, queries):
 
 
 def main():
+    log.setup_logging(LOG_CONFIG_FILE)
     parser = argparse.ArgumentParser( description="This is an OTC tool for working with Jira projects.")
     connection_group=parser.add_argument_group(title="Connection control", description="About the connectionn to the server")
     connection_group.add_argument("-n", "--name", nargs='?', default="default", help="Alias for the target host" )
