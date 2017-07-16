@@ -2,7 +2,8 @@ from os.path import expanduser, pathsep
 from jira.client import JIRA
 import itertools
 import yaml
-import logger_yaml as log
+#import logger_yaml as log
+import utility_funcs.logger_yaml as log
 
 from utility_funcs.search import get_server_info
 
@@ -35,7 +36,7 @@ def init_jira(host_alias = "jira-t3", config={}):
         verified = "verified"
         # Make certificate file relative to config file...
         config_directory = "" if 'config_directory' not in config else config['config_directory']
-        server['verify'] = config_directory+config['verify']
+        server['verify'] = config_directory+'/'+config['verify']
     else:
         verified = "unverified"
         # -- Following code is supposed to ignore a certificate error, but it doesn't. :-(
@@ -50,7 +51,7 @@ def init_jira(host_alias = "jira-t3", config={}):
     except Exception as e:
         log.logger.fatal( e, exc_info=True )
         log.logger.fatal( "Failed to connect to JIRA." )
-        exit(0)
+        raise e
 
     return jira
 

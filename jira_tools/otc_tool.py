@@ -1,19 +1,17 @@
 from os.path import expanduser, pathsep, dirname, realpath
-import os
 import argparse
-import csv
 import sys
 from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 from jirafields import make_field_lookup
+
+# -- todo: Uncomfortable for two different imports from the same module to be handled differently...
 from utility_funcs.search import get_server_info
-import logging
-import logger_yaml as log
+import utility_funcs.logger_yaml as log
 
-CONFIG_FILE = dirname(realpath(sys.argv[0]))+'./config.yaml'+pathsep+'~/.jira/config.yaml'
-QUERIES_FILE = dirname(realpath(sys.argv[0]))+'./queries.yaml'+pathsep+'~/.jira/queries.yaml'
+CONFIG_FILE = dirname(realpath(sys.argv[0]))+'/config.yaml'+pathsep+'~/.jira/config.yaml'
+QUERIES_FILE = dirname(realpath(sys.argv[0]))+'/queries.yaml'+pathsep+'~/.jira/queries.yaml'
 
-# -- See logger.yaml:
-log_file = logging.getLogger("file")
+log_file = log.logging.getLogger("file")
 log_file.info("Hello World!")
 
 
@@ -739,12 +737,21 @@ def main():
     args = parser.parse_args()
 
     if args.log_level is not None:
-        log.logger.setLevel( logging.getLevelName(args.log_level.upper()))
+        log.logger.setLevel( log.logging.getLevelName(args.log_level.upper()))
 
     args.command = args.command.lower()
 
-    config = get_server_info(args.name, CONFIG_FILE)    # possible FileNotFoundError
-    queries = get_server_info(args.name, QUERIES_FILE)   # possible FileNotFoundError
+    try:
+        config = get_server_info(args.name, CONFIG_FILE)    # possible FileNotFoundError
+    except FileNotFoundError as f:
+        log.logger.fatal("Can't open configuration file: %s"%f)
+        exit(-1)
+
+    try:
+        queries = get_server_info(args.name, QUERIES_FILE)   # possible FileNotFoundError
+    except FileNotFoundError as f:
+        log.logger.fatal("Can't open queries file: %s", f)
+        exit(-1)
 
     errors = 0
     if config is None:
@@ -767,7 +774,7 @@ def main():
     # --> Dispatch to action routine:
     log.logger.info("Application Starting! Comamnd='%s'" % args.command)
 
-    if 'help'==args.command:
+    if 'help' == args.command:
         parser.print_help()
     elif 'compare_priorities' == args.command:
         compare_priorities(parser, args, config, queries)
