@@ -1,0 +1,20 @@
+servers:  # Required, but not meaningful here...
+  default:
+    # -- Default values for the named scenario
+    #    (Comment out any value that should not be defaulted:)
+    command: e_feature_scanner
+    name: default
+    user: None
+    password: None
+    comment: None
+    update: false
+    createmax: 0
+    verify: false
+    log_level: debug
+    output: output.txt
+    splatform: Icelake-U SDC
+    sproject: Platforms Requirements
+    sversion: O
+    taversion: O
+    tplatform: Broxton-P IVI
+    tversion: O-MR1

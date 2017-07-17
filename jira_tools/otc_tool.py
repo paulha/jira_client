@@ -5,12 +5,13 @@ from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 from jirafields import make_field_lookup
 
 # -- todo: Uncomfortable for two different imports from the same module to be handled differently...
-from utility_funcs.search import get_server_info
+from utility_funcs.search import get_server_info, search_for_profile
 import utility_funcs.logger_yaml as log
 
 LOG_CONFIG_FILE = 'logging.yaml'+pathsep+dirname(realpath(sys.argv[0]))+'/logging.yaml'
 CONFIG_FILE = dirname(realpath(sys.argv[0]))+'/config.yaml'+pathsep+'~/.jira/config.yaml'
 QUERIES_FILE = dirname(realpath(sys.argv[0]))+'/queries.yaml'+pathsep+'~/.jira/queries.yaml'
+SCENARIO_FILE = 'scenarios.yaml'+pathsep+dirname(realpath(sys.argv[0]))+'/scenarios.yaml'
 
 log_file = log.logging.getLogger("file")
 log_file.info("Hello World!")
@@ -722,6 +723,7 @@ def main():
     connection_group.add_argument("-n", "--name", nargs='?', default="default", help="Alias for the target host" )
     connection_group.add_argument("-u", "--user", nargs='?', help="User Name (future)" )
     connection_group.add_argument("-p", "--password", nargs='?', help="Password (future)" )
+    connection_group.add_argument("-s", "--scenario", nargs='?', help="Scenario to select", default='default')
     project_group=parser.add_argument_group(title="Project control", description="Selecting which projects...")
     project_group.add_argument("--sproject", nargs='?', default="Platforms Requirements", help="Jira source project")
     project_group.add_argument("--splatform", nargs='?', default="Icelake-U SDC", help="Jira source platform")
@@ -735,13 +737,25 @@ def main():
     parser.add_argument("-c","--comment", nargs='?', default=None, help="Comment for created items.")
     parser.add_argument("-o","--output", nargs='?', default="output.txt", help="Where to store the result.")
     parser.add_argument("-l", "--log_level", choices=['debug', 'info', 'warn', 'error', 'fatal'])
-    parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner'])
+    parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner'], default='help')
     args = parser.parse_args()
 
     if args.log_level is not None:
         log.logger.setLevel( log.logging.getLevelName(args.log_level.upper()))
 
     args.command = args.command.lower()
+
+    try:
+        scenario = get_server_info(args.scenario, SCENARIO_FILE)    # possible FileNotFoundError
+        if scenario is None:
+            raise NameError("Can't locate scenario {scenario} in scenario file.".format_map(vars(args)))
+        scenario.update(vars(args))
+    except FileNotFoundError as f:
+        log.logger.fatal("Can't open scenarios file: %s"%f)
+        exit(-1)
+    except NameError as f:
+        log.logger.fatal("Error in scenarios file: %s"%f)
+        exit(-1)
 
     try:
         config = get_server_info(args.name, CONFIG_FILE)    # possible FileNotFoundError
@@ -776,6 +790,10 @@ def main():
     # --> Dispatch to action routine:
     log.logger.info("Application Starting! Comamnd='%s'" % args.command)
 
+    import yaml
+    yaml.dump(scenario, sys.stdout)
+
+    # -- todo: args.* stuff should come from scenario now.
     if 'help' == args.command:
         parser.print_help()
     elif 'compare_priorities' == args.command:
