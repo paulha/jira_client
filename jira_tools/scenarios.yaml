@@ -7,9 +7,9 @@ servers:  # Required, but not meaningful here...
     user: None
     password: None
     comment: None
-    update: false
-    createmax: 0
-    verify: false
+    update: true
+    createmax: 2
+    verify: True
     log_level: debug
     output: output.txt
     splatform: Icelake-U SDC

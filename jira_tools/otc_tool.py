@@ -494,12 +494,12 @@ def is_this_the_same_feature(parent_feature, source_e_feature, target_e_feature)
 
 
 # Note: this maybe should be called "e_feature_scan"...
-def e_feature_scanner(parser, args, config, queries):
+def e_feature_scanner(parser, scenario, config, queries):
     """Create O-MR1 dessert AREQ eFeatures for BXT-P IVI based on O dessert
 
     Attributes:
         parser (argparse.ArgumentParser): Can be used for option specific parsing of arguments.
-        args (Namespace): Dictionary like list of arguments and values from the command line. NOT iterable!
+        scenario (Dict): Dictionary like list of arguments and values from the command line. NOT iterable!
         config (YAML): Hierarchical list of configuration settings based on server name command argument
         queries (YAML): Also a hierarchical list of queries to use...
 
@@ -543,7 +543,7 @@ def e_feature_scanner(parser, args, config, queries):
         exit(-1)
 
     # -- Get and format it:
-    candidate_efeatures_query = items['candidate_e-features'].format_map(vars(args))
+    candidate_efeatures_query = items['candidate_e-features'].format_map(scenario)
     log.logger.debug( "search query is: %s", candidate_efeatures_query)
 
     # -- Make sure parent_query is defined
@@ -562,15 +562,15 @@ def e_feature_scanner(parser, args, config, queries):
     sibling_query = items['sibling_query']
     log.logger.debug( "sibling query is: %s", sibling_query)
 
-    log.logger.info("Examining source platform {splatform}, source android version {sversion}, target android version {tversion}".format_map(vars(args)))
+    log.logger.info("Examining source platform {splatform}, source android version {sversion}, target android version {tversion}".format_map(scenario))
 
-    verify = args.verify
-    update = args.update
+    verify = scenario['verify']
+    update = scenario['update']
     log.logger.info("Verify is %s and Update is %s", verify, update)
     log.logger.info("=================================================================")
 
     # -- Get and format it:
-    jira = init_jira(args.name, config)
+    jira = init_jira(scenario['name'], config)
 
     field_lookup = make_field_lookup(jira)
     and_vers_key = field_lookup.reverse('Android Version(s)')
@@ -588,7 +588,7 @@ def e_feature_scanner(parser, args, config, queries):
 
         # -- OK so now we have found the source e-feature. We want to get its parent
         param_dict = {'parent_key': current_e_feature.fields.parent}     # What we're really looking for...
-        param_dict.update(vars(args))                                    # other values that might be useful in a complex query
+        param_dict.update(scenario)                                    # other values that might be useful in a complex query
 
         # -- Check for duplicate sibling feature, if found no need to create a new one.
         sibling_e_feature = query_one_item(jira, sibling_query, param_dict)
@@ -627,12 +627,12 @@ def e_feature_scanner(parser, args, config, queries):
         if verify:
             # -- Missing E-Feature:
             log.logger.warning("An E-Feature is missing. {splatform} version {tversion}. Parent Feature is %s. Version {sversion} E-Feature is %s %s"
-                               .format_map(vars(args)),
+                               .format_map(scenario),
                                parent_feature.key, current_e_feature.key, current_e_feature.fields.summary)
             verify_failures += 1
 
         if update:
-            log.logger.warning("Creating E-Feature {splatform} version {tversion} for Feature %s: %s".format_map(vars(args)),
+            log.logger.warning("Creating E-Feature {splatform} version {tversion} for Feature %s: %s".format_map(scenario),
                             parent_feature.key, parent_feature.fields.summary)
             # Note: This is special code making Dustin the assignee for three other possible assignees.
             try:
@@ -659,8 +659,8 @@ def e_feature_scanner(parser, args, config, queries):
                 'summary': parent_feature.fields.summary,
                 'issuetype': {'name': 'E-Feature'},
                 'assignee': {'name': target_assign},
-                and_vers_key: [{'value': args.tversion}],
-                platprog_key: [{'value': args.splatform}],
+                and_vers_key: [{'value': scenario['tversion']}],
+                platprog_key: [{'value': scenario['splatform']}],
             }
 
             log.logger.debug("Creating E-Feature clone of Feature %s -- %s" % (parent_feature.key, new_e_feature_dict))
@@ -687,9 +687,9 @@ def e_feature_scanner(parser, args, config, queries):
 
                              Parent Feature is %s and source E-Feature is %s.
 
-                             %s""".format_map(vars(args))
+                             %s""".format_map(scenario)
                              % (parent_feature.key, current_e_feature.key,
-                                args.comment if args.comment is not None else ""))
+                                scenario['comment'] if scenario['comment'] is not None else ""))
 
             update_count += 1
 
@@ -701,7 +701,7 @@ def e_feature_scanner(parser, args, config, queries):
                                  sibling_e_feature.key, parent_feature.key, e)
                 update_failures += 1
 
-            if args.createmax and update_count>=args.createmax:
+            if scenario['createmax'] and update_count>=scenario['createmax']:
                 break
 
     log.logger.info("-----------------------------------------------------------------")
@@ -720,26 +720,27 @@ def main():
     log.setup_logging(LOG_CONFIG_FILE)
     parser = argparse.ArgumentParser( description="This is an OTC tool for working with Jira projects.")
     connection_group=parser.add_argument_group(title="Connection control", description="About the connectionn to the server")
-    connection_group.add_argument("-n", "--name", nargs='?', default="default", help="Alias for the target host" )
+    connection_group.add_argument("-n", "--name", nargs='?', help="Alias for the target host" )
     connection_group.add_argument("-u", "--user", nargs='?', help="User Name (future)" )
     connection_group.add_argument("-p", "--password", nargs='?', help="Password (future)" )
     connection_group.add_argument("-s", "--scenario", nargs='?', help="Scenario to select", default='default')
     project_group=parser.add_argument_group(title="Project control", description="Selecting which projects...")
-    project_group.add_argument("--sproject", nargs='?', default="Platforms Requirements", help="Jira source project")
-    project_group.add_argument("--splatform", nargs='?', default="Icelake-U SDC", help="Jira source platform")
-    project_group.add_argument("--sversion", nargs='?', default="O", help="Jira source android version")
-    project_group.add_argument("--tplatform", nargs='?', default="Broxton-P IVI", help="Jira source platform")
-    project_group.add_argument("--taversion", nargs='?', default="O", help="Android target version")
-    project_group.add_argument("--tversion", nargs='?', default="O-MR1", help="Jira target android version")
-    project_group.add_argument("--update", default=False, action="store_true", help="Update target")
-    project_group.add_argument("--verify", default=False, action="store_true", help="Verify target")
-    parser.add_argument("--createmax", nargs='?', default=0, help="Max number of E-Features to create.",type=int)
-    parser.add_argument("-c","--comment", nargs='?', default=None, help="Comment for created items.")
-    parser.add_argument("-o","--output", nargs='?', default="output.txt", help="Where to store the result.")
+    project_group.add_argument("--sproject", nargs='?', help="Jira source project")
+    project_group.add_argument("--splatform", nargs='?', help="Jira source platform")
+    project_group.add_argument("--sversion", nargs='?', help="Jira source android version")
+    project_group.add_argument("--tplatform", nargs='?', help="Jira source platform")
+    project_group.add_argument("--taversion", nargs='?', help="Android target version")
+    project_group.add_argument("--tversion", nargs='?', help="Jira target android version")
+    project_group.add_argument("--update", default=None, action="store_true", help="Update target")
+    project_group.add_argument("--verify", default=None, action="store_true", help="Verify target")
+    parser.add_argument("--createmax", nargs='?', help="Max number of E-Features to create.",type=int)
+    parser.add_argument("-c","--comment", nargs='?', help="Comment for created items.")
+    parser.add_argument("-o","--output", nargs='?', help="Where to store the result.")
     parser.add_argument("-l", "--log_level", choices=['debug', 'info', 'warn', 'error', 'fatal'])
-    parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner'], default='help')
+    parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner'])
     args = parser.parse_args()
 
+    # todo: Should be combined switches...
     if args.log_level is not None:
         log.logger.setLevel( log.logging.getLevelName(args.log_level.upper()))
 
@@ -749,7 +750,15 @@ def main():
         scenario = get_server_info(args.scenario, SCENARIO_FILE)    # possible FileNotFoundError
         if scenario is None:
             raise NameError("Can't locate scenario {scenario} in scenario file.".format_map(vars(args)))
-        scenario.update(vars(args))
+        for switch in vars(args):
+            # -- If the switch is set, it should override whatever in in scenario...
+            value = getattr(args, switch, None)
+            if value is not None:
+                scenario[switch] = value
+        # -- todo: *this* would be the place to set defaults...
+
+        log.logger.info("Combined Switches: %s", scenario)
+
     except FileNotFoundError as f:
         log.logger.fatal("Can't open scenarios file: %s"%f)
         exit(-1)
@@ -758,13 +767,13 @@ def main():
         exit(-1)
 
     try:
-        config = get_server_info(args.name, CONFIG_FILE)    # possible FileNotFoundError
+        config = get_server_info(scenario['name'], CONFIG_FILE)    # possible FileNotFoundError
     except FileNotFoundError as f:
         log.logger.fatal("Can't open configuration file: %s"%f)
         exit(-1)
 
     try:
-        queries = get_server_info(args.name, QUERIES_FILE)   # possible FileNotFoundError
+        queries = get_server_info(scenario['name'], QUERIES_FILE)   # possible FileNotFoundError
     except FileNotFoundError as f:
         log.logger.fatal("Can't open queries file: %s", f)
         exit(-1)
@@ -788,20 +797,17 @@ def main():
         exit(-1)
 
     # --> Dispatch to action routine:
-    log.logger.info("Application Starting! Comamnd='%s'" % args.command)
+    command = scenario['command']
+    log.logger.info("Application Starting! Comamnd='%s'" % command)
 
-    import yaml
-    yaml.dump(scenario, sys.stdout)
-
-    # -- todo: args.* stuff should come from scenario now.
-    if 'help' == args.command:
+    if 'help' == command:
         parser.print_help()
-    elif 'compare_priorities' == args.command:
-        compare_priorities(parser, args, config, queries)
-    elif 'dump_parents' == args.command:
-        dump_parents(parser, args, config, queries)
-    elif 'e_feature_scanner' == args.command:
-        e_feature_scanner(parser, args, config, queries)
+    elif 'compare_priorities' == command:
+        compare_priorities(parser, scenario, config, queries)
+    elif 'dump_parents' == command:
+        dump_parents(parser, scenario, config, queries)
+    elif 'e_feature_scanner' == command:
+        e_feature_scanner(parser, scenario, config, queries)
     else:
         parser.print_help()
         exit(1)
