@@ -20,23 +20,53 @@ servers:
             # -- Find entries to (potentially) clone and modify...
             candidate_e-features:     'project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             parent_query:             'key = "{parent_key}"'
-            sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{splatform}")'
+            sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
 
     jira-t3:
-        query1:     'https://jira-t3.devtools.intel.com'
-        query2:     'IntelSHA256RootCA-Base64.crt'
-        query3:     'user'
-        query4:     'password'
+        compare_priorities:
+            search:     'project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC'
+            # TODO: Check: shouldn't this qualify by project as well?
+            match:      '"Platform/Program" = "{tplatform}" AND "Android Version(s)" = "{taversion}" AND "Global ID" ~ {gid}'
+
+        dump_parents:
+            search:     'project = AREQ AND "Platform/Program" = "{splatform}" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC'
+            match:      'key = "{key}"'
+
+        e_feature_scanner:
+            # -- Find entries to (potentially) clone and modify...
+            candidate_e-features:     'project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            parent_query:             'key = "{parent_key}"'
+            sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
 
     jira01:
-        query1:     'https://jira-t3.devtools.intel.com'
-        query2:     'IntelSHA256RootCA-Base64.crt'
-        query3:     'user'
-        query4:     'password'
+        compare_priorities:
+            search:     'project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC'
+            # TODO: Check: shouldn't this qualify by project as well?
+            match:      '"Platform/Program" = "{tplatform}" AND "Android Version(s)" = "{taversion}" AND "Global ID" ~ {gid}'
+
+        dump_parents:
+            search:     'project = AREQ AND "Platform/Program" = "{splatform}" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC'
+            match:      'key = "{key}"'
+
+        e_feature_scanner:
+            # -- Find entries to (potentially) clone and modify...
+            candidate_e-features:     'project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            parent_query:             'key = "{parent_key}"'
+            sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
 
     jira-stg:
-        query1:     'https://jira-t3.devtools.intel.com'
-        query2:     'IntelSHA256RootCA-Base64.crt'
-        query3:     'user'
-        query4:     'password'
+        compare_priorities:
+            search:     'project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC'
+            # TODO: Check: shouldn't this qualify by project as well?
+            match:      '"Platform/Program" = "{tplatform}" AND "Android Version(s)" = "{taversion}" AND "Global ID" ~ {gid}'
+
+        dump_parents:
+            search:     'project = AREQ AND "Platform/Program" = "{splatform}" AND issuetype = E-Feature AND priority != P4-Low ORDER BY priority ASC'
+            match:      'key = "{key}"'
+
+        e_feature_scanner:
+            # -- Find entries to (potentially) clone and modify...
+            candidate_e-features:     'project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            parent_query:             'key = "{parent_key}"'
+            sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
 

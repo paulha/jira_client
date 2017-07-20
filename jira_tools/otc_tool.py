@@ -459,6 +459,7 @@ def compare_priorities(parser, args, config, queries):
 def query_one_item(jira, item_query, param_dict):
     formatted_query = item_query.format_map(param_dict)
     log.logger.debug("get_one_item formatted_query is: %s", formatted_query)
+    item = None
     try:
         item = jira.search_issues(formatted_query, 0)
         if isinstance(item, list) and len(item) > 0:
@@ -480,16 +481,16 @@ def is_this_the_same_feature(parent_feature, source_e_feature, target_e_feature)
     """Compare: is target_e_feature a copy of the parent Feature?"""
     errors=[]
     if parent_feature.fields.description != target_e_feature.fields.description:
-        errors += "Descriptions don't match"
+        errors += ["Descriptions don't match"]
 
     if parent_feature.fields.summary not in target_e_feature.fields.summary:
-        errors += "Feature summary not contained in E-Feature"
+        errors += ["Feature summary not contained in E-Feature"]
 
     if source_e_feature.fields.assignee != target_e_feature.fields.assignee:
-        errors += "Source E-Feature assignee %s not contained in E-Feature assignee %s" \
-                        % (source_e_feature.fields.assignee.name, target_e_feature.fields.assignee.name)
+        errors += ["Source E-Feature assignee %s not contained in E-Feature assignee %s" \
+                        % (source_e_feature.fields.assignee.name, target_e_feature.fields.assignee.name)]
     if errors:
-        raise ValueError(errors)
+        raise ValueError([errors])
     return True
 
 
@@ -624,9 +625,9 @@ def e_feature_scanner(parser, scenario, config, queries):
             continue
 
         # -- Note: Code to fill out new sibling goes here.
-        if verify:
+        if not update:
             # -- Missing E-Feature:
-            log.logger.warning("An E-Feature is missing. {splatform} version {tversion}. Parent Feature is %s. Version {sversion} E-Feature is %s %s"
+            log.logger.warning("An E-Feature is missing. {tplatform} version {tversion}. Parent Feature is %s. Version {sversion} E-Feature is %s %s"
                                .format_map(scenario),
                                parent_feature.key, current_e_feature.key, current_e_feature.fields.summary)
             verify_failures += 1
@@ -723,7 +724,7 @@ def main():
     connection_group.add_argument("-n", "--name", nargs='?', help="Alias for the target host" )
     connection_group.add_argument("-u", "--user", nargs='?', help="User Name (future)" )
     connection_group.add_argument("-p", "--password", nargs='?', help="Password (future)" )
-    connection_group.add_argument("-s", "--scenario", nargs='?', help="Scenario to select", default='default')
+    connection_group.add_argument("--scenario", nargs='?', help="Scenario to select", default='default')
     project_group=parser.add_argument_group(title="Project control", description="Selecting which projects...")
     project_group.add_argument("--sproject", nargs='?', help="Jira source project")
     project_group.add_argument("--splatform", nargs='?', help="Jira source platform")
@@ -737,7 +738,7 @@ def main():
     parser.add_argument("-c","--comment", nargs='?', help="Comment for created items.")
     parser.add_argument("-o","--output", nargs='?', help="Where to store the result.")
     parser.add_argument("-l", "--log_level", choices=['debug', 'info', 'warn', 'error', 'fatal'])
-    parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner'])
+    parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner'], default=None)
     args = parser.parse_args()
 
     # todo: Should be combined switches...
@@ -757,7 +758,6 @@ def main():
                 scenario[switch] = value
         # -- todo: *this* would be the place to set defaults...
 
-        log.logger.info("Combined Switches: %s", scenario)
 
     except FileNotFoundError as f:
         log.logger.fatal("Can't open scenarios file: %s"%f)
@@ -765,6 +765,11 @@ def main():
     except NameError as f:
         log.logger.fatal("Error in scenarios file: %s"%f)
         exit(-1)
+
+    if 'log_level' in scenario:
+        log.logger.setLevel(log.logging.getLevelName(scenario['log_level'].upper()))
+
+    log.logger.info("Combined Switches: %s", scenario)
 
     try:
         config = get_server_info(scenario['name'], CONFIG_FILE)    # possible FileNotFoundError

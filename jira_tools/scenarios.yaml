@@ -7,14 +7,34 @@ servers:  # Required, but not meaningful here...
     user: None
     password: None
     comment: None
-    update: true
+    update: false
     createmax: 2
-    verify: True
+    verify: false
     log_level: debug
     output: output.txt
     splatform: Icelake-U SDC
     sproject: Platforms Requirements
     sversion: O
     taversion: O
-    tplatform: Broxton-P IVI
+    tplatform: Icelake-U SDC
     tversion: O-MR1
+
+  audit.areq-24736:
+    # -- Default values for the named scenario
+    #    (Comment out any value that should not be defaulted:)
+    command: e_feature_scanner
+    name: jira01
+    user: None
+    password: None
+    comment: None
+    update: false
+    createmax: 2
+    verify: false
+    log_level: warn
+    output: output.txt
+    splatform: Broxton-P IVI
+    sproject: Platforms Requirements
+    sversion: O
+    taversion: O
+    tplatform: Icelake-U SDC
+    tversion: O
