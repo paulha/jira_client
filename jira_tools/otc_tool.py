@@ -627,9 +627,11 @@ def e_feature_scanner(parser, scenario, config, queries):
         # -- Note: Code to fill out new sibling goes here.
         if not update:
             # -- Missing E-Feature:
-            log.logger.warning("An E-Feature is missing. {tplatform} version {tversion}. Parent Feature is %s. Version {sversion} E-Feature is %s %s"
+            log.logger.warning("An E-Feature is missing. {tplatform} version {tversion}. Parent Feature is %s. Version {sversion} E-Feature is %s %s %s"
                                .format_map(scenario),
-                               parent_feature.key, current_e_feature.key, current_e_feature.fields.summary)
+                               parent_feature.key, current_e_feature.key,
+                               current_e_feature.fields.customfield_11700[0],
+                               current_e_feature.fields.summary)
             verify_failures += 1
 
         if update:

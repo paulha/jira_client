@@ -47,12 +47,16 @@ Scan AREQ for E-Features of sproject / splatform / sversion with
     android version tversion is missing, then create create
      the missing E-Feature with a target version of tversion.
 
+ When both verify and update are false, e_feature_scanner will
+  still report when an expected target E-Feature is missing.
+
 Switches:
 
 Switch     | Description
 -----------|------------------------
-splatform  |Source platform
+splatform  |Source platform (Comparison source)
 sversion   |Source Version
+tplatform  |Target platform (Comparison target)
 tversion   |Target Version
 verify      | Perform verify of found entry
 update      | Create missing E-Features with version tversion
