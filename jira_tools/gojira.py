@@ -21,7 +21,8 @@ def chunker(iterable, n, fillvalue=None):
 
 
 # set up jira connection
-def init_jira(host_alias = "jira-t3", config={}):
+# Note: host_alias appears unused...
+def init_jira(config={}):
     """
     Load Configuration from config.yaml
     

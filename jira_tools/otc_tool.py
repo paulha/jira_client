@@ -323,7 +323,7 @@ def dump_parents(parser, args, config, queries ):
 
     done_list = []
 
-    jira = init_jira( args.name, config )
+    jira = init_jira(config)
 
     field_lookup = make_field_lookup(jira)
     val_lead_key = field_lookup.reverse('Validation Lead')
@@ -413,7 +413,7 @@ def compare_priorities(parser, args, config, queries):
 
     done_list = []
 
-    jira = init_jira( args.name, config )
+    jira = init_jira(config)
 
     field_lookup = make_field_lookup(jira)
     val_lead_key = field_lookup.reverse('Validation Lead')
@@ -571,7 +571,7 @@ def e_feature_scanner(parser, scenario, config, queries):
     log.logger.info("=================================================================")
 
     # -- Get and format it:
-    jira = init_jira(scenario['name'], config)
+    jira = init_jira(config)
 
     field_lookup = make_field_lookup(jira)
     and_vers_key = field_lookup.reverse('Android Version(s)')
