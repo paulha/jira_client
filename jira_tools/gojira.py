@@ -1,11 +1,6 @@
-from os.path import expanduser, pathsep
 from jira.client import JIRA
 import itertools
-import yaml
-#import logger_yaml as log
 import utility_funcs.logger_yaml as log
-
-from utility_funcs.search import get_server_info
 
 def chunker(iterable, n, fillvalue=None):
     "Return n at a time, no padding at end of list"
