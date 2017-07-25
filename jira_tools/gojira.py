@@ -63,7 +63,7 @@ def jql_issue_gen(query, jira, show_status=False, count_change_ok=False):
         raise Exception('no query provided')
 
     if show_status:
-        log.logger.info( "JQL:", query )
+        log.logger.info( "JQL: %s", query )
 
     seen = 0
     startAt = 0
