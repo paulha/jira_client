@@ -494,7 +494,6 @@ def is_this_the_same_feature(parent_feature, source_e_feature, target_e_feature)
     return True
 
 
-# Note: this maybe should be called "e_feature_scan"...
 def e_feature_scanner(parser, scenario, config, queries):
     """Create O-MR1 dessert AREQ eFeatures for BXT-P IVI based on O dessert
 
@@ -719,6 +718,129 @@ def e_feature_scanner(parser, scenario, config, queries):
     log.logger.info("%s processing error(s). ", processing_errors)
 
 
+def scan_areq_and_check_for_preq(parser, scenario, config, queries):
+    """
+
+    Hi Hanchett, PaulX - Please create a script / query comparing
+    the Icelake-U SDC AREQs with the label "IOTG_IVI" associated
+    to them and ensure that each one has a PREQ linked to it.
+    Thanks! Amy
+
+    Hi Hanchett, PaulX - If you do a query in JIRA, there are a
+    set of IceLake-U SDC e-features that have the label "IOTG_IVI"
+    associated with them. I would like for you to check that each
+    of these AREQs has a PREQ linked to it. Please let me know the
+    list of AREQs that do not have a PREQ linked to them (from the
+    sub-set of AREQs that have the IOTG_IVI label associated with
+    them).
+    Thanks! Amy
+
+    """
+    if scan_areq_and_check_for_preq.__name__ not in queries:
+        log.logger.fatal( "Query section for %s is missing: %s", e_feature_scanner.__name__, queries)
+        exit(-1)
+
+    items=queries[scan_areq_and_check_for_preq.__name__]
+
+    # -- Make sure search query is defined
+    if 'candidate_entries' not in items:
+        log.logger.fatal( "Search query for %s.search is missing: %s", 'candidate_entries', queries)
+        exit(-1)
+
+    # -- Get and format it:
+    candidate_entries_query = items['candidate_entries'].format_map(scenario)
+    log.logger.debug( "search query is: %s", candidate_entries_query)
+
+    if 'target_entry' not in items:
+        log.logger.fatal( "Target query for %s.search is missing: %s", 'target_entry', queries)
+        exit(-1)
+
+    target_query = items['target_entry']
+    log.logger.debug( "target query is: %s", target_query)
+
+    log.logger.info("Examining source platform {splatform}, source android version {sversion}, target android version {tversion}".format_map(scenario))
+
+    verify = scenario['verify']
+    update = scenario['update']
+    log.logger.info("Verify is %s and Update is %s", verify, update)
+    log.logger.info("=================================================================")
+
+    # -- Get and format it:
+    jira = init_jira(config)
+
+    field_lookup = make_field_lookup(jira)
+    and_vers_key = field_lookup.reverse('Android Version(s)')
+    platprog_key = field_lookup.reverse('Platform/Program')
+    exists_on = field_lookup.reverse('Exists On')
+
+    features_scanned = 0
+    warnings_issued = 0
+    verify_failures = 0
+    update_failures = 0
+    processing_errors = 0
+    for current_entry in jql_issue_gen(candidate_entries_query, jira, count_change_ok=True):
+        features_scanned += 1
+        log.logger.debug("Checking on entry %s: %s", current_entry.key, current_entry.fields.summary)
+
+        preqs = {}
+
+        def do_lookup(key, query):
+            param_dict = {'key': key}  # What we're really looking for...
+            param_dict.update(scenario)  # other values that might be useful in a complex query
+            return query_one_item(jira, query, param_dict)
+
+        for link in current_entry.fields.issuelinks:
+            try:
+                key = link.outwardIssue.key
+                log.logger.debug("outward key is %s", key)
+                target_entry = do_lookup(key, target_query)
+                if target_entry is not None:
+                    preqs[key] = preqs[key] + 1 if key in preqs else 1
+                    if "IOTG_IVI" not in target_entry.fields.links :
+                        log.logger.info("For item %s, referenced entry %s does not have label %s",
+                                            current_entry.key, target_entry.key, "IOTG_IVI")
+                        warnings_issued += 1
+                    log.logger.debug("found %s", target_entry)
+
+            except AttributeError as e:
+                pass
+
+            try:
+                key = link.inwardIssue.key
+                log.logger.debug("inward key is %s", key)
+                target_entry = do_lookup(key, target_query)
+                if target_entry is not None:
+                    preqs[key] = preqs[key] + 1 if key in preqs else 1
+                    if "IOTG_IVI" not in target_entry.fields.links :
+                        log.logger.info("For item %s, referenced entry %s does not have label %s",
+                                            current_entry.key, target_entry.key, "IOTG_IVI")
+                    warnings_issued += 1
+                    log.logger.debug("found %s", target_entry)
+
+            except AttributeError as e:
+                pass
+
+        if len(preqs) == 0:
+            warnings_issued += 1
+            log.logger.warning("For item %s, No PREQs were found.", current_entry.key)
+        elif len(preqs) > 1:
+            warnings_issued += 1
+            log.logger.warning("For item %s, MULTIPLE PREQ's (%s) were found.", current_entry.key, preqs.keys())
+
+    log.logger.info("-----------------------------------------------------------------")
+    log.logger.info("%s source entries were considered. ", features_scanned)
+    log.logger.info("%s warnings were issued. ", warnings_issued)
+    log.logger.info("")
+
+    # if verify:
+    #     log.logger.info("%s E-Feature comparison failure(s). ", verify_failures)
+    #
+    # if update:
+    #     log.logger.info("%s new E-Feature(s) were created, %s update failures. ", update_count, update_failures)
+
+    log.logger.info("%s processing error(s). ", processing_errors)
+
+
 def main():
     log.setup_logging(LOG_CONFIG_FILE)
     parser = argparse.ArgumentParser( description="This is an OTC tool for working with Jira projects.")
@@ -740,7 +862,8 @@ def main():
     parser.add_argument("-c","--comment", nargs='?', help="Comment for created items.")
     parser.add_argument("-o","--output", nargs='?', help="Where to store the result.")
     parser.add_argument("-l", "--log_level", choices=['debug', 'info', 'warn', 'error', 'fatal'])
-    parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner'], default=None)
+    parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner',
+                                            'scan_areq_for_preq' ], default=None)
     args = parser.parse_args()
 
     # todo: Should be combined switches...
@@ -815,6 +938,8 @@ def main():
         dump_parents(parser, scenario, config, queries)
     elif 'e_feature_scanner' == command:
         e_feature_scanner(parser, scenario, config, queries)
+    elif 'scan_areq_for_preq' == command:
+        scan_areq_and_check_for_preq(parser, scenario, config, queries)
     else:
         parser.print_help()
         exit(1)
