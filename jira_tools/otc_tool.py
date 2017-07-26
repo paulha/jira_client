@@ -717,7 +717,7 @@ def e_feature_scanner(parser, scenario, config, queries):
 
     log.logger.info("%s processing error(s). ", processing_errors)
 
-
+# -- https://jira01.devtools.intel.com/browse/AREQ-24748
 def scan_areq_and_check_for_preq(parser, scenario, config, queries):
     """
 
