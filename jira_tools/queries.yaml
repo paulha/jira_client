@@ -23,7 +23,7 @@ servers:
             sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
 
         scan_areq_and_check_for_preq:
-            candidate_entries:        'labels in ("IOTG_IVI") and project = AREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            candidate_entries:        'labels in ("IOTG_IVI") AND issuetype = E-Feature and project = AREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             # -- TODO: Does the PREQ target have to be labeled with IOTG_IVI?
             target_entry:           'key = "{key}" AND project = PREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             # target_entry:           'key = "{key}" AND labels in ("IOTG_IVI") AND project = PREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
@@ -45,7 +45,7 @@ servers:
             sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
 
         scan_areq_and_check_for_preq:
-            candidate_entries:        'labels in ("IOTG_IVI") and project = AREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            candidate_entries:        'labels in ("IOTG_IVI") AND issuetype = E-Feature and project = AREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             # -- TODO: Does the PREQ target have to be labeled with IOTG_IVI?
             target_entry:           'key = "{key}" AND project = PREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             # target_entry:           'key = "{key}" AND labels in ("IOTG_IVI") AND project = PREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
@@ -68,7 +68,7 @@ servers:
             sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
 
         scan_areq_and_check_for_preq:
-            candidate_entries:        'labels in ("IOTG_IVI") and project = AREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            candidate_entries:        'labels in ("IOTG_IVI") AND issuetype = E-Feature and project = AREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             # -- TODO: Does the PREQ target have to be labeled with IOTG_IVI?
             target_entry:           'key = "{key}" AND project = PREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             # target_entry:           'key = "{key}" AND labels in ("IOTG_IVI") AND project = PREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
@@ -90,7 +90,7 @@ servers:
             sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
 
         scan_areq_and_check_for_preq:
-            candidate_entries:        'labels in ("IOTG_IVI") and project = AREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            candidate_entries:        'labels in ("IOTG_IVI") AND issuetype = E-Feature and project = AREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             # -- TODO: Does the PREQ target have to be labeled with IOTG_IVI?
             target_entry:           'key = "{key}" AND project = PREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             # target_entry:           'key = "{key}" AND labels in ("IOTG_IVI") AND project = PREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'

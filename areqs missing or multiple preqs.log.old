@@ -1,0 +1,46 @@
+2017-07-26 14:07:19,389 - root - INFO - Using logging configuration file C:\Users\pfhanchx\Documents\otc_androidplanning-toolbox\jira_tools\logging.yaml
+2017-07-26 14:07:19,405 - root - INFO - Combined Switches: {'command': 'scan_areq_for_preq', 'name': 'jira01', 'user': 'None', 'password': 'None', 'comment': 'None', 'update': False, 'createmax': 2, 'verify': False, 'log_level': 'info', 'output': 'output.txt', 'splatform': 'Icelake-U SDC', 'sproject': 'Platforms Requirements', 'sversion': 'O', 'taversion': 'O', 'tplatform': 'Icelake-U SDC', 'tversion': 'O-MR1', 'config_directory': 'C:\\Users\\pfhanchx\\Documents\\otc_androidplanning-toolbox\\jira_tools', 'scenario': 'default'}
+2017-07-26 14:07:19,436 - root - INFO - Application Starting! Comamnd='scan_areq_for_preq'
+2017-07-26 14:07:19,436 - root - INFO - Examining source platform Icelake-U SDC, source android version O, target android version O-MR1
+2017-07-26 14:07:19,436 - root - INFO - Verify is False and Update is False
+2017-07-26 14:07:19,436 - root - INFO - =================================================================
+2017-07-26 14:07:19,436 - root - INFO - Connecting to https://jira01.devtools.intel.com using verified connection.
+2017-07-26 14:07:27,983 - root - WARNING - For item AREQ-24499, No PREQs were found.
+2017-07-26 14:07:28,361 - root - WARNING - For item AREQ-24498, No PREQs were found.
+2017-07-26 14:07:29,892 - root - WARNING - For item AREQ-24487, No PREQs were found.
+2017-07-26 14:07:32,541 - root - WARNING - For item AREQ-24256, No PREQs were found.
+2017-07-26 14:07:32,904 - root - WARNING - For item AREQ-24255, No PREQs were found.
+2017-07-26 14:07:37,121 - root - WARNING - For item AREQ-24221, No PREQs were found.
+2017-07-26 14:07:37,506 - root - WARNING - For item AREQ-24219, No PREQs were found.
+2017-07-26 14:07:39,193 - root - WARNING - For item AREQ-24124, MULTIPLE PREQ's (dict_keys(['PREQ-25022', 'PREQ-25021'])) were found.
+2017-07-26 14:07:40,353 - root - WARNING - For item AREQ-24062, No PREQs were found.
+2017-07-26 14:07:40,353 - root - WARNING - For item AREQ-23988, No PREQs were found.
+2017-07-26 14:07:40,814 - root - WARNING - For item AREQ-23910, No PREQs were found.
+2017-07-26 14:07:44,288 - root - WARNING - For item AREQ-23239, MULTIPLE PREQ's (dict_keys(['PREQ-25029', 'PREQ-25030'])) were found.
+2017-07-26 14:07:47,500 - root - WARNING - For item AREQ-22964, No PREQs were found.
+2017-07-26 14:07:48,083 - root - WARNING - For item AREQ-22278, No PREQs were found.
+2017-07-26 14:07:53,136 - root - WARNING - For item AREQ-21993, No PREQs were found.
+2017-07-26 14:07:54,099 - root - WARNING - For item AREQ-21986, No PREQs were found.
+2017-07-26 14:07:56,218 - root - WARNING - For item AREQ-21720, No PREQs were found.
+2017-07-26 14:07:59,177 - root - WARNING - For item AREQ-21710, No PREQs were found.
+2017-07-26 14:08:01,054 - root - WARNING - For item AREQ-21676, No PREQs were found.
+2017-07-26 14:08:01,054 - root - WARNING - For item AREQ-21669, No PREQs were found.
+2017-07-26 14:08:02,990 - root - WARNING - For item AREQ-21660, No PREQs were found.
+2017-07-26 14:08:04,394 - root - WARNING - For item AREQ-21633, No PREQs were found.
+2017-07-26 14:08:06,171 - root - WARNING - For item AREQ-21622, No PREQs were found.
+2017-07-26 14:08:10,616 - root - WARNING - For item AREQ-21583, No PREQs were found.
+2017-07-26 14:08:15,114 - root - WARNING - For item AREQ-21577, No PREQs were found.
+2017-07-26 14:08:22,048 - root - WARNING - For item AREQ-21565, No PREQs were found.
+2017-07-26 14:08:23,304 - root - WARNING - For item AREQ-21470, No PREQs were found.
+2017-07-26 14:08:28,953 - root - WARNING - For item AREQ-21272, No PREQs were found.
+2017-07-26 14:08:33,784 - root - WARNING - For item AREQ-21254, No PREQs were found.
+2017-07-26 14:08:40,093 - root - WARNING - For item AREQ-18787, No PREQs were found.
+2017-07-26 14:08:40,659 - root - WARNING - For item AREQ-18782, No PREQs were found.
+2017-07-26 14:08:41,818 - root - WARNING - For item AREQ-18781, No PREQs were found.
+2017-07-26 14:09:02,347 - root - WARNING - For item AREQ-18768, No PREQs were found.
+2017-07-26 14:09:07,973 - root - INFO - -----------------------------------------------------------------
+2017-07-26 14:09:07,974 - root - INFO - 100 source entries were considered. 
+2017-07-26 14:09:07,975 - root - INFO - 33 warnings were issued. 
+2017-07-26 14:09:07,975 - root - INFO - 
+2017-07-26 14:09:07,976 - root - INFO - 0 processing error(s). 
+2017-07-26 14:09:07,976 - root - INFO - Run completed.

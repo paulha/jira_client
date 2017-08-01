@@ -1,5 +1,6 @@
 from os.path import expanduser, pathsep, dirname, realpath
 import argparse
+import re
 import sys
 from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 from jirafields import make_field_lookup
@@ -566,7 +567,8 @@ def e_feature_scanner(parser, scenario, config, queries):
 
     verify = scenario['verify']
     update = scenario['update']
-    log.logger.info("Verify is %s and Update is %s", verify, update)
+    rename = scenario['rename']
+    log.logger.info("Verify is %s, Rename is %s and Update is %s", verify, rename, update)
     log.logger.info("=================================================================")
 
     # -- Get and format it:
@@ -587,12 +589,44 @@ def e_feature_scanner(parser, scenario, config, queries):
         log.logger.info("Checking on E-Feature %s: %s", current_e_feature.key, current_e_feature.fields.summary)
 
         # -- OK so now we have found the source e-feature. We want to get its parent
-        param_dict = {'parent_key': current_e_feature.fields.parent}     # What we're really looking for...
+        param_dict = {'parent_key': current_e_feature.fields.parent}   # What we're really looking for...
         param_dict.update(scenario)                                    # other values that might be useful in a complex query
 
         # -- Check for duplicate sibling feature, if found no need to create a new one.
         sibling_e_feature = query_one_item(jira, sibling_query, param_dict)
-        if sibling_e_feature is not None:
+        if sibling_e_feature is None:
+            if rename: # if target is not found and rename is on, rename source to target:
+                # -- Sibling does not exist, if we are in rename mode then rename current_e_feature to the target version AREQ-24757
+                if rename:
+                    # -- TODO: Need to change the status to "Open"
+                    regex = re.compile(r"\[.+\]\[.+\]\s")
+                    source_summary = current_e_feature.fields.summary
+                    target_summary = regex.sub("", source_summary)
+                    log.logger.info("Renaming %s %s to %s",
+                                    current_e_feature.key, source_summary, target_summary)
+                    current_e_feature.update(notify=False, fields={
+                        "Summary":              "[{tversion}][{tplatform}] %s".format_map(scenario) % target_summary,
+                        "Status":               "Open",
+                        "Platform/Program":     "{tplatform}".format_map(scenario),
+                        "Android Version(s)":   "{tversion}".format_map(scenario),
+                    })
+                    # -- Add a comment to the renamed E-Feature
+                    jira.add_comment(current_e_feature,
+                                     """This E-Feature was renamed from version {sversion} to {tversion} by {command}.
+    
+                                     Parent Feature is %s and original source E-Feature summary was:
+                                      
+                                     '%s'.
+    
+                                     %s""".format_map(scenario)
+                                     % (parent_feature.key, source_summary,
+                                        scenario['comment'] if scenario['comment'] is not None else ""))
+
+                    update_count += 1
+                if scenario['createmax'] and update_count>=scenario['createmax']:
+                    break
+
+        else:
             # -- Sibling already exists
             if update:
                 # -- no need to output a E-Feature
@@ -857,6 +891,7 @@ def main():
     project_group.add_argument("--taversion", nargs='?', help="Android target version")
     project_group.add_argument("--tversion", nargs='?', help="Jira target android version")
     project_group.add_argument("--update", default=None, action="store_true", help="Update target")
+    project_group.add_argument("--rename", default=None, action="store_true", help="Rename source to target, if target is not found")
     project_group.add_argument("--verify", default=None, action="store_true", help="Verify target")
     parser.add_argument("--createmax", nargs='?', help="Max number of E-Features to create.",type=int)
     parser.add_argument("-c","--comment", nargs='?', help="Comment for created items.")
