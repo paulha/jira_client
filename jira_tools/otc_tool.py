@@ -567,8 +567,8 @@ def e_feature_scanner(parser, scenario, config, queries):
 
     verify = scenario['verify']
     update = scenario['update']
-    rename = scenario['rename']
-    log.logger.info("Verify is %s, Rename is %s and Update is %s", verify, rename, update)
+    # rename = scenario['rename']
+    log.logger.info("Verify is %s, and Update is %s", verify, update)
     log.logger.info("=================================================================")
 
     # -- Get and format it:
@@ -578,6 +578,10 @@ def e_feature_scanner(parser, scenario, config, queries):
     and_vers_key = field_lookup.reverse('Android Version(s)')
     platprog_key = field_lookup.reverse('Platform/Program')
     exists_on = field_lookup.reverse('Exists On')
+    verified_on = field_lookup.reverse('Verified On')
+    failed_on = field_lookup.reverse('Failed On')
+    blocked_on = field_lookup.reverse('Blocked On')
+    tested_on = field_lookup.reverse('Tested On')
 
     features_scanned = 0
     update_count = 0
@@ -594,39 +598,7 @@ def e_feature_scanner(parser, scenario, config, queries):
 
         # -- Check for duplicate sibling feature, if found no need to create a new one.
         sibling_e_feature = query_one_item(jira, sibling_query, param_dict)
-        if sibling_e_feature is None:
-            if rename: # if target is not found and rename is on, rename source to target:
-                # -- Sibling does not exist, if we are in rename mode then rename current_e_feature to the target version AREQ-24757
-                if rename:
-                    # -- TODO: Need to change the status to "Open"
-                    regex = re.compile(r"\[.+\]\[.+\]\s")
-                    source_summary = current_e_feature.fields.summary
-                    target_summary = regex.sub("", source_summary)
-                    log.logger.info("Renaming %s %s to %s",
-                                    current_e_feature.key, source_summary, target_summary)
-                    current_e_feature.update(notify=False, fields={
-                        "Summary":              "[{tversion}][{tplatform}] %s".format_map(scenario) % target_summary,
-                        "Status":               "Open",
-                        "Platform/Program":     "{tplatform}".format_map(scenario),
-                        "Android Version(s)":   "{tversion}".format_map(scenario),
-                    })
-                    # -- Add a comment to the renamed E-Feature
-                    jira.add_comment(current_e_feature,
-                                     """This E-Feature was renamed from version {sversion} to {tversion} by {command}.
-    
-                                     Parent Feature is %s and original source E-Feature summary was:
-                                      
-                                     '%s'.
-    
-                                     %s""".format_map(scenario)
-                                     % (parent_feature.key, source_summary,
-                                        scenario['comment'] if scenario['comment'] is not None else ""))
-
-                    update_count += 1
-                if scenario['createmax'] and update_count>=scenario['createmax']:
-                    break
-
-        else:
+        if sibling_e_feature is not None:
             # -- Sibling already exists
             if update:
                 # -- no need to output a E-Feature
@@ -700,14 +672,24 @@ def e_feature_scanner(parser, scenario, config, queries):
             }
 
             log.logger.debug("Creating E-Feature clone of Feature %s -- %s" % (parent_feature.key, new_e_feature_dict))
-            sibling_e_feature = jira.create_issue(fields=new_e_feature_dict)
 
             # -- Having created the issue, now other fields of the E-Feature can be updated:
-            sibling_e_feature.update(notify=False, fields={
-                'priority':     {'name': 'P1-Stopper'},
-                # todo: check, is this right?
-                exists_on:      getattr(current_e_feature.fields, exists_on) if getattr(current_e_feature.fields, exists_on) is not None else []
-            })
+            def _define_update(update_list, field, entry):
+                update_list[field] = [{'value': x.value} for x in getattr(entry.fields, field)] \
+                                                if getattr(entry.fields, field) is not None else []
+
+            update_fields = {
+                'priority': {'name': 'P1-Stopper'},
+                'labels': [x for x in getattr(current_e_feature.fields, 'labels')]
+            }
+            _define_update(update_fields, exists_on, current_e_feature)
+            _define_update(update_fields, verified_on, current_e_feature)
+            _define_update(update_fields, failed_on, current_e_feature)
+            _define_update(update_fields, blocked_on, current_e_feature)
+            _define_update(update_fields, tested_on, current_e_feature)
+
+            sibling_e_feature = jira.create_issue(fields=new_e_feature_dict)
+            sibling_e_feature.update(notify=False, fields=update_fields)
 
             # # -- TODO: What about attachments? Something like this, maybe
             # for attachment in current_e_feature.fields.attachment:
@@ -718,6 +700,7 @@ def e_feature_scanner(parser, scenario, config, queries):
             #     jira.add_attachment(issue=sibling_e_feature, attachment=new_attachment, filename=attachment.filename)
 
             # -- TODO: Add a comment to the created E-Feature (should come from the command line with a default option.)
+            x = jira.comments(current_e_feature)
             jira.add_comment(sibling_e_feature,
                              """This E-Feature was created by {command}.
 
@@ -728,6 +711,8 @@ def e_feature_scanner(parser, scenario, config, queries):
                                 scenario['comment'] if scenario['comment'] is not None else ""))
 
             update_count += 1
+
+            jira.add
 
             # -- Validate that the create and update actually worked! :-)
             try:

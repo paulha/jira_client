@@ -35,6 +35,25 @@ servers:  # Required, but not meaningful here...
     splatform: Broxton-P IVI
     sproject: Platforms Requirements
     sversion: O
-    taversion: O
     tplatform: Icelake-U SDC
     tversion: O
+    taversion: O
+
+  rename.areq-24757:
+    # Rename O E-Features to O-MR1
+    name: jira-t3
+    user: None
+    password: None
+    comment: This is a test, this is only a test. In the event of an actual emergency...
+    verify: false
+    update: true
+    createmax: 2
+    log_level: info
+    output: output.txt
+    # sproject: Platforms Requirements
+    sproject: Android Requirements
+    splatform: Broxton-P IVI
+    sversion: O
+    tplatform: Broxton-P IVI
+    tversion: O-MR1
+    taversion: O-MR1
