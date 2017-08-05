@@ -863,6 +863,142 @@ def scan_areq_and_check_for_preq(parser, scenario, config, queries):
 
     log.logger.info("%s processing error(s). ", processing_errors)
 
+def strip_non_ascii(string):
+    """Returns the string without non ASCII characters, L & R trim of spaces"""
+    stripped = (c for c in string if ord(c) < 128 and c >=' ' and c<='~')
+    return ''.join(stripped).strip(" \t\n\r").replace("  ", " ")
+
+def copy_this_platform_to_that_platform(parser, scenario, config, queries):
+    """
+    """
+    if copy_this_platform_to_that_platform.__name__ not in queries:
+        log.logger.fatal( "Query section for %s is missing: %s", e_feature_scanner.__name__, queries)
+        exit(-1)
+
+    items=queries[copy_this_platform_to_that_platform.__name__]
+
+    # -- Make sure search query is defined
+    if 'candidate_entries' not in items:
+        log.logger.fatal( "Search query for %s.search is missing: %s", 'candidate_entries', queries)
+        exit(-1)
+
+    # -- Get and format it:
+    candidate_entries_query = items['candidate_entries'].format_map(scenario)
+    log.logger.debug( "search query is: %s", candidate_entries_query)
+
+    if 'target_entry' not in items:
+        log.logger.fatal( "Target query for %s.search is missing: %s", 'target_entry', queries)
+        exit(-1)
+
+    target_query = items['target_entry']
+    log.logger.debug( "target query is: %s", target_query)
+
+    log.logger.info("Examining source platform {splatform}, source android version {sversion}, target android version {tversion}".format_map(scenario))
+
+    verify = scenario['verify']
+    update = scenario['update']
+    log.logger.info("Verify is %s and Update is %s", verify, update)
+    log.logger.info("=================================================================")
+
+    # -- Get and format it:
+    jira = Jira(config['name'], CONFIG_FILE, log)
+
+    features_scanned = 0
+    warnings_issued = 0
+    verify_failures = 0
+    update_failures = 0
+    processing_errors = 0
+
+    source_preq_query = 'project = "{jproject}" AND "Platform/Program" = "{jplatform}" AND "Android Version(s)"' \
+                        ' in ({jversion}) AND type = UCIS' \
+                        .format_map({'jproject': project, 'jplatform': platform, 'jversion': version})
+    target_preq_query = 'project = "{jproject}" AND "Platform/Program" = "{jplatform}" AND "Android Version(s)"' \
+                        ' in ({jversion}) AND type = UCIS' \
+                        .format_map({'jproject': project, 'jplatform': platform, 'jversion': version})
+    source_areq_query = 'project = "{jproject}" AND "Platform/Program" = "{jplatform}" AND "Android Version(s)"' \
+                        ' in ({jversion}) AND type = UCIS' \
+                        .format_map({'jproject': project, 'jplatform': platform, 'jversion': version})
+    target_areq_query = 'project = "{jproject}" AND "Platform/Program" = "{jplatform}" AND "Android Version(s)"' \
+                        ' in ({jversion}) AND type = UCIS' \
+                        .format_map({'jproject': project, 'jplatform': platform, 'jversion': version})
+
+    # -- The Jira records
+    # -- Read the PREQs to copy to the target project
+    source_preqs = [feature for feature in jira.do_query(source_preq_query)]
+
+    # -- Be able to look up any existing PREQs for the target project
+    existing_target_preqs = {strip_non_ascii(getattr(e_feature.fields, 'summary')):
+                            {'matched': False, 'data': e_feature} for e_feature in jira.do_query(target_preq_query)}
+
+    # -- Read the E-Features to copy to the target project
+    source_e_features = [feature for feature in jira.do_query(source_e_feature_query)]
+
+    # -- Get the parent Feature for each E-feature:
+    source_features = {e_feature.parent.key: get_feature(e_feature) \
+                       for e_feature in source_e_features}
+
+    # -- Be able to look up any existing E-Features for the target project
+    existing_target_e_featuress = {strip_non_ascii(getattr(e_feature.fields, 'summary')):
+                                  {'matched': False, 'data': e_feature} for e_feature in jira.do_query(target_e_feature_query)}
+
+    # -- todo: Get any existing target features to look up by summary
+    existing_target_featuress = {strip_non_ascii(getattr(e_feature.fields, 'summary')):
+                                {'matched': False, 'data': e_feature} for e_feature in jira.do_query(target_e_feature_query)}
+
+    # -- Copy input preqs to target:
+    for preq in source_preqs:
+        # -- Remove old version and platform, prepend new version and platform
+        target_summary = transform_summary(preq)
+        if target_summary in existing_target_preqs:
+            # -- handle "This preq already exists"
+            pass
+        else:
+            # -- Create a new PREQ, maybe add it to the existing targets, for completeness?
+            pass
+        # -- Read the created preq to validate it?
+
+    # -- copy e-features to output
+    for e_feature in source_e_features:
+        # -- The parent for this one should already be in source_features
+        try:
+            source_feature = source_features[e_feature.parent.key]
+        except:
+            source_feature = None   # This should never happen!
+
+        target_summary = strip_non_ascii(transform_summary(source_feature))
+        if target_summary in existing_target_featuress:
+            # -- The feature already exists on the target.
+            target_feature = existing_target_featuress[target_summary]
+        else:
+            # -- Create a new target feature
+            target_feature = create_target_feature(jira, target_summary, source_feature)
+            # -- Read the created preq to validate it?
+
+
+        # -- Check to make sure the target e-feature did not already exist...
+        target_summary = strip_non_ascii(transform_summary(e_feature))
+        if target_summary in existing_target_e_featuress:
+            # -- Handle (do nothing?)
+            pass
+        else:
+            # https://community.atlassian.com/t5/JIRA-questions/How-to-create-subtasks-with-jira-python/qaq-p/227017
+            jira.jira_client.create_issue()
+        # -- Read the created preq to validate it?
+
+    log.logger.info("-----------------------------------------------------------------")
+    log.logger.info("%s source entries were considered. ", features_scanned)
+    log.logger.info("%s warnings were issued. ", warnings_issued)
+    log.logger.info("")
+
+    # if verify:
+    #     log.logger.info("%s E-Feature comparison failure(s). ", verify_failures)
+    #
+    # if update:
+    #     log.logger.info("%s new E-Feature(s) were created, %s update failures. ", update_count, update_failures)
+
+    log.logger.info("%s processing error(s). ", processing_errors)
+
+
 
 def main():
     log.setup_logging(LOG_CONFIG_FILE)
