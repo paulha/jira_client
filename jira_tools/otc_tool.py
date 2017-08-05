@@ -2,8 +2,9 @@ from os.path import expanduser, pathsep, dirname, realpath
 import argparse
 import re
 import sys
-from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
-from jirafields import make_field_lookup
+# from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
+# from jirafields import make_field_lookup
+from jira_class import Jira, init_jira, jql_issue_gen, make_field_lookup
 
 # -- todo: Uncomfortable for two different imports from the same module to be handled differently...
 from utility_funcs.search import get_server_info, search_for_profile

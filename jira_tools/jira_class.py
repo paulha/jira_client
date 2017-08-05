@@ -1,8 +1,12 @@
-from otc_tool import init_jira, jql_issue_gen, make_field_lookup
+from gojira import init_jira, jql_issue_gen
+from jirafields import make_field_lookup
+from utility_funcs.search import get_server_info
 
 class Jira:
 
-    def __init__(self, server_alias, config_path, log=log.logging.getLogger("root")):
+    # def __init__(self, server_alias, config_path, log=logging.getLogger("root")):
+    def __init__(self, server_alias, config_path, log=None):
+
         self.server_alias = server_alias
         self.log = log
 
@@ -21,7 +25,7 @@ class Jira:
         return self.jira_field_lookup.reverse(name)
 
     def do_query(self, query):
-        self.log.info("Reading E-Features from the Jira server %s using query '%s'", JIRA_SERVER, query)
+        self.log.info("Reading E-Features from the Jira server %s using query '%s'", self.jira_config['host'], query)
         return jql_issue_gen(query, self.jira_client)
 
 

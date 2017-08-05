@@ -3,7 +3,7 @@ servers:  # Required, but not meaningful here...
     # -- Default values for the named scenario
     #    (Comment out any value that should not be defaulted:)
     command: e_feature_scanner
-    name: default
+    name: jira01
     user: None
     password: None
     comment: None
