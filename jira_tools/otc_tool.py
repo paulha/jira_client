@@ -699,15 +699,18 @@ def e_feature_scanner(parser, scenario, config, queries):
             #     new_attachment.write(data)
             #     jira.add_attachment(issue=sibling_e_feature, attachment=new_attachment, filename=attachment.filename)
 
-            # -- TODO: Add a comment to the created E-Feature (should come from the command line with a default option.)
+            # -- It would be possible to copy the *content* of comments from the source record,
+            #    but the details of the date and author would be lost.
             x = jira.comments(current_e_feature)
             jira.add_comment(sibling_e_feature,
                              """This E-Feature was created by {command}.
 
                              Parent Feature is %s and source E-Feature is %s.
+                             
+                             For previous comments and attachments, refer to %s
 
                              %s""".format_map(scenario)
-                             % (parent_feature.key, current_e_feature.key,
+                             % (parent_feature.key, current_e_feature.key, current_e_feature.key,
                                 scenario['comment'] if scenario['comment'] is not None else ""))
 
             update_count += 1
