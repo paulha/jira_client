@@ -57,3 +57,22 @@ servers:  # Required, but not meaningful here...
     tplatform: Broxton-P IVI
     tversion: O-MR1
     taversion: O-MR1
+
+  copy_platform_to_platform:
+    # AREQ-24774 -- Import REQ Database from BXT IVI O, O MR1 to KBL-POS
+    name: jira-t3
+    user: None
+    password: None
+    comment: This is a test, this is only a test. In the event of an actual emergency...
+    verify: false
+    update: true
+    createmax: 2
+    log_level: info
+    output: output.txt
+    # sproject: Platforms Requirements
+    sproject: Android Requirements
+    splatform: Broxton-P IVI
+    sversion: O, O-MR1
+    tplatform: KBL-POS
+    tversion: O-MR1
+    taversion: O-MR1

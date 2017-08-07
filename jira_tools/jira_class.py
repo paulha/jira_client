@@ -25,7 +25,7 @@ class Jira:
         return self.jira_field_lookup.reverse(name)
 
     def do_query(self, query):
-        self.log.info("Reading E-Features from the Jira server %s using query '%s'", self.jira_config['host'], query)
+        self.log.info("Reading from the Jira server %s using query '%s'", self.jira_config['host'], query)
         return jql_issue_gen(query, self.jira_client)
 
 
