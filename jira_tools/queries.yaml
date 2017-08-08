@@ -59,11 +59,19 @@ servers:
             # target_entry:           'key = "{key}" AND labels in ("IOTG_IVI") AND project = PREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
 
         copy_platform_to_platform:
-            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "Broxton-P IVI" AND "Android Version(s)" in (O, O-MR1) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
-            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "Broxton-P IVI" AND "Android Version(s)" in (O, O-MR1) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
+            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "Broxton-P IVI" AND "Android Version(s)" in (O) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "Broxton-P IVI" AND "Android Version(s)" in (O) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
             # Note: below that the Platform and Version are missing; the reference to IOTG_EMBEDDED makes this work for
             # Note: now. but I don't think it's really enough to be robust...
-            areq_source_features:      'project = AREQ AND issuetype = Feature AND resolution = Unresolved AND labels = IOTG_EMBEDDED ORDER BY priority DESC, updated DESC'
+            # areq_source_features:      'project = AREQ AND issuetype = Feature AND resolution = Unresolved AND labels = IOTG_EMBEDDED ORDER BY priority DESC, updated DESC'
+            # -- All AREQ source features:
+            # -- Removed android version from query!
+            all_areq_source_features:  'project = AREQ AND issuetype = Feature AND "Platform/Program" in ("Broxton-P IVI")'
+            # areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "KBL-POS" AND "Android Version(s)" in (O)'
+            # areq_target_feature:       'project = AREQ AND issuetype = Feature AND "Platform/Program" = "KBL-POS" AND "Android Version(s)" in (O)'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" in ("Broxton-P IVI") AND "Android Version(s)" in (O)'
+            # -- Note that the target Feature might not be written for the target platform OR version!
+            areq_target_features:       'project = AREQ AND issuetype = Feature'
 
     jira01:
         compare_priorities:
