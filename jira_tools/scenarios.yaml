@@ -65,14 +65,14 @@ servers:  # Required, but not meaningful here...
     password: None
     comment: This is a test, this is only a test. In the event of an actual emergency...
     verify: false
-    update: true
+    update: false
     createmax: 2
     log_level: info
     output: output.txt
     # sproject: Platforms Requirements
     sproject: Android Requirements
     splatform: Broxton-P IVI
-    sversion: O, O-MR1
-    tplatform: KBL-POS
-    tversion: O-MR1
-    taversion: O-MR1
+    sversion: O
+    tplatform: Broxton-P IVI
+    tversion: O
+    taversion: O
