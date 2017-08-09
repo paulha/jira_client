@@ -70,30 +70,29 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     update_failures = 0
     processing_errors = 0
 
-    # -- Copy input preqs to target:
+    # -- Copy source preqs to target:
     # (Get the list of already existing PREQs for this platform and version!)
-    if False:
-        for preq in jira.do_query(preq_source_query):
-            # # -- Remove old version and platform, prepend new version and platform
-            log.logger.info("Search for: '%s'", preq.fields.summary)
-            target_summary = remove_version_and_platform(preq.fields.summary)
-            target_summary = target_summary_format % target_summary
-            existing_preq = get_item(jira, preq_summary=escape_chars(target_summary))
-            if existing_preq is not None:
-                # -- This is good, PREQ is already there so nothing to do.
-                log.logger.debug("Found existing PREQ: '%s'", existing_preq.fields.summary)
-                pass
-            else:
-                # -- This PREQ is missing, so use preq as template to create a new UCIS for the platform:
-                log.logger.info("Need to create new PREQ for: '%s'", target_summary)
-                if update:
-                    log.logger.info("Creating a new PREQ for %s", target_summary)
-                else:
-                    log.logger.info("PREQ is missing for: '%s'", target_summary)
-                    # -- Create a new UCIS(!) PREQ
+    for preq in jira.do_query(preq_source_query):
+        # # -- Remove old version and platform, prepend new version and platform
+        log.logger.info("Search for: '%s'", preq.fields.summary)
+        target_summary = remove_version_and_platform(preq.fields.summary)
+        target_summary = target_summary_format % target_summary
+        existing_preq = get_item(jira, preq_summary=escape_chars(target_summary))
+        if existing_preq is not None:
+            # -- This is good, PREQ is already there so nothing to do.
+            log.logger.debug("Found existing PREQ: '%s'", existing_preq.fields.summary)
             pass
+        else:
+            # -- This PREQ is missing, so use preq as template to create a new UCIS for the platform:
+            log.logger.info("Need to create new PREQ for: '%s'", target_summary)
+            if update:
+                log.logger.info("Creating a new PREQ for %s", target_summary)
+            else:
+                log.logger.info("PREQ is missing for: '%s'", target_summary)
+                # -- Create a new UCIS(!) PREQ
+        pass
 
-    # -- copy e-features to output
+    # -- copy source e-features to output
     for e_feature in jira.do_query(areq_source_e_feature_query):
         # -- The parent for this one should already be in source_features
         lookup = e_feature.fields.parent.key
@@ -101,11 +100,15 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
             source_feature = get_item(jira, key=lookup)
         except Exception as e:
             source_feature = None   # This should never happen!
-            log.logger.warning("%s: Could not find parent %s of E-Feature %s, looked for '%s'. continuing", e, e_feature.fields.parent.key, e_feature.key, lookup)
+            log.logger.fatal("%s: Could not find parent %s of E-Feature %s, looked for '%s'. continuing", e, e_feature.fields.parent.key, e_feature.key, lookup)
             # -- Note: Well, if we couldn't find the parent, we can't continue
             continue
 
         # -- Look to see if there is an existing Feature that we can attache the new E-Feature to:
+        # NOTE: =============================================================
+        # NOTE: Having found the parent feature above, why look it up again?
+        # NOTE: Just reuse the feature we have!!!
+        # NOTE: =============================================================
         target_summary = strip_non_ascii(remove_version_and_platform(getattr(source_feature.fields,'summary')))
         query = target_feature_query % escape_chars(target_summary)
         result = [feature for feature in jira.do_query(query, quiet=True)]
@@ -132,6 +135,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 log.logger.fatal("Can't decide between results: %s", [r.key for r in result2])
                 # todo: If one has subtasks and the other doesn't!
                 continue
+        # NOTE: ========================== END +=============================
 
         # -- OK, at this point we can create the E-Feature record, if it's not going to be a duplicate...
         target_summary = remove_version_and_platform(e_feature.fields.summary).strip()
