@@ -130,6 +130,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                                 [r.key for r in result], feature.key, feature.fields.summary)
             else:
                 log.logger.fatal("Can't decide between results: %s", [r.key for r in result2])
+                # todo: If one has subtasks and the other doesn't!
                 continue
 
         # -- OK, at this point we can create the E-Feature record, if it's not going to be a duplicate...

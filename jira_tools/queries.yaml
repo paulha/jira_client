@@ -61,7 +61,7 @@ servers:
         copy_platform_to_platform:
             preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
             areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
-            target_feature_query:      'project=AREQ AND issuetype=Feature AND status not in (REJECTED) AND summary~"%s"'
+            target_feature_query:      'project = AREQ AND issuetype=Feature AND status not in (REJECTED) AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
     jira01:
