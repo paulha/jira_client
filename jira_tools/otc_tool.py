@@ -718,7 +718,7 @@ def e_feature_scanner(parser, scenario, config, queries):
 
             update_count += 1
 
-            jira.add
+            # todo: what was this? --- jira.add
 
             # -- Validate that the create and update actually worked! :-)
             try:
@@ -881,6 +881,7 @@ def main():
     project_group.add_argument("--tplatform", nargs='?', help="Jira source platform")
     project_group.add_argument("--taversion", nargs='?', help="Android target version")
     project_group.add_argument("--tversion", nargs='?', help="Jira target android version")
+    project_group.add_argument("--exists_on", nargs='?', help="Single value for Exists On field")
     project_group.add_argument("--update", default=None, action="store_true", help="Update target")
     project_group.add_argument("--rename", default=None, action="store_true", help="Rename source to target, if target is not found")
     project_group.add_argument("--verify", default=None, action="store_true", help="Verify target")
