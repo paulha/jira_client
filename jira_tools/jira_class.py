@@ -1,3 +1,4 @@
+import re
 from gojira import init_jira, jql_issue_gen
 from jirafields import make_field_lookup
 from utility_funcs.search import get_server_info
@@ -20,6 +21,13 @@ class Jira:
         self.log.info("Using JIRA server %s, '%s'", server_alias, self.jira_config['host'])
         self.jira_client = init_jira(self.jira_config)
         self.jira_field_lookup = make_field_lookup(self.jira_client)
+
+    def escape_chars(text):
+        """Escape special characters in Jira search:
+
+        Characters "[ ] + - & | ! ( ) { } ^ ~ * ? \ :" are special in jira searches
+        """
+        return re.sub(r"([\[\]\+\-\&\|\!\(\)\{\}\^\~\*\?\\\:])", "\\\\\\\\\\1", text)
 
     def get_field_name(self, name):
         return self.jira_field_lookup.reverse(name)
