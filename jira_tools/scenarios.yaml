@@ -65,7 +65,7 @@ servers:  # Required, but not meaningful here...
     password: None
     comment:  'AREQ-24774: Copy data from Broxton-P IVI [O] to KBL-POS [O]'
     verify: false
-    update: update
+    update: false
     createmax: 0
     log_level: info
     output: output.txt

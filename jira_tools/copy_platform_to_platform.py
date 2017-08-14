@@ -198,7 +198,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
 
     update_count = 0
 
-    # -- Let's see if we can find some duplicates...
+    # -- Let's see if we can find some PREQ duplicates...
     table = {}
     for item in jira.do_query(preq_source_query):
         key = strip_non_ascii(remove_version_and_platform(item.fields.summary))
@@ -211,11 +211,31 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                     if len(this_list) > 1]
     if len(duplicates) > 0:
         log.logger.warning("")
-        log.logger.warning("%d duplications were found! %s", len(duplicates), duplicates)
+        log.logger.warning("%d PREQ duplications were found! %s", len(duplicates), duplicates)
         log.logger.warning("")
     else:
         log.logger.warning("")
-        log.logger.warning("No duplicates noticed in the input set...")
+        log.logger.warning("No PREQ duplicates noticed in the input set...")
+        log.logger.warning("")
+
+    # -- Let's see if we can find some duplicates...
+    table = {}
+    for item in jira.do_query(areq_source_e_feature_query):
+        key = strip_non_ascii(remove_version_and_platform(item.fields.summary))
+        if key in table:
+            table[key].append(item)
+        else:
+            table[key] = []
+            table[key].append(item)
+    duplicates = [this_list for key, this_list in table.items()
+                    if len(this_list) > 1]
+    if len(duplicates) > 0:
+        log.logger.warning("")
+        log.logger.warning("%d AREQ duplications were found! %s", len(duplicates), duplicates)
+        log.logger.warning("")
+    else:
+        log.logger.warning("")
+        log.logger.warning("No AREQ duplicates noticed in the input set...")
         log.logger.warning("")
 
     # -- Copy source preqs to target:
