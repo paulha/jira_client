@@ -11,7 +11,7 @@ def remove_version_and_platform(text):
     return re.sub(r"\[.*\]\[.*\]\s", "", text)
 
 def escape_chars(text):
-    return re.sub(r"([\[\]-])", "\\\\\\\\\\1", text)
+    return re.sub(r"([:\[\]-])", "\\\\\\\\\\1", text)
 
 def get_query(query_name, queries, group_name, params=None, log=None):
     if group_name not in queries:
@@ -29,21 +29,31 @@ def get_query(query_name, queries, group_name, params=None, log=None):
         query = query.format_map(params)
     return query
 
-def get_item(jira, item=None, key=None, preq_summary=None, areq_summary=None):
+def get_item(jira, item=None, key=None, preq_summary=None, areq_summary=None, log=None):
+    expected = None
     if item is not None:
         key = getattr(item.fields, 'parent').key
         query = "key='%s'"%key
     elif key is not None:
         query = "key='%s'" % key
     elif preq_summary is not None:
-        query = 'project=PREQ AND summary ~ "%s"' % preq_summary
+        query = 'project=PREQ AND summary ~ "%s"' % escape_chars(preq_summary)
+        expected = preq_summary
     elif areq_summary is not None:
-        query = 'project=AREQ AND summary ~ "%s"' % areq_summary
+        query = 'project=AREQ AND summary ~ "%s"' % escape_chars(areq_summary)
+        expected = areq_summary
     else:
         raise ValueError("Nothing to search for")
 
-    parent = [i for i in jira.do_query(query, quiet=True)]
-    return parent[0] if len(parent) > 0 else None
+    # -- TODO: Ah! Just because it finds *something* doesn't mean it's a proper match...
+    results = [i for i in jira.do_query(query, quiet=True)]
+    for result in results:
+        if expected is None:
+            return result
+        else:
+            if strip_non_ascii(result.fields.summary).upper() == strip_non_ascii(expected).upper():
+                return result
+    return None
 
 def create_ucis(jira, summary, source_feature, scenario, log=None):
     """Create UCIS from source"""
@@ -173,7 +183,9 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     """Copy platform to platform, based on the UCIS and E-Feature entries of the source platform"""
 
     preq_source_query = get_query('preq_source_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
+    preq_target_query = get_query('preq_target_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
     areq_source_e_feature_query = get_query('areq_source_e_feature', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
+    areq_target_e_feature_query = get_query('areq_target_e_feature', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
     target_feature_query = get_query('target_feature_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
     target_summary_format = get_query('target_summary_format', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
 
@@ -198,75 +210,67 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
 
     update_count = 0
 
-    # -- Let's see if we can find some PREQ duplicates...
-    table = {}
-    for item in jira.do_query(preq_source_query):
-        key = strip_non_ascii(remove_version_and_platform(item.fields.summary))
-        if key in table:
-            table[key].append(item)
-        else:
-            table[key] = []
-            table[key].append(item)
-    duplicates = [this_list for key, this_list in table.items()
-                    if len(this_list) > 1]
-    if len(duplicates) > 0:
-        log.logger.warning("")
-        log.logger.warning("%d PREQ duplications were found! %s", len(duplicates), duplicates)
-        log.logger.warning("")
-    else:
-        log.logger.warning("")
-        log.logger.warning("No PREQ duplicates noticed in the input set...")
-        log.logger.warning("")
+    def compare_items(item_kind, source_query, target_query, log=None):
+        def read_items(query, log=None):
+            """Read items into summary based dictionary, warning on duplicates"""
+            dictionary = {}
+            for item in jira.do_query(query):
+                item_key = remove_version_and_platform(strip_non_ascii(item.fields.summary)).upper()
+                if item_key not in dictionary:
+                    dictionary[item_key] = item
+                else:
+                    log.logger.warning("Item %s key '%s' creates a duplicate entry with %s", item.key, item_key, dictionary[item_key])
+            return dictionary
 
-    # -- Let's see if we can find some duplicates...
-    table = {}
-    for item in jira.do_query(areq_source_e_feature_query):
-        key = strip_non_ascii(remove_version_and_platform(item.fields.summary))
-        if key in table:
-            table[key].append(item)
-        else:
-            table[key] = []
-            table[key].append(item)
-    duplicates = [this_list for key, this_list in table.items()
-                    if len(this_list) > 1]
-    if len(duplicates) > 0:
-        log.logger.warning("")
-        log.logger.warning("%d AREQ duplications were found! %s", len(duplicates), duplicates)
-        log.logger.warning("")
-    else:
-        log.logger.warning("")
-        log.logger.warning("No AREQ duplicates noticed in the input set...")
-        log.logger.warning("")
+        source = read_items(source_query, log)
+        log.logger.info( "Source has %d items in dictionary", len(source))
+        target = read_items(target_query, log)
+        log.logger.info( "Target has %d items in dictionary", len(target))
+
+        # -- Everything in source should be copied to target:
+        for key, value in source.items():
+            item_key = remove_version_and_platform(strip_non_ascii(key)).upper()
+            if item_key not in target:
+                log.logger.error("Could not find source %s %s in target: %s", item_kind, value.key, key)
+
+        # -- Target should not have stuff in it that's not from the source!:
+        for key, value in target.items():
+            item_key = remove_version_and_platform(strip_non_ascii(key)).upper()
+            if item_key not in source:
+                log.logger.error("%s %s in target was not in original source: %s", item_kind, value.key, key)
+
+        return
 
     # -- Copy source preqs to target:
     # (Get the list of already existing PREQs for this platform and version!)
-    for source_preq in jira.do_query(preq_source_query):
-        # # -- Remove old version and platform, prepend new version and platform
-        source_preq_scanned += 1
-        log.logger.debug("Search for: '%s'", source_preq.fields.summary)
-        target_summary = remove_version_and_platform(source_preq.fields.summary)
-        target_summary = target_summary_format % target_summary
-        existing_preq = get_item(jira, preq_summary=escape_chars(target_summary))
-        if existing_preq is not None:
-            # -- This is good, PREQ is already there so nothing to do.
-            log.logger.info("Found existing PREQ: '%s'", existing_preq.fields.summary)
-            pass
-        else:
-            # -- This PREQ is missing, so use preq as template to create a new UCIS for the platform:
-            log.logger.debug("Need to create new PREQ for: '%s'", target_summary)
-            if update:
-                # -- Create a new UCIS(!) PREQ
-                result = create_ucis(jira, target_summary, source_preq, scenario, log)
-                log.logger.info("Created a new PREQ %s for %s", result.key, target_summary)
-                update_count += 1
-                ucis_created += 1
+    if True:
+        for source_preq in jira.do_query(preq_source_query):
+            # # -- Remove old version and platform, prepend new version and platform
+            source_preq_scanned += 1
+            log.logger.debug("Search for: '%s'", source_preq.fields.summary)
+            target_summary = remove_version_and_platform(source_preq.fields.summary)
+            target_summary = target_summary_format % target_summary
+            existing_preq = get_item(jira, preq_summary=target_summary)
+            if existing_preq is not None:
+                # -- This is good, PREQ is already there so nothing to do.
+                log.logger.info("Found existing UCIS: %s '%s'", existing_preq.key, existing_preq.fields.summary)
+                pass
             else:
-                log.logger.warning("PREQ is missing for: '%s'", target_summary)
-                warnings_issued += 1
+                # -- This PREQ is missing, so use preq as template to create a new UCIS for the platform:
+                log.logger.debug("Need to create new UCIS for: '%s'", target_summary)
+                if update:
+                    # -- Create a new UCIS(!) PREQ
+                    result = create_ucis(jira, target_summary, source_preq, scenario, log)
+                    log.logger.info("Created a new UCIS %s for %s", result.key, target_summary)
+                    update_count += 1
+                    ucis_created += 1
+                else:
+                    log.logger.warning("Target UCIS is missing, sourced from %s: '%s'", source_preq.key, target_summary)
+                    warnings_issued += 1
 
-        if scenario['createmax'] and update_count>=scenario['createmax']:
-            break
-        pass
+            if scenario['createmax'] and update_count>=scenario['createmax']:
+                break
+            pass
 
     update_count = 0
 
@@ -284,45 +288,10 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
             warnings_issued += 1
             continue
 
-        if False:
-            # -- Look to see if there is an existing Feature that we can attache the new E-Feature to:
-            # NOTE: =============================================================
-            # NOTE: Having found the parent feature above, why look it up again?
-            # NOTE: Just reuse the feature we have!!!
-            # NOTE: =============================================================
-            target_summary = strip_non_ascii(remove_version_and_platform(getattr(parent_feature.fields, 'summary')))
-            query = target_feature_query % escape_chars(target_summary)
-            result = [feature for feature in jira.do_query(query, quiet=True)]
-
-            if len(result) == 0:
-                # -- No feature exists, we must create it
-                log.logger.warning("No feature exists for '%s'", target_summary)
-
-            elif len(result) == 1:
-                # -- Good, exactly one possible parent!
-                feature = result[0]
-                log.logger.debug("Found one possible parent feature %s", feature.key)
-            else:
-                # -- NOT GOOD: multiple possible parent features. How to choose?
-                log.logger.warning("Found multiple possible parent features: %s", [r.key for r in result])
-                log.logger.warning("For summary                            : '%s'", target_summary)
-                warnings_issued += 1
-                result2 = [feature for feature in result
-                           if feature.fields.summary.strip() == target_summary.strip()]
-                if len(result2) == 1:
-                    feature = result2[0]
-                    log.logger.info("Continuing-- Reduced multiple %s to a single match: %s: %s",
-                                    [r.key for r in result], feature.key, feature.fields.summary)
-                else:
-                    log.logger.fatal("Can't decide between results: %s", [r.key for r in result2])
-                    # todo: If one has subtasks and the other doesn't!
-                    continue
-                    # NOTE: ========================== END =============================
-
         # -- OK, at this point we can create the E-Feature record, if it's not going to be a duplicate...
         target_summary = remove_version_and_platform(source_e_feature.fields.summary).strip()
         target_summary = target_summary_format % target_summary
-        existing_feature = get_item(jira, areq_summary=escape_chars(target_summary))
+        existing_feature = get_item(jira, areq_summary=target_summary)
 
         if existing_feature is not None:
             # -- This E-Feature already exists, don't touch it!
@@ -336,17 +305,21 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 e_features_created += 1
                 update_count += 1
             else:
-                log.logger.info("E-Feature is missing for Feature %s: '%s'", parent_feature.key, target_summary)
+                log.logger.info("Target E-Feature is missing for Source E-Feature %s, Feature %s: '%s'",
+                                source_e_feature.key, parent_feature.key, target_summary)
                 # -- Create a new E-Feature(!) PREQ
 
         if scenario['createmax'] and update_count>=scenario['createmax']:
             break
 
 
+    compare_items("UCIS", preq_source_query, preq_target_query, log=log)
+    compare_items("E-Feature", areq_source_e_feature_query, areq_target_e_feature_query, log=log)
+
     log.logger.info("-----------------------------------------------------------------")
     log.logger.info("%s UCIS source entries were considered. ", source_preq_scanned)
     log.logger.info("%s target UCIS entries were created. ", ucis_created)
-    log.logger.info("%s UCIS source entries were considered. ", source_areq_scanned)
+    log.logger.info("%s E-Feature source entries were considered. ", source_areq_scanned)
     log.logger.info("%s target E-Features entries were created. ", e_features_created)
     log.logger.info("%s warnings were issued. ", warnings_issued)
     log.logger.info("")

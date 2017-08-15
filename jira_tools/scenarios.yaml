@@ -75,3 +75,10 @@ servers:  # Required, but not meaningful here...
     tversion: O
     taversion: O
     exists_on: 'KBL-U-RVP'
+
+  find_added_dng_vs_jira:
+    name: jira-t3
+    user: None
+    password: None
+    verify: false
+    update: true
