@@ -20,7 +20,6 @@ SCENARIO_FILE = 'scenarios.yaml'+pathsep+dirname(realpath(sys.argv[0]))+'/scenar
 
 log_file = log.logging.getLogger("file")
 
-
 #AND_VER = "O"
 #PLATFORM = 'Broxton-P IVI"'
 #droid_ver_id = 'customfield_10811'

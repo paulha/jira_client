@@ -82,3 +82,6 @@ servers:  # Required, but not meaningful here...
     password: None
     verify: false
     update: true
+    splatform: Icelake-U SDC
+    sproject: Platforms Requirements
+    sversion: O

@@ -2,6 +2,34 @@ import re
 from gojira import init_jira, jql_issue_gen
 from jirafields import make_field_lookup
 from utility_funcs.search import get_server_info
+def strip_non_ascii(string):
+    """Returns the string without non ASCII characters, L & R trim of spaces"""
+    stripped = (c for c in string if ord(c) < 128 and c >=' ' and c<='~')
+    return ''.join(stripped).strip(" \t\n\r").replace("  ", " ")
+
+def remove_version_and_platform(text):
+    """Remove the leading version and platform name"""
+    return re.sub(r"\[.*\]\[.*\]\s", "", text)
+
+def escape_chars(text):
+    return re.sub(r"([:\[\]-])", "\\\\\\\\\\1", text)
+
+def get_query(query_name, queries, group_name, params=None, log=None):
+    if group_name not in queries:
+        log.logger.fatal( "Query section for %s is missing: %s", group_name, queries)
+        exit(-1)
+
+    items=queries[group_name]
+    # -- Make sure search query is defined
+    if query_name not in items:
+        log.logger.fatal( "Search query for %s.search is missing: %s", query_name, queries)
+        exit(-1)
+
+    query = items[query_name]
+    if params is not None:
+        query = query.format_map(params)
+    return query
+
 
 class Jira:
 
