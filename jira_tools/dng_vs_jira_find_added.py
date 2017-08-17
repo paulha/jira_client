@@ -139,6 +139,97 @@ class Jira_Project (Jira, Utility):
                 # log.logger.warning("%s", e)
 
 
+def display_duplications(title, id_key_field, index_field_name, dictionary, log=None):
+    if len(dictionary) > 0:
+        fmt = "%-15s %-10s %-80s"
+        log.logger.warning("")
+        log.logger.warning(title)
+        log.logger.warning("")
+        log.logger.warning(fmt, id_key_field, "Duplicates", index_field_name)
+        log.logger.warning(fmt, "=" * 15, "=" * 10, "=" * 80)
+        for item in dictionary:
+            # dups = [item[id_key_field]]
+            dups = str(item[id_key_field])
+            for k, d in item['duplicates'].items():
+                for entry in d:
+                    # dups.append(entry[id_key_field])
+                    dups += " " + str(entry[id_key_field])
+            log.logger.warning(fmt, dups, index_field_name, escape("'" + item[index_field_name] + "'"))
+        log.logger.warning("")
+        log.logger.warning("-" * 10)
+
+    else:
+        log.logger.info("")
+        log.logger.info(title)
+        log.logger.info("")
+        log.logger.info("=====================================================================================")
+        log.logger.info("")
+        log.logger.info("  -- No Duplications Found --")
+        log.logger.info("")
+
+def escape(text):
+    return text.translate(str.maketrans({"\n":"\\n", "\r": "\\r"}))
+
+def look_for_matches(dng, jira, log=None):
+    for dng_item in dng.get_entries():
+        match_found = False
+        if dng_item['summary'] in jira.items_by_summary:
+            # found a match!
+            jira_item = jira.items_by_summary[dng_item['summary']]
+            dng.add_match(dng_item, jira_item, "summary")
+            jira.add_match(jira_item, dng_item, "summary")
+            log.logger.debug("Found a summary match %s to DNG %s", jira_item['key'], dng_item['row'][0].value)
+            match_found = True
+
+        if dng_item['description'] in jira.items_by_description:
+            # found a match!
+            jira_item = jira.items_by_description[dng_item['description']]
+            dng.add_match(dng_item, jira_item, "description")
+            jira.add_match(jira_item, dng_item, "description")
+            log.logger.debug("Found a description match %s to DNG %s", jira_item['key'], dng_item['row'][0].value)
+            match_found = True
+
+        if not match_found:
+            log.logger.debug("NO MATCH FOUND -- DNG item: %d: %s", dng_item['row'][0].value, dng_item['row'][1].value)
+
+
+def display_jira_matches(title, item_list, log=None):
+    matches = [item for item in item_list if len(item['matchedby']) > 0]
+    logger = log.logger.info if len(matches) > 0 else log.logger.warn
+    fmt = "%-6s %-10s %-10s %-100s"
+    logger("")
+    logger(title)
+    logger("")
+    logger(fmt, "Key", "Match Type", "Matches", "Summary")
+    logger(fmt, "=" * 6, "=" * 10, "=" * 10, "=" * 100)
+    for item in matches:
+        item_key = item['key']
+        for match_type, match_list in item['matches'].items():
+            matched_list = ""
+            for matching_item in match_list:
+                matched_list += " " + str(matching_item['key'])
+                logger(fmt, item_key, match_type, matched_list, escape("'"+item['summary']+"'")[:100])
+    logger("")
+    logger("-" * 10)
+
+
+def display_dng_match_failures(title, item_list, log=None):
+    non_matches = [item for item in item_list if len(item['matchedby']) == 0]
+    logger = log.logger.warn if len(non_matches) > 0 else log.logger.info
+    fmt = "%-6s %-100s"
+    logger("")
+    logger(title)
+    logger("")
+    logger(fmt, "Row", "Summary")
+    logger(fmt, "=" * 6, "=" * 100)
+    for item in non_matches:
+        item_row = item['lineno']
+        item_description = item['description']
+        logger(fmt, item_row, escape("'"+item['summary']+"'")[:100])
+        logger(fmt, "", escape("'" + str(item['description']) + "'")[:100])
+    logger("")
+    logger("-" * 10)
+
 
 def find_added_dng_vs_jira(parser, scenario, config, queries, search, log=None):
     """Scan DNG input, label Jira entries and Note DNG items not in Jira"""
@@ -153,66 +244,33 @@ def find_added_dng_vs_jira(parser, scenario, config, queries, search, log=None):
     XLS_FILE = realpath(dirname(realpath(sys.argv[0])) + '/../KSL-I Android.xlsx')
     dng = DNG_File(XLS_FILE, log=log)
 
-    def display_duplications(title, id_key_field, index_field_name, dictionary):
-        if len(dictionary) > 0:
-            log.logger.warning("")
-            log.logger.warning(title)
-            log.logger.warning("")
-            log.logger.warning("=====================================================================================")
-            for item in dictionary:
-                dups = [item[id_key_field]]
-                for k,d in item['duplicates'].items():
-                    for entry in d:
-                        dups.append(entry[id_key_field])
-                log.logger.warning("Rows %s duplicate %s: %-80s", dups, index_field_name, "'" + item[index_field_name] + "'")
-
-    summary_duplications = dng.gather_summary_duplications()
-    display_duplications("Duplications of summary were found in the input worksheet:",
-                         "lineno", "summary", summary_duplications)
-    description_duplications = dng.gather_description_duplications()
-    display_duplications("Duplications of summary were found in the input worksheet:",
-                         "lineno", "description", description_duplications)
-
-    # -- Open Jira:
-    # jira = Jira(scenario['name'], search, log=log.logger)
-    # jira_list = [item for item in jira.do_query(preq_source_query)]
-
     jira = Jira_Project(scenario['name'], search, log=log.logger)
     jira.read(preq_source_query)
     log.logger.info("Read %d jira entries", len(jira.items))
 
+    summary_duplications = dng.gather_summary_duplications()
+    display_duplications("Duplications of summary found in the input worksheet:",
+                         "lineno", "summary", summary_duplications, log=log)
+    description_duplications = dng.gather_description_duplications()
+    display_duplications("Duplications of description found in the input worksheet:",
+                         "lineno", "description", description_duplications, log=log)
+
     jira_key_duplications = jira.gather_key_duplications()
-    display_duplications("Duplications of Jira Keys were found in the input project:",
-                         "key", "key", jira_key_duplications)
+    display_duplications("Duplications of Jira Keys found in the input project:",
+                         "key", "key", jira_key_duplications, log=log)
 
     jira_summary_duplications = jira.gather_summary_duplications()
-    display_duplications("Duplications of Jira Summaries were found in the input project:",
-                         "key", "summary", jira_summary_duplications)
+    display_duplications("Duplications of Jira Summaries found in the input project:",
+                         "key", "summary", jira_summary_duplications, log=log)
 
     jira_description_duplications = jira.gather_description_duplications()
-    display_duplications("Duplications of Jira Descriptions were found in the input project:",
-                         "key", "description", jira_description_duplications)
+    display_duplications("Duplications of Jira Descriptions found in the input project:",
+                         "key", "description", jira_description_duplications, log=log)
 
-    for dng_item in dng.get_entries():
-        match_found = False
-        if dng_item['summary'] in jira.items_by_summary:
-            # found a match!
-            jira_item = jira.items_by_summary[dng_item['summary']]
-            dng.add_match(dng_item, jira_item, "summary")
-            jira.add_match(jira_item, dng_item, "summary")
-            log.logger.info("Found a summary match %s to DNG %s", jira_item['key'], dng_item['row'][0].value)
-            match_found = True
+    look_for_matches(dng, jira, log)
 
-        if dng_item['description'] in jira.items_by_description:
-            # found a match!
-            jira_item = jira.items_by_description[dng_item['description']]
-            dng.add_match(dng_item, jira_item, "description")
-            jira.add_match(jira_item, dng_item, "description")
-            log.logger.info("Found a description match %s to DNG %s", jira_item['key'], dng_item['row'][0].value)
-            match_found = True
-
-        if not match_found:
-            log.logger.info("NO MATCH FOUND -- DNG item: %d: %s", dng_item['row'][0].value, dng_item['row'][1].value)
+    display_jira_matches("These jira items matched DNG entries", jira.items_by_key.values(), log=log)
+    display_dng_match_failures("These DNG items had no matcing Jira PREQ", dng.entries, log=log)
 
     source_preq_scanned = 0
     source_areq_scanned = 0
