@@ -77,7 +77,7 @@ servers:  # Required, but not meaningful here...
     exists_on: 'KBL-U-RVP'
 
   find_added_dng_vs_jira:
-    name: jira-t3
+    name: jira01
     user: None
     password: None
     verify: false

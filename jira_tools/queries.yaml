@@ -37,6 +37,9 @@ servers:
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
+        find_added_dng_vs_jira:
+            preq_source_query:         'project = "{sproject}" AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
+
     jira-t3:
         compare_priorities:
             search:     'project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC'
@@ -104,6 +107,9 @@ servers:
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
+        find_added_dng_vs_jira:
+            preq_source_query:         'project = "{sproject}" AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
+
     jira-stg:
         compare_priorities:
             search:     'project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC'
@@ -134,4 +140,7 @@ servers:
             # target_feature_query:      'project = AREQ AND issuetype=Feature AND status not in (REJECTED) AND summary~"%s"'
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
+
+        find_added_dng_vs_jira:
+            preq_source_query:         'project = "{sproject}" AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
 

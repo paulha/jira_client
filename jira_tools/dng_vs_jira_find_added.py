@@ -22,9 +22,9 @@ class Utility:
 
     def add_match(self, this_item, matching_item, key_name):
         matched_by = this_item['matchedby']
-        if not key_name in matched_by:
+        if key_name not in matched_by:
             matched_by[key_name] = []
-        this_item[key_name].append(matching_item)
+        matched_by[key_name].append(matching_item)
 
 
 class DNG_File (Utility):
@@ -143,9 +143,9 @@ def display_duplications(title, id_key_field, index_field_name, dictionary, log=
     if len(dictionary) > 0:
         fmt = "%-15s %-10s %-80s"
         log.logger.warning("")
-        log.logger.warning(title)
+        log.logger.warning(title.format_map({'count': len(dictionary)}))
         log.logger.warning("")
-        log.logger.warning(fmt, id_key_field, "Duplicates", index_field_name)
+        log.logger.warning(fmt, id_key_field.center(15), "Duplicates".center(10), index_field_name.center(40))
         log.logger.warning(fmt, "=" * 15, "=" * 10, "=" * 80)
         for item in dictionary:
             # dups = [item[id_key_field]]
@@ -160,7 +160,7 @@ def display_duplications(title, id_key_field, index_field_name, dictionary, log=
 
     else:
         log.logger.info("")
-        log.logger.info(title)
+        log.logger.info(title.format_map({'count': 0}))
         log.logger.info("")
         log.logger.info("=====================================================================================")
         log.logger.info("")
@@ -196,18 +196,18 @@ def look_for_matches(dng, jira, log=None):
 def display_jira_matches(title, item_list, log=None):
     matches = [item for item in item_list if len(item['matchedby']) > 0]
     logger = log.logger.info if len(matches) > 0 else log.logger.warn
-    fmt = "%-6s %-10s %-10s %-100s"
+    fmt = "%-10s %-11s %-10s %-100s"
     logger("")
-    logger(title)
+    logger(title.format_map({'count': len(matches)}))
     logger("")
-    logger(fmt, "Key", "Match Type", "Matches", "Summary")
-    logger(fmt, "=" * 6, "=" * 10, "=" * 10, "=" * 100)
+    logger(fmt, "Key".center(10), "Match Type".center(11), "Matches".center(10), "Summary".center(40))
+    logger(fmt, "=" * 10, "=" * 11, "=" * 10, "=" * 100)
     for item in matches:
         item_key = item['key']
-        for match_type, match_list in item['matches'].items():
+        for match_type, match_list in item['matchedby'].items():
             matched_list = ""
             for matching_item in match_list:
-                matched_list += " " + str(matching_item['key'])
+                matched_list += str(matching_item['lineno'])+" "
                 logger(fmt, item_key, match_type, matched_list, escape("'"+item['summary']+"'")[:100])
     logger("")
     logger("-" * 10)
@@ -218,9 +218,9 @@ def display_dng_match_failures(title, item_list, log=None):
     logger = log.logger.warn if len(non_matches) > 0 else log.logger.info
     fmt = "%-6s %-100s"
     logger("")
-    logger(title)
+    logger(title.format_map({'count': len(non_matches)}))
     logger("")
-    logger(fmt, "Row", "Summary")
+    logger(fmt, "Row".center(6), "Summary".center(20))
     logger(fmt, "=" * 6, "=" * 100)
     for item in non_matches:
         item_row = item['lineno']
@@ -243,34 +243,34 @@ def find_added_dng_vs_jira(parser, scenario, config, queries, search, log=None):
 
     XLS_FILE = realpath(dirname(realpath(sys.argv[0])) + '/../KSL-I Android.xlsx')
     dng = DNG_File(XLS_FILE, log=log)
-
+    log.logger.info("Read %d DNG entries", len(dng.entries)-1)  # Account for column heading...
     jira = Jira_Project(scenario['name'], search, log=log.logger)
     jira.read(preq_source_query)
     log.logger.info("Read %d jira entries", len(jira.items))
 
     summary_duplications = dng.gather_summary_duplications()
-    display_duplications("Duplications of summary found in the input worksheet:",
+    display_duplications("{count} Duplications of summary found in the input worksheet:",
                          "lineno", "summary", summary_duplications, log=log)
     description_duplications = dng.gather_description_duplications()
-    display_duplications("Duplications of description found in the input worksheet:",
+    display_duplications("{count} Duplications of description found in the input worksheet:",
                          "lineno", "description", description_duplications, log=log)
 
     jira_key_duplications = jira.gather_key_duplications()
-    display_duplications("Duplications of Jira Keys found in the input project:",
+    display_duplications("{count} Duplications of Jira Keys found in the input project:",
                          "key", "key", jira_key_duplications, log=log)
 
     jira_summary_duplications = jira.gather_summary_duplications()
-    display_duplications("Duplications of Jira Summaries found in the input project:",
+    display_duplications("{count} Duplications of Jira Summaries found in the input project:",
                          "key", "summary", jira_summary_duplications, log=log)
 
     jira_description_duplications = jira.gather_description_duplications()
-    display_duplications("Duplications of Jira Descriptions found in the input project:",
+    display_duplications("{count} Duplications of Jira Descriptions found in the input project:",
                          "key", "description", jira_description_duplications, log=log)
 
     look_for_matches(dng, jira, log)
 
-    display_jira_matches("These jira items matched DNG entries", jira.items_by_key.values(), log=log)
-    display_dng_match_failures("These DNG items had no matcing Jira PREQ", dng.entries, log=log)
+    display_jira_matches("These {count} jira items matched DNG entries", jira.items_by_key.values(), log=log)
+    display_dng_match_failures("These {count} DNG items had no matcing Jira PREQ", dng.entries, log=log)
 
     source_preq_scanned = 0
     source_areq_scanned = 0
@@ -284,12 +284,12 @@ def find_added_dng_vs_jira(parser, scenario, config, queries, search, log=None):
     update_count = 0
 
 
-    log.logger.info("-----------------------------------------------------------------")
-    log.logger.info("%s UCIS source entries were considered. ", source_preq_scanned)
-    log.logger.info("%s target UCIS entries were created. ", ucis_created)
-    log.logger.info("%s E-Feature source entries were considered. ", source_areq_scanned)
-    log.logger.info("%s target E-Features entries were created. ", e_features_created)
-    log.logger.info("%s warnings were issued. ", warnings_issued)
-    log.logger.info("")
-
-    log.logger.info("%s processing error(s). ", processing_errors)
+    # log.logger.info("-----------------------------------------------------------------")
+    # log.logger.info("%s UCIS source entries were considered. ", source_preq_scanned)
+    # log.logger.info("%s target UCIS entries were created. ", ucis_created)
+    # log.logger.info("%s E-Feature source entries were considered. ", source_areq_scanned)
+    # log.logger.info("%s target E-Features entries were created. ", e_features_created)
+    # log.logger.info("%s warnings were issued. ", warnings_issued)
+    # log.logger.info("")
+    #
+    # log.logger.info("%s processing error(s). ", processing_errors)
