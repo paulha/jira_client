@@ -64,6 +64,7 @@ servers:  # Required, but not meaningful here...
     user: None
     password: None
     comment:  'AREQ-24774: Copy data from Broxton-P IVI [O] to KBL-POS [O]'
+    # comment:  'AREQ-25268: Copy Video components from Broxton-P IVI [O] to KBL-POS [O]'
     verify: false
     update: false
     createmax: 0
