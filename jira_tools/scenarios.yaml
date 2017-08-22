@@ -47,7 +47,7 @@ servers:  # Required, but not meaningful here...
     comment: This is a test, this is only a test. In the event of an actual emergency...
     verify: false
     update: true
-    createmax: 2
+    createmax: 1
     log_level: info
     output: output.txt
     # sproject: Platforms Requirements
@@ -60,19 +60,28 @@ servers:  # Required, but not meaningful here...
 
   copy_platform_to_platform:
     # AREQ-24774 -- Import REQ Database from BXT IVI O, O MR1 to KBL-POS
-    name: jira-t3
+    name: jira01
     user: None
     password: None
-    comment: This is a test, this is only a test. In the event of an actual emergency...
+    comment:  'AREQ-24774: Copy data from Broxton-P IVI [O] to KBL-POS [O]'
     verify: false
     update: false
-    createmax: 2
+    createmax: 0
     log_level: info
     output: output.txt
-    # sproject: Platforms Requirements
-    sproject: Android Requirements
     splatform: Broxton-P IVI
     sversion: O
-    tplatform: Broxton-P IVI
+    tplatform: KBL-POS
     tversion: O
     taversion: O
+    exists_on: 'KBL-U-RVP'
+
+  find_added_dng_vs_jira:
+    name: jira01
+    user: None
+    password: None
+    verify: false
+    update: true
+    splatform: Icelake-U SDC
+    sproject: Platforms Requirements
+    sversion: O

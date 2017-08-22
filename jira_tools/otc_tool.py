@@ -11,6 +11,7 @@ from utility_funcs.search import get_server_info, search_for_profile
 import utility_funcs.logger_yaml as log
 
 from copy_platform_to_platform import copy_platform_to_platform
+from dng_vs_jira_find_added import find_added_dng_vs_jira
 
 LOG_CONFIG_FILE = 'logging.yaml'+pathsep+dirname(realpath(sys.argv[0]))+'/logging.yaml'
 CONFIG_FILE = dirname(realpath(sys.argv[0]))+'/config.yaml'+pathsep+'~/.jira/config.yaml'
@@ -18,8 +19,6 @@ QUERIES_FILE = dirname(realpath(sys.argv[0]))+'/queries.yaml'+pathsep+'~/.jira/q
 SCENARIO_FILE = 'scenarios.yaml'+pathsep+dirname(realpath(sys.argv[0]))+'/scenarios.yaml'
 
 log_file = log.logging.getLogger("file")
-log_file.info("Hello World!")
-
 
 #AND_VER = "O"
 #PLATFORM = 'Broxton-P IVI"'
@@ -718,7 +717,7 @@ def e_feature_scanner(parser, scenario, config, queries):
 
             update_count += 1
 
-            jira.add
+            # todo: what was this? --- jira.add
 
             # -- Validate that the create and update actually worked! :-)
             try:
@@ -867,8 +866,8 @@ def scan_areq_and_check_for_preq(parser, scenario, config, queries):
 
 
 def main():
-    log.setup_logging(LOG_CONFIG_FILE)
-    parser = argparse.ArgumentParser( description="This is an OTC tool for working with Jira projects.")
+    log.setup_logging(LOG_CONFIG_FILE, override={'handlers': {'info_file_handler': {'filename': 'otc_tool.log'}}})
+    parser = argparse.ArgumentParser(description="This is an OTC tool for working with Jira projects.")
     connection_group=parser.add_argument_group(title="Connection control", description="About the connectionn to the server")
     connection_group.add_argument("-n", "--name", nargs='?', help="Alias for the target host" )
     connection_group.add_argument("-u", "--user", nargs='?', help="User Name (future)" )
@@ -881,6 +880,7 @@ def main():
     project_group.add_argument("--tplatform", nargs='?', help="Jira source platform")
     project_group.add_argument("--taversion", nargs='?', help="Android target version")
     project_group.add_argument("--tversion", nargs='?', help="Jira target android version")
+    project_group.add_argument("--exists_on", nargs='?', help="Single value for Exists On field")
     project_group.add_argument("--update", default=None, action="store_true", help="Update target")
     project_group.add_argument("--rename", default=None, action="store_true", help="Rename source to target, if target is not found")
     project_group.add_argument("--verify", default=None, action="store_true", help="Verify target")
@@ -889,7 +889,8 @@ def main():
     parser.add_argument("-o","--output", nargs='?', help="Where to store the result.")
     parser.add_argument("-l", "--log_level", choices=['debug', 'info', 'warn', 'error', 'fatal'])
     parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner',
-                                            'scan_areq_for_preq', 'copy_platform_to_platform'], default=None)
+                                            'scan_areq_for_preq', 'copy_platform_to_platform',
+                                            'find_added_dng_vs_jira'], default=None)
     args = parser.parse_args()
 
     # todo: Should be combined switches...
@@ -968,6 +969,8 @@ def main():
         scan_areq_and_check_for_preq(parser, scenario, config, queries)
     elif 'copy_platform_to_platform' == command:
         copy_platform_to_platform(parser, scenario, config, queries, CONFIG_FILE, log=log)
+    elif 'find_added_dng_vs_jira' == command:
+        find_added_dng_vs_jira(parser, scenario, config, queries, CONFIG_FILE, log=log)
     else:
         parser.print_help()
         exit(1)

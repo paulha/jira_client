@@ -138,6 +138,20 @@ class Jira_Project (Jira, Utility):
                 pass
                 # log.logger.warning("%s", e)
 
+    def get_labels(self, item):
+        return [x for x in getattr(item.fields, 'labels')]
+
+    def set_labels(self, item, label_list, comment=None):
+        update_fields = {
+            'labels': [x for x in label_list],
+        }
+        item.update(notify=False, fields=update_fields)
+        if comment is not None:
+            self.jira_client.add_comment(item,
+                                         """This item was modified by find_added_dng_vs_jira.
+    
+                                         %s""" % comment )
+        pass
 
 def display_duplications(title, id_key_field, index_field_name, dictionary, log=None):
     if len(dictionary) > 0:
@@ -213,7 +227,7 @@ def display_jira_matches(title, item_list, log=None):
     logger("-" * 10)
 
 
-def display_dng_match_failures(title: str, item_list: list, log: logging.Logger=None) -> None:
+def display_dng_match_failures(title, item_list, log=None):
     non_matches = [item for item in item_list if len(item['matchedby']) == 0]
     logger = log.logger.warn if len(non_matches) > 0 else log.logger.info
     fmt = "%-6s %-100s"
@@ -229,6 +243,35 @@ def display_dng_match_failures(title: str, item_list: list, log: logging.Logger=
         logger(fmt, "", escape("'" + str(item['description']) + "'")[:100])
     logger("")
     logger("-" * 10)
+
+
+def adjust_label_to_match_condition(jira, entries, label, func=None, log=None):
+    log.logger.info("")
+    log.logger.info("Set and remove label '%s' where it has changed")
+    log.logger.info("")
+    for entry in entries:
+        this_item = entry['item']
+        if func is not None:
+            label_should_be_present = func(entry)
+            label_list = jira.get_labels(this_item)
+            label_present = label in label_list
+            if label_should_be_present != label_present:
+                if label_should_be_present:
+                    # -- Add label to the list
+                    label_list.append(label)
+                    comment = 'Label %s added' % label
+                else:
+                    # -- Remove label from list
+                    label_list.remove(label)
+                    comment = 'Label %s removed' % label
+                # -- Write the result back to the item
+                log.logger.info("%s %s", this_item.key, label_list)
+                jira.set_labels(this_item, label_list, comment)
+                pass
+    log.logger.info("")
+    log.logger.info("   --- done ---")
+    log.logger.info("")
+
 
 
 def find_added_dng_vs_jira(parser, scenario, config, queries, search, log=None):
@@ -271,6 +314,11 @@ def find_added_dng_vs_jira(parser, scenario, config, queries, search, log=None):
 
     display_jira_matches("These {count} jira items matched DNG entries", jira.items_by_key.values(), log=log)
     display_dng_match_failures("These {count} DNG items had no matcing Jira PREQ", dng.entries, log=log)
+
+    adjust_label_to_match_condition(jira, jira.items,
+                                    "KSL-I-EA-SDS-PR1-requested",
+                                    lambda item: len(item['matchedby']) > 0,
+                                    log=log)
 
     source_preq_scanned = 0
     source_areq_scanned = 0
