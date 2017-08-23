@@ -52,8 +52,8 @@ servers:
 
         e_feature_scanner:
             # -- Find entries to (potentially) clone and modify...
-            candidate_e-features:     'key=AREQ-22918 and project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
-            # candidate_e-features:     'project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            # candidate_e-features:     'key=AREQ-22918 and project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            candidate_e-features:     'project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             parent_query:             'key = "{parent_key}"'
             sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
 
