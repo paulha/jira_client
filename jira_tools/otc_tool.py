@@ -1,10 +1,9 @@
 from os.path import expanduser, pathsep, dirname, realpath
 import argparse
-import re
 import sys
 # from gojira import init_jira, jql_issue_gen, issue_keys_issue_gen
 # from jirafields import make_field_lookup
-from jira_class import Jira, init_jira, jql_issue_gen, make_field_lookup
+from jira_class import Jira, get_query, init_jira, jql_issue_gen, make_field_lookup
 
 # -- todo: Uncomfortable for two different imports from the same module to be handled differently...
 from utility_funcs.search import get_server_info, search_for_profile
@@ -497,8 +496,8 @@ def is_this_the_same_feature(parent_feature, source_e_feature, target_e_feature)
     return True
 
 
-def e_feature_scanner(parser, scenario, config, queries):
-    """Create O-MR1 dessert AREQ eFeatures for BXT-P IVI based on O dessert
+def e_feature_scanner(parser, scenario, config, search, queries):
+    """AREQ-24757: Create O-MR1 dessert AREQ eFeatures for BXT-P IVI based on O dessert
 
     Attributes:
         parser (argparse.ArgumentParser): Can be used for option specific parsing of arguments.
@@ -538,32 +537,9 @@ def e_feature_scanner(parser, scenario, config, queries):
         log.logger.fatal( "Query section for %s is missing: %s", e_feature_scanner.__name__, queries)
         exit(-1)
 
-    items=queries[e_feature_scanner.__name__]
-
-    # -- Make sure search query is defined
-    if 'candidate_e-features' not in items:
-        log.logger.fatal( "Search query for %s.search is missing: %s", 'candidate_e-features', queries)
-        exit(-1)
-
-    # -- Get and format it:
-    candidate_efeatures_query = items['candidate_e-features'].format_map(scenario)
-    log.logger.debug( "search query is: %s", candidate_efeatures_query)
-
-    # -- Make sure parent_query is defined
-    if 'parent_query' not in items:
-        log.logger.fatal( "Parent query for %s.search is missing: %s", 'parent_query', queries)
-        exit(-1)
-
-    parent_query = items['parent_query']
-    log.logger.debug( "parent query is: %s", parent_query)
-
-    # -- Make sure parent_query is defined
-    if 'sibling_query' not in items:
-        log.logger.fatal( "Sibling query for %s.search is missing: %s", 'sibling_query', queries)
-        exit(-1)
-
-    sibling_query = items['sibling_query']
-    log.logger.debug( "sibling query is: %s", sibling_query)
+    candidate_efeatures_query = get_query('candidate_e-features', queries, e_feature_scanner.__name__, params=scenario, log=log)
+    parent_query = get_query('parent_query', queries, e_feature_scanner.__name__, log=log)
+    sibling_query = get_query('sibling_query', queries, e_feature_scanner.__name__, log=log)
 
     log.logger.info("Examining source platform {splatform}, source android version {sversion}, target android version {tversion}".format_map(scenario))
 
@@ -574,7 +550,7 @@ def e_feature_scanner(parser, scenario, config, queries):
     log.logger.info("=================================================================")
 
     # -- Get and format it:
-    jira = init_jira(config)
+    jira = Jira(scenario['name'], search, log=log.logger)
 
     field_lookup = make_field_lookup(jira)
     and_vers_key = field_lookup.reverse('Android Version(s)')
@@ -590,8 +566,9 @@ def e_feature_scanner(parser, scenario, config, queries):
     verify_failures = 0
     update_failures = 0
     processing_errors = 0
-    for current_e_feature in jql_issue_gen(candidate_efeatures_query, jira, count_change_ok=True):
+    for current_e_feature in jira.do_query(candidate_efeatures_query):
         features_scanned += 1
+        parent_feature = None
         log.logger.info("Checking on E-Feature %s: %s", current_e_feature.key, current_e_feature.fields.summary)
 
         # -- OK so now we have found the source e-feature. We want to get its parent
@@ -599,7 +576,8 @@ def e_feature_scanner(parser, scenario, config, queries):
         param_dict.update(scenario)                                    # other values that might be useful in a complex query
 
         # -- Check for duplicate sibling feature, if found no need to create a new one.
-        sibling_e_feature = query_one_item(jira, sibling_query, param_dict)
+        sibling_e_feature = query_one_item(jira.jira_client, sibling_query, param_dict)
+        # sibling_e_feature = jira.get_item(key=current_e_feature.fields.parent.key)
         if sibling_e_feature is not None:
             # -- Sibling already exists
             if update:
@@ -608,7 +586,8 @@ def e_feature_scanner(parser, scenario, config, queries):
 
             if verify:
                 # -- Look up the parent, to make a comparison
-                parent_feature = query_one_item(jira, parent_query, param_dict)
+                # parent_feature = query_one_item(jira, parent_query, param_dict)
+                parent_feature = jira.get_item(key=sibling_e_feature.fields.parent.key)
                 if parent_feature is None:
                     # -- Sibling without parent
                     log.logger.warning("E-Feature %s has no parent", current_e_feature.key)
@@ -624,7 +603,10 @@ def e_feature_scanner(parser, scenario, config, queries):
 
             continue
 
-        parent_feature = query_one_item(jira, parent_query, param_dict)
+        # parent_feature = query_one_item(jira, parent_query, param_dict)
+        if parent_feature is None:
+            parent_feature = jira.get_item(key=current_e_feature.fields.parent.key)
+
         if parent_feature is None:
             # -- Sibling without parent
             log.logger.warning("E-Feature %s has no parent", current_e_feature.key)
@@ -692,6 +674,8 @@ def e_feature_scanner(parser, scenario, config, queries):
 
             sibling_e_feature = jira.create_issue(fields=new_e_feature_dict)
             sibling_e_feature.update(notify=False, fields=update_fields)
+            # jira.clone_e_feature_from_parent(parent_feature.fields.summary, parent_feature,
+            #                                  scenario, sibling=sibling_e_feature, log=log)
 
             # # -- TODO: What about attachments? Something like this, maybe
             # for attachment in current_e_feature.fields.attachment:
@@ -964,7 +948,7 @@ def main():
     elif 'dump_parents' == command:
         dump_parents(parser, scenario, config, queries)
     elif 'e_feature_scanner' == command:
-        e_feature_scanner(parser, scenario, config, queries)
+        e_feature_scanner(parser, scenario, config, CONFIG_FILE, queries)
     elif 'scan_areq_for_preq' == command:
         scan_areq_and_check_for_preq(parser, scenario, config, queries)
     elif 'copy_platform_to_platform' == command:
