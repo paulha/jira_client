@@ -44,31 +44,31 @@ log_file = log.logging.getLogger("file")
 #                if dupe_list:
 #                    doing_list += [{'source_id': issue.key, 'summary': 'dupe;no-clone'}]
 #                    log.logger.info( "already got %s"%issue.key )
-def create_from_jql(j):
-    i = 0
-
-    fl = make_field_lookup(j)
-    and_vers_key = fl.reverse('Android Version(s)')
-    platprog_key = fl.reverse('Platform/Program')
-
-    #jql = """project = CREQ AND issuetype = Feature AND assignee = swmckeox"""
-    jql = """project = %s AND issuetype = Feature"""%(PROJECT,)
-    for areq in jql_issue_gen(jql, j):
-        log.logger.info(areq.key, areq.fields.summary, getattr(areq.fields, and_vers_key)[0].value)
-
-        for platprog in getattr(areq.fields, platprog_key):
-            # Create Sub-task
-            i += 1
-            and_ver = getattr(areq.fields, and_vers_key)[0].value
-
-            ### Nerfed for safety
-            # log.logger.info( i, areq.key, platprog.value )
-            # efeature=create_e_feature_from_feature(j, areq, ASSIGNEE, VAL_LEAD, and_ver, platprog.value)
-            # new_sum = efeature.fields.summary.replace('[]', '[4.4]')
-            # efeature.update(fields={'summary':new_sum})
-            # log.logger.info( "\t", efeature.key,efeature.fields.summary, getattr(efeature.fields, and_vers_key)[0].value )
-            # log.logger.info( "\t", efeature.key,efeature.fields.summary, getattr(efeature.fields, and_vers_key)[0].value )
-
+# def create_from_jql(j):
+#     i = 0
+#
+#     fl = make_field_lookup(j)
+#     and_vers_key = fl.reverse('Android Version(s)')
+#     platprog_key = fl.reverse('Platform/Program')
+#
+#     #jql = """project = CREQ AND issuetype = Feature AND assignee = swmckeox"""
+#     jql = """project = %s AND issuetype = Feature"""%(PROJECT,)
+#     for areq in jql_issue_gen(jql, j):
+#         log.logger.info(areq.key, areq.fields.summary, getattr(areq.fields, and_vers_key)[0].value)
+#
+#         for platprog in getattr(areq.fields, platprog_key):
+#             # Create Sub-task
+#             i += 1
+#             and_ver = getattr(areq.fields, and_vers_key)[0].value
+#
+#             ### Nerfed for safety
+#             # log.logger.info( i, areq.key, platprog.value )
+#             # efeature=create_e_feature_from_feature(j, areq, ASSIGNEE, VAL_LEAD, and_ver, platprog.value)
+#             # new_sum = efeature.fields.summary.replace('[]', '[4.4]')
+#             # efeature.update(fields={'summary':new_sum})
+#             # log.logger.info( "\t", efeature.key,efeature.fields.summary, getattr(efeature.fields, and_vers_key)[0].value )
+#             # log.logger.info( "\t", efeature.key,efeature.fields.summary, getattr(efeature.fields, and_vers_key)[0].value )
+#
 
 def add_value_to_list(issue, key, new_value):
     values = [x.value for x in getattr(issue.fields, key)]
@@ -81,7 +81,7 @@ def add_value_to_list(issue, key, new_value):
 def ensure_parent_feature(jira, issue):
     if issue.fields.issuetype.name == 'E-Feature':
         feature_key = issue.fields.parent.key
-        feature = j.issue(feature_key)
+        feature = jira.issue(feature_key)
     elif issue.fields.issuetype.name != 'Feature':
         key = issue.key
         itype = issue.fields.issuetype.name
@@ -214,7 +214,7 @@ def clone_efeature_add_dessert(jira, jira_query, doing_list, target_platform, ta
             efeature = jira.create_issue(fields=new_efeature_dict)
             update_count += 1
         except:
-            logging.exception('cloning process halted and caught fire on issue %s' % issue.key)
+            log.logger.exception('cloning process halted and caught fire on issue %s' % issue.key)
             doing_list += [{'error_issue': issue.key, 'error_text': sys.exc_info()[0]}]
             log.logger.error("caught exception while cloning %s" % issue.key)
             return doing_list
