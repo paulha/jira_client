@@ -9,7 +9,16 @@ def get_query(query_name, queries, group_name, params=None, log=None):
         log.logger.fatal("Query section for %s is missing: %s", group_name, queries)
         exit(-1)
 
-    items = queries[group_name]
+    query_set_name = group_name
+    if params is not None and 'query_set' in params and params['query_set'] is not None:
+        query_set_name = params['query_set']
+
+    if query_set_name not in queries:
+        log.logger.fatal("Query Set '%s' cannot be found in available queries '%s'",
+                         query_set_name, queries)
+        exit(-1)
+    items = queries[query_set_name]
+
     # -- Make sure search query is defined
     if query_name not in items:
         log.logger.fatal("Search query for %s.search is missing: %s", query_name, queries)
