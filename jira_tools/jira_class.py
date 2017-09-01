@@ -146,6 +146,74 @@ class Jira:
                                         scenario['comment'] if scenario['comment'] is not None else ""))
         return created_ucis
 
+    def clone_e_feature_from_e_feature(self, summary, parent_feature, sibling_feature, scenario, log=None):
+        """Create e-feature from parent, overlaying sibling data if present"""
+
+        # Utility function for copying *_on fields (see below)
+        def _define_update(update_list, field, entry):
+            update_list[field] = [{'value': x.value} for x in getattr(entry.fields, field)] \
+                if getattr(entry.fields, field) is not None else []
+
+        and_vers_key = self.get_field_name('Android Version(s)')
+        platprog_key = self.get_field_name('Platform/Program')
+        exists_on = self.get_field_name('Exists On')
+        verified_on = self.get_field_name('Verified On')
+        failed_on = self.get_field_name('Failed On')
+        blocked_on = self.get_field_name('Blocked On')
+        tested_on = self.get_field_name('Tested On')
+        classification = self.get_field_name('Classification')
+        validation_lead = self.get_field_name('Validation Lead')
+
+        # -- Creating an E-Feature (sub-type of Feature) causes appropriate fields of the parent Feature
+        #    to be copied into the E-Feature *automatically*.
+        if True:
+            pass
+        new_e_feature_dict = {
+            'project': {
+                'key': sibling_feature.fields.project.key if sibling_feature is not None else parent_feature.fields.project.key},
+            'parent':  {'key': parent_feature.key},
+            'summary': summary,
+            'issuetype': {'name': 'E-Feature'},
+            and_vers_key: [{'value': scenario['tversion']}],
+            platprog_key: [{'value': scenario['tplatform']}],
+            'assignee': {'name': sibling_feature.fields.assignee.name},
+            validation_lead: {'name': getattr(sibling_feature.fields, validation_lead).name}
+        }
+
+        if 'exists_on' in scenario:
+            new_e_feature_dict['exists_on'] = [{'value': scenario['exists_on']}]
+
+        # -- Having created the issue, now other fields of the E-Feature can be updated:
+        update_fields = {
+            'summary': summary,
+            'priority': {'name': sibling_feature.fields.priority.name if sibling_feature is not None else 'P1-Stopper'},
+            'labels': [x for x in getattr(parent_feature.fields, 'labels')],
+        }
+        _define_update(update_fields, verified_on, sibling_feature if sibling_feature is not None else parent_feature)
+        _define_update(update_fields, failed_on, sibling_feature if sibling_feature is not None else parent_feature)
+        _define_update(update_fields, blocked_on, sibling_feature if sibling_feature is not None else parent_feature)
+        _define_update(update_fields, tested_on, sibling_feature if sibling_feature is not None else parent_feature)
+
+        log.logger.debug("Creating E-Feature clone of Feature %s -- %s" % (parent_feature.key, new_e_feature_dict))
+
+        # return None
+
+        # -- Create the e-feature and update the stuff you can't set directly
+        created_e_feature = self.jira_client.create_issue(fields=new_e_feature_dict)
+        created_e_feature.update(notify=False, fields=update_fields)
+
+        # -- Add a comment noting the creation of this feature.
+        self.jira_client.add_comment(created_e_feature,
+                                     """This E-Feature was created by {command}.
+
+                                     Parent Feature is %s. Source sibling is %s
+                                     Source Platform: '{splatform}' Version '{sversion}'
+
+                                     %s""".format_map(scenario)
+                                     % (parent_feature.key, sibling_feature.key if sibling_feature is not None else "",
+                                        scenario['comment'] if scenario['comment'] is not None else ""))
+        return created_e_feature
+
     def clone_e_feature_from_parent(self, summary, parent_feature, scenario, log=None, sibling=None):
         """Create e-feature from parent, overlaying sibling data if present"""
 
@@ -173,11 +241,14 @@ class Jira:
             'issuetype': {'name': 'E-Feature'},
             and_vers_key: [{'value': scenario['tversion']}],
             platprog_key: [{'value': scenario['tplatform']}],
-            exists_on: [{'value': scenario['exists_on']}]
         }
+
+        if 'exists_on' in scenario:
+            new_e_feature_dict['exists_on'] = [{'value': scenario['exists_on']}]
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
+            'summary': summary,
             'priority': {'name': 'P1-Stopper'},
             'labels': [x for x in getattr(parent_feature.fields, 'labels')],
         }
@@ -207,18 +278,21 @@ class Jira:
         return created_e_feature
 
     # -- Static utility functions...
+    @staticmethod
     def escape_chars(text: str):
         """Escape special characters in Jira search:
 
         Characters "[ ] + - & | ! ( ) { } ^ ~ * ? \ :" are special in jira searches
         """
-        return re.sub(r"([\[\]\+\-\&\|\!\(\)\{\}\^\~\*\?\\\:])", "\\\\\\\\\\1", text)
+        return re.sub(r"([\[\]+\-&|!(){\}^~*?\\:])", "\\\\\\\\\\1", text)
 
-    def strip_non_ascii(string):
+    @staticmethod
+    def strip_non_ascii(_str):
         """Returns the string without non ASCII characters, L & R trim of spaces"""
-        stripped = (c for c in string if ord(c) < 128 and c >= ' ' and c <= '~')
+        stripped = (c for c in _str if ord(c) < 128 and c >= ' ' and c <= '~')
         return ''.join(stripped).strip(" \t\n\r").replace("  ", " ")
 
-    def remove_version_and_platform(text):
+    @staticmethod
+    def remove_version_and_platform(txt):
         """Remove the leading version and platform name"""
-        return re.sub(r"\[.*\]\[.*\]\s", "", text)
+        return re.sub(r"^(\[[^\]]*\])?\s*(\[[^\]]*\])?\s*(\[[^\]]*\]?)?\s*", "", txt)

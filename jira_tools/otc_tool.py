@@ -857,7 +857,7 @@ def main():
     connection_group.add_argument("-u", "--user", nargs='?', help="User Name (future)" )
     connection_group.add_argument("-p", "--password", nargs='?', help="Password (future)" )
     connection_group.add_argument("--scenario", nargs='?', help="Scenario to select", default='default')
-    connection_group.add_argument("--query_set", nargs='?', help="Altername query group name", default=None)
+    connection_group.add_argument("--query_set", nargs='?', help="Alternate query group name", default=None)
     project_group=parser.add_argument_group(title="Project control", description="Selecting which projects...")
     project_group.add_argument("--sproject", nargs='?', help="Jira source project")
     project_group.add_argument("--splatform", nargs='?', help="Jira source platform")

@@ -80,6 +80,28 @@ servers:  # Required, but not meaningful here...
     taversion: O
     exists_on: 'KBL-U-RVP'
 
+  "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]":
+    # -- AREQ-25319
+    # command: copy_platform_to_platform
+    query_set: "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]"
+    name: jira-t3
+    user: None
+    password: None
+    comment:  'Copied from [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]'
+    verify: false
+    # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
+    verify_copy: false
+    update: true
+    createmax: 2
+    clone_from_sibling: true
+    log_level: info
+    output: output.txt
+    splatform: Icelake-U SDC
+    sversion: O
+    tplatform: Icelake-U SDC
+    tversion: O
+    taversion: O
+
   find_added_dng_vs_jira:
     name: jira01
     user: None

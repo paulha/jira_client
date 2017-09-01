@@ -15,6 +15,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
 
     verify = scenario['verify']
     update = scenario['update']
+    verify_copy = scenario['verify'] if 'verify' in scenario else True;
+
     log.logger.info("Verify is %s and Update is %s", verify, update)
     log.logger.info("=================================================================")
 
@@ -123,7 +125,11 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
         else:
             if update:
                 log.logger.info("Creating a new E-Feature for Feature %s: %s", parent_feature.key, target_summary)
-                jira.clone_e_feature_from_parent(target_summary, parent_feature, scenario, sibling=source_e_feature, log=log)
+                if 'clone_from_sibling' in scenario and scenario['clone_from_sibling']:
+                    jira.clone_e_feature_from_e_feature(target_summary, parent_feature, source_e_feature, scenario, log=log)
+                else:
+                    jira.clone_e_feature_from_parent(target_summary, parent_feature, scenario, sibling=source_e_feature, log=log)
+
                 e_features_created += 1
                 update_count += 1
             else:
@@ -134,9 +140,12 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
         if scenario['createmax'] and update_count>=scenario['createmax']:
             break
 
-
-    compare_items("UCIS", preq_source_query, preq_target_query, log=log)
-    compare_items("E-Feature", areq_source_e_feature_query, areq_target_e_feature_query, log=log)
+    # -- TODO: Need to account for source and target version and platform
+    if verify_copy:
+        compare_items("UCIS", preq_source_query, preq_target_query, log=log)
+        compare_items("E-Feature", areq_source_e_feature_query, areq_target_e_feature_query, log=log)
+    else:
+        log.logger.warning("Not checking that copy was complete or that duplicates were created.")
 
     log.logger.info("-----------------------------------------------------------------")
     log.logger.info("%s UCIS source entries were considered. ", source_preq_scanned)
