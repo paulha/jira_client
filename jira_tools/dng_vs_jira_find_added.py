@@ -1,7 +1,7 @@
 import sys
 from os.path import expanduser, pathsep, dirname, realpath
 from openpyxl import load_workbook
-from jira_class import Jira, get_query, remove_version_and_platform, strip_non_ascii
+from jira_class import Jira
 import re
 from utility_funcs.search import search_for_file
 
@@ -116,8 +116,8 @@ class Jira_Project (Jira, Utility):
         for item in self.do_query(query):
             new_item = self._empty_item()
             new_item['key'] = item.key
-            new_item['summary'] = strip_non_ascii(remove_version_and_platform(item.fields.summary))
-            new_item['description'] = strip_non_ascii(item.fields.description)
+            new_item['summary'] = Jira.strip_non_ascii(Jira.remove_version_and_platform(item.fields.summary))
+            new_item['description'] = Jira.strip_non_ascii(item.fields.description)
             new_item['item'] = item
             self.items.append(new_item)
             try:
@@ -277,7 +277,7 @@ def adjust_label_to_match_condition(jira, entries, label, func=None, log=None):
 def find_added_dng_vs_jira(parser, scenario, config, queries, search, log=None):
     """Scan DNG input, label Jira entries and Note DNG items not in Jira"""
 
-    preq_source_query = get_query('preq_source_query', queries, find_added_dng_vs_jira.__name__, params=scenario, log=log)
+    preq_source_query = Jira.get_query('preq_source_query', queries, find_added_dng_vs_jira.__name__, params=scenario, log=log)
 
     verify = scenario['verify']
     update = scenario['update']

@@ -41,12 +41,13 @@ servers:  # Required, but not meaningful here...
 
   rename.areq-24757:
     # Rename O E-Features to O-MR1
+    # command: e_feature_scanner
     name: jira-t3
     user: None
     password: None
     comment: This is a test, this is only a test. In the event of an actual emergency...
     verify: false
-    update: true
+    update: false
     createmax: 1
     log_level: info
     output: output.txt
@@ -57,13 +58,16 @@ servers:  # Required, but not meaningful here...
     tplatform: Broxton-P IVI
     tversion: O-MR1
     taversion: O-MR1
+    # query_set: e_feature_scanner_AREQ-22918
 
   copy_platform_to_platform:
     # AREQ-24774 -- Import REQ Database from BXT IVI O, O MR1 to KBL-POS
+    # command: copy_platform_to_platform
     name: jira01
     user: None
     password: None
     comment:  'AREQ-24774: Copy data from Broxton-P IVI [O] to KBL-POS [O]'
+    # comment:  'AREQ-25268: Copy Video components from Broxton-P IVI [O] to KBL-POS [O]'
     verify: false
     update: false
     createmax: 0
@@ -75,6 +79,28 @@ servers:  # Required, but not meaningful here...
     tversion: O
     taversion: O
     exists_on: 'KBL-U-RVP'
+
+  "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]":
+    # -- AREQ-25319
+    # command: copy_platform_to_platform
+    query_set: "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]"
+    name: jira-t3
+    user: None
+    password: None
+    comment:  'Copied from [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]'
+    verify: false
+    # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
+    verify_copy: false
+    update: true
+    createmax: 2
+    clone_from_sibling: true
+    log_level: info
+    output: output.txt
+    splatform: Icelake-U SDC
+    sversion: O
+    tplatform: Icelake-U SDC
+    tversion: O
+    taversion: O
 
   find_added_dng_vs_jira:
     name: jira01

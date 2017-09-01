@@ -52,8 +52,14 @@ servers:
 
         e_feature_scanner:
             # -- Find entries to (potentially) clone and modify...
+            # candidate_e-features:     'key=AREQ-22918 and project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            candidate_e-features:     'project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
+            parent_query:             'key = "{parent_key}"'
+            sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
+
+        e_feature_scanner_AREQ-22918:
+            # -- Find entries to (potentially) clone and modify...
             candidate_e-features:     'key=AREQ-22918 and project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
-            # candidate_e-features:     'project = AREQ AND issuetype = E-Feature AND status in (Open, "In Progress", Closed, Merged, Blocked) AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
             parent_query:             'key = "{parent_key}"'
             sibling_query:            'parent="{parent_key}" and "Android Version(s)" in ("{tversion}") AND "Platform/Program" in ("{tplatform}")'
 
@@ -68,9 +74,18 @@ servers:
             preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
             areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
             areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
-            # target_feature_query:      'project = AREQ AND issuetype=Feature AND status not in (REJECTED) AND summary~"%s"'
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
+
+        "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]":
+            # Based on copy_platform_to_platform_ALL:
+            # -- We don't want ANY preq's!
+            preq_source_query:         'project = preq and project=areq'
+            preq_target_query:         'project = preq and project=areq'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
+            target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
+            target_summary_format:     '[{tversion}][{tplatform}][AaaG] %s'
 
         find_added_dng_vs_jira:
             preq_source_query:         'project = "{sproject}" AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
@@ -99,13 +114,41 @@ servers:
             # target_entry:           'key = "{key}" AND labels in ("IOTG_IVI") AND project = PREQ AND "Android Version(s)" in ("{sversion}") AND "Platform/Program" in ("{splatform}")'
 
         copy_platform_to_platform:
+            # Qualified copy for AREQ-24774
             preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
             preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
             areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
             areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component not in ("Audio Comms",Browser,Camera,Connectivity-Bluetooth,"Connectivity-FM Radio",Connectivity-GNSS,Connectivity-Ethernet,Connectivity-NFC,Documentation,"Energy Management",GPA,Hardware,HDMI,Houdini,"Manufacturing OS",Media,"OTA Update",PnP,"Power Management",Screencast,Sensors,SOCWatch,Telephony,Thermal,Validation,"Vehicle I/O",Video,VMM,"VTune and SEP","Widevine/DRM")'
-            # target_feature_query:      'project = AREQ AND issuetype=Feature AND status not in (REJECTED) AND summary~"%s"'
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
+
+        copy_platform_to_platform_ALL:
+            # Copy all of source platform to target platform
+            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
+            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
+            target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
+            target_summary_format:     '[{tversion}][{tplatform}] %s'
+
+        copy_platform_to_platform_Video_Only:
+            # -- AREQ-25268: Import "Video" REQ Database from BXT IVI O, O MR1 to KBL-POS
+            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component in (Video)'
+            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component in (Video)'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component in (Video)'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component in (Video)'
+            target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
+            target_summary_format:     '[{tversion}][{tplatform}] %s'
+
+        "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]":
+            # Based on copy_platform_to_platform_ALL:
+            # -- We don't want ANY preq's!
+            preq_source_query:         'project = preq and project=areq'
+            preq_target_query:         'project = preq and project=areq'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
+            target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
+            target_summary_format:     '[{tversion}][{tplatform}][AaaG] %s'
 
         find_added_dng_vs_jira:
             preq_source_query:         'project = "{sproject}" AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
