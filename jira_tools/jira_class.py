@@ -57,7 +57,7 @@ class Jira:
             self.log.info("Reading from the Jira server %s using query '%s'", self.jira_config['host'], query)
         return jql_issue_gen(query, self.jira_client)
 
-    def get_item(self, item=None, key=None, preq_summary=None, areq_summary=None):
+    def get_item(self, item=None, key=None, preq_summary=None, areq_summary=None, log=None):
         expected = None
         if item is not None:
             key = getattr(item.fields, 'parent').key
@@ -65,26 +65,36 @@ class Jira:
         elif key is not None:
             query = "key='%s'" % key
         elif preq_summary is not None:
-            query = 'project=PREQ AND summary ~ "%s"' % Jira.escape_chars(preq_summary)
+            query = 'project=PREQ AND summary ~ "%s"' % Jira.escape_chars(Jira.remove_version_and_platform(preq_summary))
             expected = preq_summary
         elif areq_summary is not None:
-            query = 'project=AREQ AND summary ~ "%s"' % Jira.escape_chars(areq_summary)
+            query = 'project=AREQ AND summary ~ "%s"' % Jira.escape_chars(Jira.remove_version_and_platform(areq_summary))
             expected = areq_summary
         else:
             raise ValueError("Nothing to search for")
 
         # -- TODO: Ah! Just because it finds *something* doesn't mean it's a proper match...
+        if log is not None:
+            log.logger.debug("self.do_query('%s', quiet=True)", query)
         results = [i for i in self.do_query(query, quiet=True)]
+        if log is not None:
+            log.logger.debug("Result of do_query() are %s", results)
         for result in results:
+            log.logger.debug("Found %s: %s",
+                             result.key if result is not None else None,
+                             result.fields.summary if result is not None else None)
             if expected is None:
                 return result
             else:
                 if Jira.strip_non_ascii(result.fields.summary).upper() == Jira.strip_non_ascii(expected).upper():
+                    log.logger.debug("Found match: %s: %s", result.key, result.fields.summary)
                     return result
         return None
 
     def create_ucis(self, summary, source_feature, scenario, log=None):
         """Create UCIS from source"""
+
+        # -- FIXME: NEED TO COPY GLOBAL ID TO MAINTAIN TRACEABILITY
 
         # Utility function for copying *_on fields (see below)
         def _define_update(update_list, field, entry):
@@ -99,6 +109,7 @@ class Jira:
         blocked_on = self.get_field_name('Blocked On')
         tested_on = self.get_field_name('Tested On')
         classification = self.get_field_name('Classification')
+        global_id = self.get_field_name('Global ID')
 
         # -- Creating an E-Feature (sub-type of Feature) causes appropriate fields of the parent Feature
         #    to be copied into the E-Feature *automatically*.
@@ -115,6 +126,7 @@ class Jira:
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
+            global_id: getattr(source_feature.fields, global_id),
             'priority': {'name': 'P1-Stopper'},
             'labels': [x for x in getattr(source_feature.fields, 'labels')],
             'components': [{'id': x.id} for x in getattr(source_feature.fields, 'components')],
@@ -149,6 +161,8 @@ class Jira:
     def clone_e_feature_from_e_feature(self, summary, parent_feature, sibling_feature, scenario, log=None):
         """Create e-feature from parent, overlaying sibling data if present"""
 
+        # -- FIXME: NEED TO COPY GLOBAL ID TO MAINTAIN TRACEABILITY
+
         # Utility function for copying *_on fields (see below)
         def _define_update(update_list, field, entry):
             update_list[field] = [{'value': x.value} for x in getattr(entry.fields, field)] \
@@ -163,6 +177,7 @@ class Jira:
         tested_on = self.get_field_name('Tested On')
         classification = self.get_field_name('Classification')
         validation_lead = self.get_field_name('Validation Lead')
+        global_id = self.get_field_name('Global ID')
 
         # -- Creating an E-Feature (sub-type of Feature) causes appropriate fields of the parent Feature
         #    to be copied into the E-Feature *automatically*.
@@ -185,6 +200,7 @@ class Jira:
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
+            global_id: getattr(sibling_feature.fields, global_id),
             'summary': summary,
             'priority': {'name': sibling_feature.fields.priority.name if sibling_feature is not None else 'P1-Stopper'},
             'labels': [x for x in getattr(parent_feature.fields, 'labels')],
@@ -217,6 +233,8 @@ class Jira:
     def clone_e_feature_from_parent(self, summary, parent_feature, scenario, log=None, sibling=None):
         """Create e-feature from parent, overlaying sibling data if present"""
 
+        # -- FIXME: NEED TO COPY GLOBAL ID TO MAINTAIN TRACEABILITY
+
         # Utility function for copying *_on fields (see below)
         def _define_update(update_list, field, entry):
             update_list[field] = [{'value': x.value} for x in getattr(entry.fields, field)] \
@@ -230,6 +248,7 @@ class Jira:
         blocked_on = self.get_field_name('Blocked On')
         tested_on = self.get_field_name('Tested On')
         classification = self.get_field_name('Classification')
+        global_id = self.get_field_name('Global ID')
 
         # -- Creating an E-Feature (sub-type of Feature) causes appropriate fields of the parent Feature
         #    to be copied into the E-Feature *automatically*.
@@ -248,6 +267,7 @@ class Jira:
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
+            global_id: getattr(parent_feature.fields, global_id),
             'summary': summary,
             'priority': {'name': 'P1-Stopper'},
             'labels': [x for x in getattr(parent_feature.fields, 'labels')],
@@ -284,7 +304,12 @@ class Jira:
 
         Characters "[ ] + - & | ! ( ) { } ^ ~ * ? \ :" are special in jira searches
         """
-        return re.sub(r"([\[\]+\-&|!(){\}^~*?\\:])", "\\\\\\\\\\1", text)
+        if True:
+            result = re.sub(r"([\[\]+\-&|!(){\}^~*?\\:])", "\\\\\\\\\\1", text)
+        else:
+            result = re.sub(r"([\[\]+\-&|!(){\}^~*?\\:])", "\\\\\\\\\\1", text)
+        return result
+        # return re.sub(r"([\[\]+\-&|!(){\}^~*?\\:])", "\\\\\\\\\\1", text)
 
     @staticmethod
     def strip_non_ascii(_str):

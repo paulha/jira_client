@@ -80,6 +80,28 @@ servers:  # Required, but not meaningful here...
     taversion: O
     exists_on: 'KBL-U-RVP'
 
+  copy_platform_to_platform_FIX_GID:
+    # AREQ-24774 -- Import REQ Database from BXT IVI O, O MR1 to KBL-POS
+    # command: copy_platform_to_platform
+    name: jira01
+    user: None
+    password: None
+    comment:  'AREQ-24774: Copy across GID where it was previously missing...'
+    # comment:  'AREQ-25268: Copy Video components from Broxton-P IVI [O] to KBL-POS [O]'
+    verify: false
+    update: false
+    createmax: 1
+    log_level: info
+    output: output.txt
+    splatform: Broxton-P IVI
+    sversion: O
+    tplatform: KBL-POS
+    tversion: O
+    taversion: O
+    exists_on: 'KBL-U-RVP'
+    # (Intended for one time patch!)
+    FIX_GID: true
+
   "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]":
     # -- AREQ-25319
     # command: copy_platform_to_platform

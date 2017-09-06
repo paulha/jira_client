@@ -23,6 +23,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     # -- Get and format it:
     jira = Jira(scenario['name'], search, log=log.logger)
 
+    global_id = jira.get_field_name("Global ID")
+
     source_preq_scanned = 0
     source_areq_scanned = 0
     ucis_created = 0
@@ -74,10 +76,23 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
             log.logger.debug("Search for: '%s'", source_preq.fields.summary)
             target_summary = Jira.remove_version_and_platform(source_preq.fields.summary)
             target_summary = target_summary_format % target_summary
-            existing_preq = jira.get_item(preq_summary=target_summary)
+            existing_preq = jira.get_item(preq_summary=target_summary, log=log)
             if existing_preq is not None:
                 # -- This is good, PREQ is already there so nothing to do.
                 log.logger.info("Found existing UCIS: %s '%s'", existing_preq.key, existing_preq.fields.summary)
+                # -- Note: Patch the GID entry of this item...
+                if 'FIX_GID' in scenario and scenario['FIX_GID']:
+                    if getattr(existing_preq.fields, global_id) is None or not getattr(existing_preq.fields, global_id):
+                        # -- Note: Patch the GID entry of this item...
+                        log.logger.info("GID of %s is empty, should be %s from %s",
+                                        existing_preq.key, getattr(source_preq.fields, global_id), source_preq.key)
+                        if update:
+                            update_fields = {
+                                global_id: getattr(source_preq.fields, global_id)
+                            }
+                            existing_preq.update(notify=False, fields=update_fields)
+                            update_count += 1
+                    pass
                 pass
             else:
                 # -- This PREQ is missing, so use preq as template to create a new UCIS for the platform:
@@ -104,7 +119,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
         source_areq_scanned += 1
         lookup = source_e_feature.fields.parent.key
         try:
-            parent_feature = jira.get_item(key=lookup)
+            parent_feature = jira.get_item(key=lookup, log=log)
         except Exception as e:
             parent_feature = None   # This should never happen!
             log.logger.fatal("%s: Could not find parent %s of E-Feature %s, looked for '%s'. continuing", e, source_e_feature.fields.parent.key, source_e_feature.key, lookup)
@@ -115,13 +130,28 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
         # -- OK, at this point we can create the E-Feature record, if it's not going to be a duplicate...
         target_summary = Jira.remove_version_and_platform(source_e_feature.fields.summary).strip()
         target_summary = target_summary_format % target_summary
-        existing_feature = jira.get_item(areq_summary=target_summary)
+        existing_feature = jira.get_item(areq_summary=target_summary, log=log)
 
         if existing_feature is not None:
             # -- This E-Feature already exists, don't touch it!
             log.logger.info("The targeted E-Feature '%s' already exists! %s: %s",
                             target_summary, existing_feature.key, existing_feature.fields.summary)
-            continue
+            #
+            # -- Note: Patch the GID entry of this item...
+            #
+            #   NOTE: well, there isn't a GUID in the feature becasue it isn't sourced from JAMA.
+            #
+            # if 'FIX_GID' in scenario and scenario['FIX_GID']:
+            #     if getattr(existing_feature.fields, global_id) is None or not getattr(existing_feature.fields, global_id):
+            #
+            #         log.logger.debug("GID of %s is empty, should be %s from %s",
+            #                          existing_feature.key, getattr(source_e_feature.fields, global_id), source_e_feature.key)
+            #         if update:
+            #             update_fields = {
+            #                 global_id: getattr(source_e_feature.fields, global_id)
+            #             }
+            #             existing_feature.update(notify=False, fields=update_fields)
+            #             update_count += 1
         else:
             if update:
                 log.logger.info("Creating a new E-Feature for Feature %s: %s", parent_feature.key, target_summary)
