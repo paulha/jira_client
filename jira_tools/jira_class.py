@@ -65,10 +65,10 @@ class Jira:
         elif key is not None:
             query = "key='%s'" % key
         elif preq_summary is not None:
-            query = 'project=PREQ AND summary ~ "%s"' % Jira.escape_chars(Jira.remove_version_and_platform(preq_summary))
+            query = 'project=PREQ AND summary ~ "%s"' % Jira.escape_chars(Jira.remove_version_and_platform(Jira.strip_non_ascii(preq_summary)))
             expected = preq_summary
         elif areq_summary is not None:
-            query = 'project=AREQ AND summary ~ "%s"' % Jira.escape_chars(Jira.remove_version_and_platform(areq_summary))
+            query = 'project=AREQ AND summary ~ "%s"' % Jira.escape_chars(Jira.remove_version_and_platform(Jira.strip_non_ascii(areq_summary)))
             expected = areq_summary
         else:
             raise ValueError("Nothing to search for")
@@ -76,7 +76,12 @@ class Jira:
         # -- TODO: Ah! Just because it finds *something* doesn't mean it's a proper match...
         if log is not None:
             log.logger.debug("self.do_query('%s', quiet=True)", query)
-        results = [i for i in self.do_query(query, quiet=True)]
+        try:
+            results = [i for i in self.do_query(query, quiet=True)]
+        except Exception as e:
+            if log is not None:
+                log.logger.warning("Exception from do_query(): %s", e)
+
         if log is not None:
             log.logger.debug("Result of do_query() are %s", results)
         for result in results:
@@ -126,7 +131,8 @@ class Jira:
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
-            global_id: getattr(source_feature.fields, global_id),
+            # -- This field does not exist in AREQ!
+            # global_id: getattr(source_feature.fields, global_id),
             'priority': {'name': 'P1-Stopper'},
             'labels': [x for x in getattr(source_feature.fields, 'labels')],
             'components': [{'id': x.id} for x in getattr(source_feature.fields, 'components')],
@@ -183,6 +189,8 @@ class Jira:
         #    to be copied into the E-Feature *automatically*.
         if True:
             pass
+
+        val_lead = getattr(sibling_feature.fields, validation_lead)
         new_e_feature_dict = {
             'project': {
                 'key': sibling_feature.fields.project.key if sibling_feature is not None else parent_feature.fields.project.key},
@@ -192,7 +200,7 @@ class Jira:
             and_vers_key: [{'value': scenario['tversion']}],
             platprog_key: [{'value': scenario['tplatform']}],
             'assignee': {'name': sibling_feature.fields.assignee.name},
-            validation_lead: {'name': getattr(sibling_feature.fields, validation_lead).name}
+            validation_lead: {'name': val_lead.name if val_lead is not None else "" }
         }
 
         if 'exists_on' in scenario:
@@ -200,7 +208,8 @@ class Jira:
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
-            global_id: getattr(sibling_feature.fields, global_id),
+            # -- This field does not exist in AREQ!
+            # global_id: getattr(sibling_feature.fields, global_id),
             'summary': summary,
             'priority': {'name': sibling_feature.fields.priority.name if sibling_feature is not None else 'P1-Stopper'},
             'labels': [x for x in getattr(parent_feature.fields, 'labels')],
@@ -267,7 +276,8 @@ class Jira:
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
-            global_id: getattr(parent_feature.fields, global_id),
+            # -- This field does not exist in AREQ!
+            # global_id: getattr(parent_feature.fields, global_id),
             'summary': summary,
             'priority': {'name': 'P1-Stopper'},
             'labels': [x for x in getattr(parent_feature.fields, 'labels')],
@@ -305,16 +315,19 @@ class Jira:
         Characters "[ ] + - & | ! ( ) { } ^ ~ * ? \ :" are special in jira searches
         """
         if True:
-            result = re.sub(r"([\[\]+\-&|!(){\}^~*?\\:])", "\\\\\\\\\\1", text)
+            # -- Some characters need a single "\" in front of them
+            text = re.sub(r"([\'\"])", "\\\\\\1", text)
+            # -- Others need two...
+            result = re.sub(r"([\[\]+\-&|!(){\}^~*?\\:\'\"])", "\\\\\\\\\\1", text)
         else:
-            result = re.sub(r"([\[\]+\-&|!(){\}^~*?\\:])", "\\\\\\\\\\1", text)
+            result = re.sub(r"([\[\]+\-&|!(){\}^~*?\\:\'\"])", "\\\\\\\\\\1", text)
         return result
-        # return re.sub(r"([\[\]+\-&|!(){\}^~*?\\:])", "\\\\\\\\\\1", text)
+        # return re.sub(r"([\[\]+\-&|!(){\}^~*?\\:\'\"])", "\\\\\\\\\\1", text)
 
     @staticmethod
     def strip_non_ascii(_str):
         """Returns the string without non ASCII characters, L & R trim of spaces"""
-        stripped = (c for c in _str if ord(c) < 128 and c >= ' ' and c <= '~')
+        stripped = (c for c in _str if ord(c) < 127 and c >= ' ' and c <= '~')
         return ''.join(stripped).strip(" \t\n\r").replace("  ", " ")
 
     @staticmethod

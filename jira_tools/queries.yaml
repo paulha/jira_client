@@ -82,10 +82,10 @@ servers:
             # -- We don't want ANY preq's!
             preq_source_query:         'project = preq and project=areq'
             preq_target_query:         'project = preq and project=areq'
-            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\[AaaG\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
             areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
-            target_summary_format:     '[{tversion}][{tplatform}][AaaG] %s'
+            target_summary_format:     '[{tversion}][{tplatform}] [AaaG] %s'
 
         find_added_dng_vs_jira:
             preq_source_query:         'project = "{sproject}" AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
@@ -145,7 +145,7 @@ servers:
             # -- We don't want ANY preq's!
             preq_source_query:         'project = preq and project=areq'
             preq_target_query:         'project = preq and project=areq'
-            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\[AaaG\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
             areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}][AaaG] %s'

@@ -114,7 +114,9 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     update_count = 0
 
     # -- copy source e-features to output
-    for source_e_feature in jira.do_query(areq_source_e_feature_query):
+    #    This keeps having an exception because the total number of items seems to be changing...
+    features = [feature for feature in jira.do_query(areq_source_e_feature_query)]
+    for source_e_feature in features:
         # -- The parent for this one should already be in source_features
         source_areq_scanned += 1
         lookup = source_e_feature.fields.parent.key

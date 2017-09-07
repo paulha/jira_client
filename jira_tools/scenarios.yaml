@@ -89,8 +89,8 @@ servers:  # Required, but not meaningful here...
     comment:  'AREQ-24774: Copy across GID where it was previously missing...'
     # comment:  'AREQ-25268: Copy Video components from Broxton-P IVI [O] to KBL-POS [O]'
     verify: false
-    update: false
-    createmax: 1
+    update: true
+    createmax: 0
     log_level: info
     output: output.txt
     splatform: Broxton-P IVI
@@ -106,15 +106,15 @@ servers:  # Required, but not meaningful here...
     # -- AREQ-25319
     # command: copy_platform_to_platform
     query_set: "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]"
-    name: jira-t3
+    name: jira01
     user: None
     password: None
-    comment:  'Copied from [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]'
+    comment:  'AREQ-25319 Copied from [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]'
     verify: false
     # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
     verify_copy: false
     update: true
-    createmax: 2
+    createmax: 0
     clone_from_sibling: true
     log_level: info
     output: output.txt
