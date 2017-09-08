@@ -25,6 +25,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
 
     global_id = jira.get_field_name("Global ID")
     validation_lead = jira.get_field_name("Validation Lead")
+    classification = jira.get_field_name("Classification")
 
     source_preq_scanned = 0
     source_areq_scanned = 0
@@ -153,21 +154,35 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                     if getattr(existing_preq.fields, validation_lead) is None \
                             and getattr(source_preq.fields, validation_lead) is not None:
                         update_fields[validation_lead] = {'name': getattr(source_preq.fields, validation_lead).name}
-                    # What does making the link look like?
-                    # Link and Comment
-                    #    jira.create_issue_link("Duplicate",source,destination,
-                    #        comment={"body": "Platform Requirements have been transitioned to iCDG JAMA instance.\n\r\n\rReplacing '%s' --> '%s'" % (source.key, destination.key)})
-                    # Note: that "jira" above is the Jira Client within the Jira class..
-                    if len(update_fields) > 0:
+                    classification_value = getattr(existing_preq.fields, classification)
+                    classification_value = [v.value for v in classification_value]
+                    if classification_value is None or \
+                                    'Unassigned' in classification_value or \
+                                    'None' in classification_value:
+                        # -- Unconditional set:
+                        update_fields[classification] = [{'value': 'Functional Use Case'}]
+                    else:
+                        # -- Seems wrong to not catch this condition...
+                        if ['Functional Use Case'] != classification_value:
+                            log.logger.warning("Item %s Classification was alreaady set to %s",
+                                               existing_preq.key, getattr(existing_preq.fields, classification_value))
+                            log.logger.warning("And is being overwritten")
+                            update_fields[classification] = [{'value': 'Functional Use Case'}]
+
+                    if len(update_fields) > 0 and update:
                         # -- only update if we're going to change something...
+                        log.logger.info("Updating %s with %s", existing_preq.key, update_fields)
                         existing_preq.update(notify=False, fields=update_fields)
+                        jira.create_issue_link("Related Feature", existing_preq, source_preq,
+                                               comment={"body": "Link added for [AaaG]"})
+                        update_count += 1
 
                 # ===================================================================================================
                 pass
             else:
                 # -- This PREQ is missing, so use preq as template to create a new UCIS for the platform:
                 log.logger.debug("Need to create new UCIS for: '%s'", target_summary)
-                if update:
+                if update and ('CREATE_MISSING_UCIS' not in scenario or scenario['CREATE_MISSING_UCIS']):
                     # -- Create a new UCIS(!) PREQ
                     result = jira.create_ucis(target_summary, source_preq, scenario, log)
                     log.logger.info("Created a new UCIS %s for %s", result.key, target_summary)

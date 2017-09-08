@@ -112,10 +112,12 @@ servers:  # Required, but not meaningful here...
     comment:  'AREQ-25319 Copied from [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]'
     verify: false
     copy_preq: true
+    UPDATE_FIELDS: true
     copy_areq: false
     # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
-    verify_copy: false
-    update: false
+    verify_copy: true
+    CREATE_MISSING_UCIS: false
+    update: true
     createmax: 0
     clone_from_sibling: true
     log_level: info

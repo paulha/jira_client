@@ -334,3 +334,6 @@ class Jira:
     def remove_version_and_platform(txt):
         """Remove the leading version and platform name"""
         return re.sub(r"^(\[[^\]]*\])?\s*(\[[^\]]*\])?\s*(\[[^\]]*\]?)?\s*", "", txt)
+
+    def create_issue_link(self, type, inwardIssue, outwardIssue, comment=None):
+        return self.jira_client.create_issue_link(type, inwardIssue, outwardIssue, comment)
