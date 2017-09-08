@@ -143,11 +143,11 @@ servers:
         "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]":
             # Based on copy_platform_to_platform_ALL:
             # -- We don't want ANY preq's!
-            preq_source_query:         'project = preq and project=areq'
-            preq_target_query:         'project = preq and project=areq'
+            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\\\[AaaG\\\\]" AND priority in (P1-Stopper, P2-High, P3-Medium)'
+            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND summary~"\\\\[AaaG\\\\]" AND priority in (P1-Stopper, P2-High, P3-Medium)'
             areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\[AaaG\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
-            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
-            target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND summary~"\\[AaaG\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected'
+            target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"\\[AaaG\\]" AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}][AaaG] %s'
 
         find_added_dng_vs_jira:

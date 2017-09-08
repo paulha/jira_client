@@ -91,7 +91,7 @@ class Jira:
             if expected is None:
                 return result
             else:
-                if Jira.strip_non_ascii(result.fields.summary).upper() == Jira.strip_non_ascii(expected).upper():
+                if re.sub(r"] \[", "][", Jira.strip_non_ascii(result.fields.summary)) == Jira.strip_non_ascii(expected):
                     log.logger.debug("Found match: %s: %s", result.key, result.fields.summary)
                     return result
         return None
