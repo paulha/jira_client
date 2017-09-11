@@ -163,6 +163,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                         update_fields[classification] = [{'value': 'Functional Use Case'}]
                     else:
                         # -- Seems wrong to not catch this condition...
+                        #    FIXME: This is likely the wrong way to check this...
                         if ['Functional Use Case'] != classification_value:
                             log.logger.warning("Item %s Classification was alreaady set to %s",
                                                existing_preq.key, getattr(existing_preq.fields, classification_value))
