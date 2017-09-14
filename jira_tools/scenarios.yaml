@@ -109,16 +109,18 @@ servers:  # Required, but not meaningful here...
     name: jira01
     user: None
     password: None
-    comment:  'AREQ-25319 Copied from [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]'
+    comment:  'Links from [AaaG] to [O][Icelake] source project created.'
     verify: false
     copy_preq: true
-    UPDATE_FIELDS: true
-    copy_areq: false
-    # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
-    verify_copy: true
+    copy_areq: true
     CREATE_MISSING_UCIS: false
+    FIX_GID: true
+    UPDATE_FIELDS: true
+    # -- Should changes be written?
     update: true
     createmax: 0
+    # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
+    verify_copy: true
     clone_from_sibling: true
     log_level: info
     output: output.txt

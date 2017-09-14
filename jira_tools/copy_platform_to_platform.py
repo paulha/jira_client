@@ -1,6 +1,68 @@
 from jira_class import Jira, get_query
 
 
+def update_fields_and_link(jira, source_preq, existing_preq, update, update_count, log=None):
+    # read existing values, update only if not set...
+    updated = False
+    validation_lead = jira.get_field_name("Validation Lead")
+    classification = jira.get_field_name("Classification")
+
+    update_fields = {}
+    if existing_preq.fields.priority is None and source_preq.fields.priority is not None:
+        update_fields['priority'] = {'name': source_preq.fields.priority.name}
+    if existing_preq.fields.assignee is None and source_preq.fields.assignee is not None:
+        update_fields['assignee'] = {'name': source_preq.fields.assignee.name}
+    if getattr(existing_preq.fields, validation_lead) is None \
+            and getattr(source_preq.fields, validation_lead) is not None:
+        update_fields[validation_lead] = {'name': getattr(source_preq.fields, validation_lead).name}
+
+    if existing_preq.fields.issuetype.name not in ['E-Feature']:
+        # -- (Can't add classification to E-Feature)
+        classification_value = getattr(existing_preq.fields, classification)
+        classification_value = [v.value for v in classification_value]
+        if classification_value is None or \
+                        'Unassigned' in classification_value or \
+                        'None' in classification_value:
+            # -- Unconditional set:
+            update_fields[classification] = [{'value': 'Functional Use Case'}]
+        else:
+            # -- Seems wrong to not catch this condition...
+            #    FIXME: This is likely the wrong way to check this...
+            if ['Functional Use Case'] != classification_value:
+                log.logger.warning("Item %s Classification was alreaady set to %s",
+                                   existing_preq.key, getattr(existing_preq.fields, classification))
+                log.logger.warning("And is being overwritten")
+                update_fields[classification] = [{'value': 'Functional Use Case'}]
+
+    if len(update_fields) > 0:
+        if update:
+            # -- only update if we're going to change something...
+            log.logger.info("Updating %s with %s", existing_preq.key, update_fields)
+            existing_preq.update(notify=False, fields=update_fields)
+            updated = True
+        else:
+            log.logger.info("NO UPDATE; SHOULD update %s with %s", existing_preq.key, update_fields)
+
+    # -- Check to see if there's a link between this issue and its source
+    is_related_to_source = [link.outwardIssue
+                            for link in existing_preq.fields.issuelinks
+                            if hasattr(link, "outwardIssue") and link.type.name == "Related Feature"]
+
+    if not is_related_to_source:
+        if update:
+            jira.create_issue_link("Related Feature", existing_preq, source_preq,
+                                   comment={"body": "Link added for [AaaG]"})
+            log.logger.info("Create 'Related Feature' link: %s --> %s", existing_preq.key, source_preq.key)
+            updated = True
+        else:
+            log.logger.warning("Link from %s --> %s is MISSING", existing_preq.key, source_preq.key)
+
+    if updated:
+        update_count += 1
+
+    return update_count
+
+
 def copy_platform_to_platform(parser, scenario, config, queries, search, log=None):
     """Copy platform to platform, based on the UCIS and E-Feature entries of the source platform"""
 
@@ -24,8 +86,6 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     jira = Jira(scenario['name'], search, log=log.logger)
 
     global_id = jira.get_field_name("Global ID")
-    validation_lead = jira.get_field_name("Validation Lead")
-    classification = jira.get_field_name("Classification")
 
     source_preq_scanned = 0
     source_areq_scanned = 0
@@ -144,39 +204,11 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 # -- AREQ-25319: Copy the priority, assignee, and validation lead from source_preq
                 #                Set "Classification" to "Functional Use Case".
                 #                Set [AaaG] item to original (existing_preq to source_preq, here)
-                if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:   # NOTE: Test this!
-                    # read existing values, update only if not set...
-                    update_fields = {}
-                    if existing_preq.fields.priority is None and source_preq.fields.priority is not None:
-                        update_fields['priority'] = {'name': source_preq.fields.priority.name}
-                    if existing_preq.fields.assignee is None and source_preq.fields.assignee is not None:
-                        update_fields['assignee'] = {'name': source_preq.fields.assignee.name}
-                    if getattr(existing_preq.fields, validation_lead) is None \
-                            and getattr(source_preq.fields, validation_lead) is not None:
-                        update_fields[validation_lead] = {'name': getattr(source_preq.fields, validation_lead).name}
-                    classification_value = getattr(existing_preq.fields, classification)
-                    classification_value = [v.value for v in classification_value]
-                    if classification_value is None or \
-                                    'Unassigned' in classification_value or \
-                                    'None' in classification_value:
-                        # -- Unconditional set:
-                        update_fields[classification] = [{'value': 'Functional Use Case'}]
-                    else:
-                        # -- Seems wrong to not catch this condition...
-                        #    FIXME: This is likely the wrong way to check this...
-                        if ['Functional Use Case'] != classification_value:
-                            log.logger.warning("Item %s Classification was alreaady set to %s",
-                                               existing_preq.key, getattr(existing_preq.fields, classification_value))
-                            log.logger.warning("And is being overwritten")
-                            update_fields[classification] = [{'value': 'Functional Use Case'}]
-
-                    if len(update_fields) > 0 and update:
-                        # -- only update if we're going to change something...
-                        log.logger.info("Updating %s with %s", existing_preq.key, update_fields)
-                        existing_preq.update(notify=False, fields=update_fields)
-                        jira.create_issue_link("Related Feature", existing_preq, source_preq,
-                                               comment={"body": "Link added for [AaaG]"})
-                        update_count += 1
+                #
+                # Note that because of where it is, it only affects PREQs, and we want both...
+                #
+                if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
+                    update_count = update_fields_and_link(jira, source_preq, existing_preq, update, update_count, log)
 
                 # ===================================================================================================
                 pass
@@ -225,6 +257,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 # -- This E-Feature already exists, don't touch it!
                 log.logger.info("The targeted E-Feature '%s' already exists! %s: %s",
                                 target_summary, existing_feature.key, existing_feature.fields.summary)
+                if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
+                    update_count = update_fields_and_link(jira, source_e_feature, existing_feature, update, update_count, log)
                 #
                 # -- Note: Patch the GID entry of this item...
                 #
