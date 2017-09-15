@@ -130,6 +130,26 @@ servers:  # Required, but not meaningful here...
     tversion: O
     taversion: O
 
+  add_label_to_platform_version:
+    # command: add_label_to_platform_version
+    query_set: "add_label_to_platform_version_AaaG"
+    name: jira01
+    user: None
+    password: None
+    comment:  'Add label "PRD0.8_baseline" to [O][Icelake] source project baseline.'
+    label: "PRD0.8_baseline"
+    verify: false
+    copy_preq: true
+    copy_areq: true
+    UPDATE_FIELDS: true
+    # -- Should changes be written?
+    update: true
+    createmax: 0
+    log_level: info
+    output: output.txt
+    splatform: Icelake-U SDC
+    sversion: O
+
   find_added_dng_vs_jira:
     name: jira01
     user: None
