@@ -9,7 +9,7 @@ def update_labels(jira, scenario, source_preq, new_label, update, update_count, 
     # -- (Can't add classification to E-Feature)
     labels_value_was = getattr(source_preq.fields, labels)
     labels_value_new = [new_label].__add__([v for v in labels_value_was if v != new_label])
-    if labels_value_was != labels_value_new:
+    if new_label not in labels_value_was:
         update_fields = {labels: labels_value_new}
         if update:
             # -- only update if we're going to change something...
