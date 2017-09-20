@@ -102,6 +102,36 @@ servers:  # Required, but not meaningful here...
     # (Intended for one time patch!)
     FIX_GID: true
 
+  copy_platform_to_platform_Ali:
+    # command: copy_platform_to_platform
+    query_set: 'copy_platform_to_platform_Ali'
+    name: jira01
+    user: None
+    password: None
+    comment:  'Initialize new XXXXX Project'
+    verify: false
+    copy_preq: true
+    copy_areq: true
+    # -- Create target PREQ from source PREQ when it's missing...
+    CREATE_MISSING_UCIS: false
+    # -- Create target AREQ from source AREQ, when it's missing...
+    clone_from_sibling: true
+    FIX_GID: true
+    # -- Will create link to source sibling as well as updating some fields...
+    UPDATE_FIELDS: true
+    # -- Unconditional "Should changes be written?"
+    update: false
+    createmax: 0
+    verify_copy: true
+    log_level: info
+    output: output.txt
+    splatform: Broxton-P IVI
+    sversion: O
+    tplatform: KBL-POS
+    tversion: O
+    taversion: O
+    exists_on: 'KBL-U-RVP'
+
   "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]":
     # -- AREQ-25319
     # command: copy_platform_to_platform
@@ -117,7 +147,7 @@ servers:  # Required, but not meaningful here...
     FIX_GID: true
     UPDATE_FIELDS: true
     # -- Should changes be written?
-    update: true
+    update: false
     createmax: 0
     # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
     verify_copy: true
@@ -132,7 +162,7 @@ servers:  # Required, but not meaningful here...
 
   add_label_to_platform_version:
     # command: add_label_to_platform_version
-    query_set: "add_label_to_platform_version_AaaG"
+    # query_set: "add_label_to_platform_version_AaaG"
     name: jira01
     user: None
     password: None
@@ -143,7 +173,7 @@ servers:  # Required, but not meaningful here...
     copy_areq: true
     UPDATE_FIELDS: true
     # -- Should changes be written?
-    update: true
+    update: false
     createmax: 0
     log_level: info
     output: output.txt

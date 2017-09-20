@@ -213,7 +213,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 # ===================================================================================================
                 pass
             else:
-                # -- This PREQ is missing, so use preq as template to create a new UCIS for the platform:
+                # -- This Target PREQ is missing, so use Source preq as template to create a new UCIS for the platform:
                 log.logger.debug("Need to create new UCIS for: '%s'", target_summary)
                 if update and ('CREATE_MISSING_UCIS' not in scenario or scenario['CREATE_MISSING_UCIS']):
                     # -- Create a new UCIS(!) PREQ
