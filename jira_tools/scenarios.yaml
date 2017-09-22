@@ -102,35 +102,35 @@ servers:  # Required, but not meaningful here...
     # (Intended for one time patch!)
     FIX_GID: true
 
-  copy_platform_to_platform_Ali:
+  copy_platform_to_platform_AREQ-25937:
     # command: copy_platform_to_platform
-    query_set: 'copy_platform_to_platform_Ali'
+    query_set: 'copy_platform_to_platform_AREQ-25937'
     name: jira01
     user: None
     password: None
-    comment:  'Initialize new XXXXX Project'
+    comment:  'Examples for Ali...'
     verify: false
     copy_preq: true
     copy_areq: true
     # -- Create target PREQ from source PREQ when it's missing...
-    CREATE_MISSING_UCIS: false
+    CREATE_MISSING_UCIS: true
     # -- Create target AREQ from source AREQ, when it's missing...
     clone_from_sibling: true
     FIX_GID: true
     # -- Will create link to source sibling as well as updating some fields...
     UPDATE_FIELDS: true
     # -- Unconditional "Should changes be written?"
-    update: false
-    createmax: 0
+    update: true
+    createmax: 2
     verify_copy: true
     log_level: info
     output: output.txt
     splatform: Broxton-P IVI
     sversion: O
-    tplatform: KBL-POS
+    tplatform: BXT-P IVI (AaaG)
     tversion: O
     taversion: O
-    exists_on: 'KBL-U-RVP'
+    exists_only_on: 'BXT-P-GP-MRB VM'
 
   "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]":
     # -- AREQ-25319

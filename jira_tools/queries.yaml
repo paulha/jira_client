@@ -82,6 +82,15 @@ servers:
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
+        copy_platform_to_platform_AREQ-25937:
+            # Copy all of source platform to target platform
+            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
+            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
+            target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
+            target_summary_format:     '[{tversion}][{tplatform}] %s'
+
         "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]":
             # Based on copy_platform_to_platform_ALL:
             # -- We don't want ANY preq's!
@@ -131,15 +140,6 @@ servers:
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
-        copy_platform_to_platform_ALL:
-            # Copy all of source platform to target platform
-            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
-            target_summary_format:     '[{tversion}][{tplatform}] %s'
-
         copy_platform_to_platform_Video_Only:
             # -- AREQ-25268: Import "Video" REQ Database from BXT IVI O, O MR1 to KBL-POS
             preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component in (Video)'
@@ -149,12 +149,12 @@ servers:
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
-        copy_platform_to_platform_Ali:
+        copy_platform_to_platform_AREQ-25937:
             # Copy all of source platform to target platform
-            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
+            preq_source_query:         'Project = PREQ AND Classification = "Functional Use Case" AND issuetype = UCIS AND "Platform/Program" = "Broxton-P IVI" AND "Android Version(s)" in (O, O-MR0) AND Status != Rejected AND "Exists On" in ("BXT-P-GP-MRB VM") AND priority = P1-Stopper AND component != Documentation ORDER BY key DESC'
+            preq_target_query:         'Project = PREQ AND Classification = "Functional Use Case" AND issuetype = UCIS AND "Platform/Program" = "Broxton-P IVI" AND "Android Version(s)" in (O, O-MR0) AND Status != Rejected AND "Exists On" in ("BXT-P-GP-MRB VM") AND priority = P1-Stopper AND component != Documentation ORDER BY key DESC'
+            areq_source_e_feature:     'Project = AREQ AND issuetype = E-Feature AND Classification = Functional AND "Platform/Program" = "Broxton-P IVI" AND "Android Version(s)" in (O, O-MR0) AND Status != Rejected AND "Exists On" in ("BXT-P-GP-MRB VM") AND priority = P1-Stopper AND component != Documentation ORDER BY key DESC'
+            areq_target_e_feature:     'Project = AREQ AND issuetype = E-Feature AND Classification = Functional AND "Platform/Program" = "Broxton-P IVI" AND "Android Version(s)" in (O, O-MR0) AND Status != Rejected AND "Exists On" in ("BXT-P-GP-MRB VM") AND priority = P1-Stopper AND component != Documentation ORDER BY key DESC'
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
@@ -218,15 +218,6 @@ servers:
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
-        copy_platform_to_platform_ALL:
-            # Copy all of source platform to target platform
-            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
-            target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
-            target_summary_format:     '[{tversion}][{tplatform}] %s'
-
         copy_platform_to_platform_Video_Only:
             # -- AREQ-25268: Import "Video" REQ Database from BXT IVI O, O MR1 to KBL-POS
             preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium) AND component in (Video)'
@@ -236,7 +227,7 @@ servers:
             target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
-        copy_platform_to_platform_Ali:
+        copy_platform_to_platform_AREQ-25937:
             # Copy all of source platform to target platform
             preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'
             preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND priority in (P1-Stopper, P2-High, P3-Medium)'

@@ -51,7 +51,8 @@ def update_fields_and_link(jira, source_preq, existing_preq, update, update_coun
     if not is_related_to_source:
         if update:
             jira.create_issue_link("Related Feature", existing_preq, source_preq,
-                                   comment={"body": "Link added for [AaaG]"})
+                                   comment={"body": "Related Feature link added from %s to %s"
+                                            % (existing_preq.key, source_preq.key)})
             log.logger.info("Create 'Related Feature' link: %s --> %s", existing_preq.key, source_preq.key)
             updated = True
         else:
@@ -86,6 +87,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     jira = Jira(scenario['name'], search, log=log.logger)
 
     global_id = jira.get_field_name("Global ID")
+    feature_id = jira.get_field_name("Feature ID")
 
     source_preq_scanned = 0
     source_areq_scanned = 0
@@ -165,11 +167,6 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 log.logger.error("Target '%s', summary text: '%s'", item['target'], item['summary'])
             log.logger.error("--")
 
-        # for key, value in target.items():
-        #     item_key = Jira.remove_version_and_platform(Jira.strip_non_ascii(key))
-        #     if item_key not in source:
-        #         log.logger.error("%s %s in target was not in original source: %s", item_kind, value[0].key, key)
-
         return
 
     # -- Copy source preqs to target:
@@ -187,17 +184,22 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 log.logger.info("Found existing UCIS: %s '%s'", existing_preq.key, existing_preq.fields.summary)
                 # -- Note: Patch the GID entry of this item...
                 if 'FIX_GID' in scenario and scenario['FIX_GID']:
+                    update_fields = {}
                     if getattr(existing_preq.fields, global_id) is None or not getattr(existing_preq.fields, global_id):
-                        # -- Note: Patch the GID entry of this item...
+                        # -- Patch the GID entry of this item...
                         log.logger.info("GID of %s is empty, should be %s from %s",
                                         existing_preq.key, getattr(source_preq.fields, global_id), source_preq.key)
-                        if update:
-                            update_fields = {
-                                global_id: getattr(source_preq.fields, global_id)
-                            }
-                            existing_preq.update(notify=False, fields=update_fields)
-                            update_count += 1
-                    pass
+                        update_fields[global_id] = getattr(source_preq.fields, global_id)
+
+                    if getattr(existing_preq.fields, feature_id) is None or not getattr(existing_preq.fields, feature_id):
+                        # -- Patch the Feature ID entry of this item...
+                        log.logger.info("Feature ID of %s is empty, should be %s from %s",
+                                        existing_preq.key, getattr(source_preq.fields, feature_id), source_preq.key)
+                        update_fields[feature_id] = getattr(source_preq.fields, feature_id)
+
+                    if update and update_fields:
+                        existing_preq.update(notify=False, fields=update_fields)
+                        update_count += 1
 
                 # ===================================================================================================
                 # TODO: AREQ-25319
@@ -224,6 +226,9 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 else:
                     log.logger.warning("Target UCIS is missing, sourced from %s: '%s'", source_preq.key, target_summary)
                     warnings_issued += 1
+
+                if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
+                    update_count = update_fields_and_link(jira, source_preq, result, update, update_count, log)
 
             if scenario['createmax'] and update_count>=scenario['createmax']:
                 break
@@ -259,30 +264,17 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                                 target_summary, existing_feature.key, existing_feature.fields.summary)
                 if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
                     update_count = update_fields_and_link(jira, source_e_feature, existing_feature, update, update_count, log)
-                #
-                # -- Note: Patch the GID entry of this item...
-                #
-                #   NOTE: well, there isn't a GUID in the feature becasue it isn't sourced from JAMA.
-                #
-                # if 'FIX_GID' in scenario and scenario['FIX_GID']:
-                #     if getattr(existing_feature.fields, global_id) is None or not getattr(existing_feature.fields, global_id):
-                #
-                #         log.logger.debug("GID of %s is empty, should be %s from %s",
-                #                          existing_feature.key, getattr(source_e_feature.fields, global_id), source_e_feature.key)
-                #         if update:
-                #             update_fields = {
-                #                 global_id: getattr(source_e_feature.fields, global_id)
-                #             }
-                #             existing_feature.update(notify=False, fields=update_fields)
-                #             update_count += 1
             else:
                 if update:
                     log.logger.info("Creating a new E-Feature for Feature %s: %s", parent_feature.key, target_summary)
                     if 'clone_from_sibling' in scenario and scenario['clone_from_sibling']:
-                        jira.clone_e_feature_from_e_feature(target_summary, parent_feature, source_e_feature, scenario, log=log)
+                        created_e_feature = jira.clone_e_feature_from_e_feature(target_summary, parent_feature, source_e_feature, scenario, log=log)
                     else:
-                        jira.clone_e_feature_from_parent(target_summary, parent_feature, scenario, sibling=source_e_feature, log=log)
+                        created_e_feature = jira.clone_e_feature_from_parent(target_summary, parent_feature, scenario, sibling=source_e_feature, log=log)
 
+                    if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
+                        update_count = update_fields_and_link(jira, source_e_feature, created_e_feature, update,
+                                                              update_count, log)
                     e_features_created += 1
                     update_count += 1
                 else:
