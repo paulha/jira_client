@@ -10,6 +10,7 @@ from utility_funcs.search import get_server_info, search_for_profile
 import utility_funcs.logger_yaml as log
 
 from copy_platform_to_platform import copy_platform_to_platform
+from add_label_to_platform_version import add_label_to_platform_version
 from dng_vs_jira_find_added import find_added_dng_vs_jira
 
 LOG_CONFIG_FILE = 'logging.yaml'+pathsep+dirname(realpath(sys.argv[0]))+'/logging.yaml'
@@ -874,7 +875,9 @@ def main():
     parser.add_argument("-o","--output", nargs='?', help="Where to store the result.")
     parser.add_argument("-l", "--log_level", choices=['debug', 'info', 'warn', 'error', 'fatal'])
     parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner',
-                                            'scan_areq_for_preq', 'copy_platform_to_platform',
+                                            'scan_areq_for_preq',
+                                            'add_label_to_platform_version',
+                                            'copy_platform_to_platform',
                                             'find_added_dng_vs_jira'], default=None)
     args = parser.parse_args()
 
@@ -954,6 +957,8 @@ def main():
         scan_areq_and_check_for_preq(parser, scenario, config, queries)
     elif 'copy_platform_to_platform' == command:
         copy_platform_to_platform(parser, scenario, config, queries, CONFIG_FILE, log=log)
+    elif 'add_label_to_platform_version' == command:
+        add_label_to_platform_version(parser, scenario, config, queries, CONFIG_FILE, log=log)
     elif 'find_added_dng_vs_jira' == command:
         find_added_dng_vs_jira(parser, scenario, config, queries, CONFIG_FILE, log=log)
     else:

@@ -80,19 +80,77 @@ servers:  # Required, but not meaningful here...
     taversion: O
     exists_on: 'KBL-U-RVP'
 
+  copy_platform_to_platform_FIX_GID:
+    # AREQ-24774 -- Import REQ Database from BXT IVI O, O MR1 to KBL-POS
+    # command: copy_platform_to_platform
+    name: jira01
+    user: None
+    password: None
+    comment:  'AREQ-24774: Copy across GID where it was previously missing...'
+    # comment:  'AREQ-25268: Copy Video components from Broxton-P IVI [O] to KBL-POS [O]'
+    verify: false
+    update: true
+    createmax: 0
+    log_level: info
+    output: output.txt
+    splatform: Broxton-P IVI
+    sversion: O
+    tplatform: KBL-POS
+    tversion: O
+    taversion: O
+    exists_on: 'KBL-U-RVP'
+    # (Intended for one time patch!)
+    FIX_GID: true
+
+  copy_platform_to_platform_AREQ-25937:
+    # command: copy_platform_to_platform
+    query_set: 'copy_platform_to_platform_AREQ-25937'
+    name: jira01
+    user: None
+    password: None
+    comment:  'Examples for Ali...'
+    verify: false
+    copy_preq: true
+    copy_areq: true
+    # -- Create target PREQ from source PREQ when it's missing...
+    CREATE_MISSING_UCIS: true
+    # -- Create target AREQ from source AREQ, when it's missing...
+    clone_from_sibling: true
+    FIX_GID: true
+    # -- Will create link to source sibling as well as updating some fields...
+    UPDATE_FIELDS: true
+    # -- Unconditional "Should changes be written?"
+    update: true
+    createmax: 0
+    verify_copy: true
+    log_level: info
+    output: output.txt
+    splatform: Broxton-P IVI
+    sversion: O
+    tplatform: BXT-P IVI (AaaG)
+    tversion: O
+    taversion: O
+    exists_only_on: 'BXT-P-GP-MRB VM'
+
   "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]":
     # -- AREQ-25319
     # command: copy_platform_to_platform
     query_set: "Copy [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]"
-    name: jira-t3
+    name: jira01
     user: None
     password: None
-    comment:  'Copied from [O][Icelake-U SDC] to [O][Icelake-U SDC][AaaG]'
+    comment:  'Links from [AaaG] to [O][Icelake] source project created.'
     verify: false
+    copy_preq: true
+    copy_areq: true
+    CREATE_MISSING_UCIS: false
+    FIX_GID: true
+    UPDATE_FIELDS: true
+    # -- Should changes be written?
+    update: false
+    createmax: 0
     # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
-    verify_copy: false
-    update: true
-    createmax: 2
+    verify_copy: true
     clone_from_sibling: true
     log_level: info
     output: output.txt
@@ -101,6 +159,54 @@ servers:  # Required, but not meaningful here...
     tplatform: Icelake-U SDC
     tversion: O
     taversion: O
+
+  "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]":
+    # -- AREQ-24757, AREQ-25918
+    # command: copy_platform_to_platform
+    query_set: "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]"
+    name: jira-t3
+    user: None
+    password: None
+    comment:  "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]"
+    verify: false
+    copy_preq: true
+    copy_areq: true
+    CREATE_MISSING_UCIS: true
+    FIX_GID: true
+    UPDATE_FIELDS: true
+    # -- Should changes be written?
+    update: true
+    createmax: 1
+    # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
+    verify_copy: true
+    clone_from_sibling: true
+    log_level: info
+    output: output.txt
+    splatform: Broxton-P IVI
+    sversion: O
+    tplatform: Broxton-P IVI
+    tversion: O-MR1
+    taversion: O-MR1
+
+  add_label_to_platform_version:
+    # command: add_label_to_platform_version
+    # query_set: "add_label_to_platform_version_AaaG"
+    name: jira01
+    user: None
+    password: None
+    comment:  'Add label "PRD0.8_baseline" to [O][Icelake] source project baseline.'
+    label: "PRD0.8_baseline"
+    verify: false
+    copy_preq: true
+    copy_areq: true
+    UPDATE_FIELDS: true
+    # -- Should changes be written?
+    update: false
+    createmax: 0
+    log_level: info
+    output: output.txt
+    splatform: Icelake-U SDC
+    sversion: O
 
   find_added_dng_vs_jira:
     name: jira01
