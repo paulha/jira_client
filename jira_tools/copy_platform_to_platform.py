@@ -1,24 +1,32 @@
 from jira_class import Jira, get_query
 
 
-def update_fields_and_link(jira, source_preq, existing_preq, update, update_count, log=None):
+def update_fields_and_link(jira, source_preq, target_preq, update, update_count, log=None):
     # read existing values, update only if not set...
     updated = False
     validation_lead = jira.get_field_name("Validation Lead")
     classification = jira.get_field_name("Classification")
 
     update_fields = {}
-    if existing_preq.fields.priority is None and source_preq.fields.priority is not None:
+    # if source_preq.fields.status is not None:
+    #     if True or (target_preq.fields.status is not None
+    #             and source_preq.fields.status.name != target_preq.fields.status.name) \
+    #             or target_preq.fields.status is None:
+    #         transitions = jira.jira_client.transitions(target_preq)
+    #         # update_fields['status'] = {'name': source_preq.fields.status.name}
+    #         pass
+
+    if target_preq.fields.priority is None and source_preq.fields.priority is not None:
         update_fields['priority'] = {'name': source_preq.fields.priority.name}
-    if existing_preq.fields.assignee is None and source_preq.fields.assignee is not None:
+    if target_preq.fields.assignee is None and source_preq.fields.assignee is not None:
         update_fields['assignee'] = {'name': source_preq.fields.assignee.name}
-    if getattr(existing_preq.fields, validation_lead) is None \
+    if getattr(target_preq.fields, validation_lead) is None \
             and getattr(source_preq.fields, validation_lead) is not None:
         update_fields[validation_lead] = {'name': getattr(source_preq.fields, validation_lead).name}
 
-    if existing_preq.fields.issuetype.name not in ['E-Feature']:
+    if target_preq.fields.issuetype.name not in ['E-Feature']:
         # -- (Can't add classification to E-Feature)
-        classification_value = getattr(existing_preq.fields, classification)
+        classification_value = getattr(target_preq.fields, classification)
         classification_value = [v.value for v in classification_value]
         if classification_value is None or \
                         'Unassigned' in classification_value or \
@@ -30,33 +38,33 @@ def update_fields_and_link(jira, source_preq, existing_preq, update, update_coun
             #    FIXME: This is likely the wrong way to check this...
             if ['Functional Use Case'] != classification_value:
                 log.logger.warning("Item %s Classification was alreaady set to %s",
-                                   existing_preq.key, getattr(existing_preq.fields, classification))
+                                   target_preq.key, getattr(target_preq.fields, classification))
                 log.logger.warning("And is being overwritten")
                 update_fields[classification] = [{'value': 'Functional Use Case'}]
 
     if len(update_fields) > 0:
         if update:
             # -- only update if we're going to change something...
-            log.logger.info("Updating %s with %s", existing_preq.key, update_fields)
-            existing_preq.update(notify=False, fields=update_fields)
+            log.logger.info("Updating %s with %s", target_preq.key, update_fields)
+            target_preq.update(notify=False, fields=update_fields)
             updated = True
         else:
-            log.logger.info("NO UPDATE; SHOULD update %s with %s", existing_preq.key, update_fields)
+            log.logger.info("NO UPDATE; SHOULD update %s with %s", target_preq.key, update_fields)
 
     # -- Check to see if there's a link between this issue and its source
     is_related_to_source = [link.outwardIssue
-                            for link in existing_preq.fields.issuelinks
+                            for link in target_preq.fields.issuelinks
                             if hasattr(link, "outwardIssue") and link.type.name == "Related Feature"]
 
     if not is_related_to_source:
         if update:
-            jira.create_issue_link("Related Feature", existing_preq, source_preq,
+            jira.create_issue_link("Related Feature", target_preq, source_preq,
                                    comment={"body": "Related Feature link added from %s to %s"
-                                            % (existing_preq.key, source_preq.key)})
-            log.logger.info("Create 'Related Feature' link: %s --> %s", existing_preq.key, source_preq.key)
+                                            % (target_preq.key, source_preq.key)})
+            log.logger.info("Create 'Related Feature' link: %s --> %s", target_preq.key, source_preq.key)
             updated = True
         else:
-            log.logger.warning("Link from %s --> %s is MISSING", existing_preq.key, source_preq.key)
+            log.logger.warning("Link from %s --> %s is MISSING", target_preq.key, source_preq.key)
 
     if updated:
         update_count += 1
@@ -164,7 +172,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                              len(not_in_source), target_name, item_kind)
             log.logger.error("")
             for item in not_in_source:
-                log.logger.error("Target '%s', summary text: '%s'", item['target'], item['summary'])
+                log.logger.error("%s Target '%s', summary text: '%s'", item_kind, item['target'], item['summary'])
             log.logger.error("--")
 
         return
@@ -223,12 +231,13 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                     log.logger.info("Created a new UCIS %s for %s", result.key, target_summary)
                     update_count += 1
                     ucis_created += 1
+
+                    if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
+                        update_count = update_fields_and_link(jira, source_preq, result, update, update_count, log)
+
                 else:
                     log.logger.warning("Target UCIS is missing, sourced from %s: '%s'", source_preq.key, target_summary)
                     warnings_issued += 1
-
-                if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                    update_count = update_fields_and_link(jira, source_preq, result, update, update_count, log)
 
             if scenario['createmax'] and update_count>=scenario['createmax']:
                 break

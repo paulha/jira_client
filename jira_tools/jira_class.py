@@ -128,7 +128,7 @@ class Jira:
             'issuetype': {'name': 'UCIS'},
             and_vers_key: [{'value': scenario['tversion']}],
             platprog_key: [{'value': scenario['tplatform']}],
-            'assignee': {'name': source_feature.fields.assignee.name},
+            'assignee': {'name': source_feature.fields.assignee.name if source_feature.fields.assignee else None},
             validation_lead: {'name': val_lead.name if val_lead is not None else "" },
             global_id: getattr(source_feature.fields, global_id),
             feature_id: getattr(source_feature.fields, feature_id)
@@ -232,7 +232,8 @@ class Jira:
             # 'components': [{'id': x.id} for x in getattr(sibling_feature.fields, 'components')],
             # classification: [{'id': x.id} for x in getattr(sibling_feature.fields, classification)]
         }
-        _define_update(update_fields, verified_on, sibling_feature if sibling_feature is not None else parent_feature)
+        # -- Note: Should not copy verified_on...
+        # _define_update(update_fields, verified_on, sibling_feature if sibling_feature is not None else parent_feature)
         _define_update(update_fields, failed_on, sibling_feature if sibling_feature is not None else parent_feature)
         _define_update(update_fields, blocked_on, sibling_feature if sibling_feature is not None else parent_feature)
         _define_update(update_fields, tested_on, sibling_feature if sibling_feature is not None else parent_feature)
@@ -310,7 +311,8 @@ class Jira:
             'priority': {'name': 'P1-Stopper'},
             'labels': [x for x in getattr(parent_feature.fields, 'labels')],
         }
-        _define_update(update_fields, verified_on, sibling if sibling is not None else parent_feature)
+        # -- Note: Should not copy verified_on...
+        # _define_update(update_fields, verified_on, sibling if sibling is not None else parent_feature)
         _define_update(update_fields, failed_on, sibling if sibling is not None else parent_feature)
         _define_update(update_fields, blocked_on, sibling if sibling is not None else parent_feature)
         _define_update(update_fields, tested_on, sibling if sibling is not None else parent_feature)
