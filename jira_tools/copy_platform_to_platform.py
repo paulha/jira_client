@@ -1,4 +1,5 @@
 from jira_class import Jira, get_query
+from navigate import *
 
 
 def update_fields_and_link(jira, source_preq, target_preq, update, update_count, log=None):
@@ -70,7 +71,6 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
         update_count += 1
 
     return update_count
-
 
 def copy_platform_to_platform(parser, scenario, config, queries, search, log=None):
     """Copy platform to platform, based on the UCIS and E-Feature entries of the source platform"""
@@ -181,6 +181,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     # (Get the list of already existing PREQs for this platform and version!)
     if 'copy_preq' not in scenario or scenario['copy_preq']:    # e.g., copy_preq is undefined or copy_preq = True
         for source_preq in jira.do_query(preq_source_query):
+            updated = False
             # # -- Remove old version and platform, prepend new version and platform
             source_preq_scanned += 1
             log.logger.debug("Search for: '%s'", source_preq.fields.summary)
@@ -207,7 +208,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
 
                     if update and update_fields:
                         existing_preq.update(notify=False, fields=update_fields)
-                        update_count += 1
+                        updated = True
 
                 # ===================================================================================================
                 # TODO: AREQ-25319
@@ -218,7 +219,9 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 # Note that because of where it is, it only affects PREQs, and we want both...
                 #
                 if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                    update_count = update_fields_and_link(jira, source_preq, existing_preq, update, update_count, log)
+                    count = update_fields_and_link(jira, source_preq, existing_preq, update, 0, log)
+                    if count != 0:
+                        updated = True
 
                 # ===================================================================================================
                 pass
@@ -229,15 +232,45 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                     # -- Create a new UCIS(!) PREQ
                     result = jira.create_ucis(target_summary, source_preq, scenario, log)
                     log.logger.info("Created a new UCIS %s for %s", result.key, target_summary)
-                    update_count += 1
+
+                    e_feature_translation = {
+                        UCIS_Start_Progress.name : {'state': UCIS_Start_Progress, 'comment':"Status set to Start Progress"},
+                        UCIS_Rejected.name : {'state': UCIS_Rejected, 'comment':"Status set to Rejected"},
+                        UCIS_Open.name : {'state': UCIS_Open, 'comment': "Status set to Open"},
+                        UCIS_Edit_Closed_Issue.name: {'state': UCIS_Edit_Closed_Issue, 'comment':"Status set to Edit Closed Issues"},
+                        UCIS_Blocked.name: {'state': UCIS_Blocked, 'comment':"Status set to Blocked"},
+                        UCIS_Merged.name: {'state': UCIS_Merged, 'comment':"Status set to Merged"},
+                        UCIS_Closed.name: {'state': UCIS_Merged,
+                                          'comment':"Re-opened and set to Merged since this was closed under O-MR0 "
+                                                    "and need to track re-validation against O-MR1."},
+                    }
+
+                    # -- TODO: Update status field of target UCIS
+                    if source_preq.fields.status.name in e_feature_translation:
+                        translation = e_feature_translation[source_preq.fields.status.name]
+                    else:
+                        translation = e_feature_translation[UCIS_Open.name]
+                        log.logger.error("Could not find translation for UCIS %s on %s, set to %s instead",
+                                         source_preq.fields.status.name, source_preq.key, translation['state'].name)
+
+                    StateMachine.transition_to_state(jira, result, translation['state'], log)
+                    if translation['comment']:
+                        jira.jira_client.add_comment(result, translation['comment'])
+
+                    updated = True
                     ucis_created += 1
 
                     if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                        update_count = update_fields_and_link(jira, source_preq, result, update, update_count, log)
+                        count = update_fields_and_link(jira, source_preq, result, update, 0, log)
+                        if count != 0:
+                            updated = True
 
                 else:
                     log.logger.warning("Target UCIS is missing, sourced from %s: '%s'", source_preq.key, target_summary)
                     warnings_issued += 1
+
+            if updated:
+                update_count += 1
 
             if scenario['createmax'] and update_count>=scenario['createmax']:
                 break
@@ -250,6 +283,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     if 'copy_areq' not in scenario or scenario['copy_areq']:    # e.g., copy_areq is undefined or copy_areq = True
         features = [feature for feature in jira.do_query(areq_source_e_feature_query)]
         for source_e_feature in features:
+            updated = False
             # -- The parent for this one should already be in source_features
             source_areq_scanned += 1
             lookup = source_e_feature.fields.parent.key
@@ -272,7 +306,9 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 log.logger.info("The targeted E-Feature '%s' already exists! %s: %s",
                                 target_summary, existing_feature.key, existing_feature.fields.summary)
                 if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                    update_count = update_fields_and_link(jira, source_e_feature, existing_feature, update, update_count, log)
+                    count = update_fields_and_link(jira, source_e_feature, existing_feature, update, 0, log)
+                    if count != 0:
+                        updated = True
             else:
                 if update:
                     log.logger.info("Creating a new E-Feature for Feature %s: %s", parent_feature.key, target_summary)
@@ -282,14 +318,52 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                         created_e_feature = jira.clone_e_feature_from_parent(target_summary, parent_feature, scenario, sibling=source_e_feature, log=log)
 
                     if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                        update_count = update_fields_and_link(jira, source_e_feature, created_e_feature, update,
-                                                              update_count, log)
+                        count = update_fields_and_link(jira, source_e_feature, created_e_feature, update,
+                                                              0, log)
+                        if count != 0:
+                            updated = True
+
+                    e_feature_translation = {
+                        E_Feature_Open.name: {'state': E_Feature_Open, 'comment': "Status set to Open"},
+                        E_Feature_Closed.name: {'state': E_Feature_Closed, 'comment': "Status set to Closed"},
+                        E_Feature_Reject.name: {'state': E_Feature_Reject, 'comment': "Status set to Rejected"},
+                        E_Feature_Start_Progress.name: {'state': E_Feature_Start_Progress,
+                                                        'comment': "Status set to Start Progress"},
+                        E_Feature_In_Progress.name: {'state': E_Feature_In_Progress,
+                                                        'comment': "Status set to In Progress"},
+
+                        E_Feature_Blocked.name: {'state': E_Feature_Blocked, 'comment': "Status set to Blocked"},
+                        E_Feature_Merge.name: {'state': E_Feature_Merge,
+                                                      'comment': "Status set to Merged"},
+                        E_Feature_Reopen.name: {'state': E_Feature_Reopen, 'comment': "Status set to Re-Opened"},
+
+                        E_Feature_Closed.name: {'state': E_Feature_Merge,
+                                          'comment': "Re-opened and set to Merged since this was closed under O-MR0 "
+                                                     "and need to track re-validation against O-MR1."},
+                    }
+
+                    # -- TODO: Update status field of target UCIS
+                    if source_e_feature.fields.status.name in e_feature_translation:
+                        translation = e_feature_translation[source_e_feature.fields.status.name]
+                    else:
+                        translation = e_feature_translation[UCIS_Open.name]
+                        log.logger.error("Could not find translation for UCIS %s on %s, set to %s instead",
+                                         source_e_feature.fields.status.name, created_e_feature.key,
+                                         translation['state'].name)
+
+                    StateMachine.transition_to_state(jira, created_e_feature, translation['state'], log)
+                    if translation['comment']:
+                        jira.jira_client.add_comment(created_e_feature, translation['comment'])
+
                     e_features_created += 1
-                    update_count += 1
+                    updated = True
                 else:
                     log.logger.info("Target E-Feature is missing for Source E-Feature %s, Feature %s: '%s'",
                                     source_e_feature.key, parent_feature.key, target_summary)
                     # -- Create a new E-Feature(!) PREQ
+
+            if updated:
+                update_count += 1
 
             if scenario['createmax'] and update_count>=scenario['createmax']:
                 break

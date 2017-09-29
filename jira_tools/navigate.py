@@ -24,7 +24,7 @@ Feature_map = {
 }
 
 E_Feature_Open = State('Open', ['Open'])
-E_Feature_Close = State('Close', ['Close'])
+E_Feature_Closed = State('Closed', ['Close'])
 E_Feature_Reject = State('Reject', ['Reject'])
 E_Feature_Start_Progress = State('Start Progress', ['Start Progress'])
 E_Feature_In_Progress = State('In Progress', ['In Progress'])
@@ -38,29 +38,30 @@ E_Feature_map = {
     'Open': [E_Feature_Update_From_Parent, E_Feature_Start_Progress, E_Feature_Reject],
     'Reject': [E_Feature_Open, E_Feature_Update_From_Parent],
     # -- note: Update From Parent (sometimes!) leaves you in 'Start Progress'
+    'Update From Parent': [E_Feature_Start_Progress],
     'Start Progress': [E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_Merge, E_Feature_Reject],
     'Blocked': [E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_In_Progress, E_Feature_Reject],
     'In Progress': [E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_Merge, E_Feature_Reject],
-    'Merge': [E_Feature_Close, E_Feature_Update_From_Parent, E_Feature_Reject, E_Feature_Reopen],
+    'Merge': [E_Feature_Closed, E_Feature_Update_From_Parent, E_Feature_Reject, E_Feature_Reopen],
     # -- note: this is the same as Start Progress
     'Reopen': [E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_Merge, E_Feature_Reject],
     'Close': [E_Feature_Update_From_Parent, E_Feature_Reject],
 }
 
-UCUS_Open = State('Open', ['Open', "Reopen"])
+UCIS_Open = State('Open', ['Open', "Reopen"])
 UCIS_Start_Progress = State('Start Progress', ['Start Progress'])
 UCIS_Rejected = State('Rejected', ['Rejected', "To Rejected"])
 UCIS_Blocked = State('Blocked', ['Blocked', "To Blocked"])
 UCIS_Merged = State('Merged', ['Merged', "To Merged"])
-UCIS_Close = State('Close', ["Edit Closed Issues", "Close Issue"])
+UCIS_Closed = State('Closed', ["Edit Closed Issues", "Close Issue"])
 UCIS_Edit_Closed_Issue = State("Edit Closed Issues", ["Edit Closed Issues"])
 
 UCIS_map = {
     'Open': [UCIS_Start_Progress, UCIS_Rejected],
     'Start Progress': [UCIS_Blocked, UCIS_Rejected, UCIS_Merged],
-    'Rejected': [UCUS_Open],
+    'Rejected': [UCIS_Open],
     'Blocked': [UCIS_Rejected, UCIS_Start_Progress, UCIS_Merged],
-    'Merged': [UCUS_Open, UCIS_Close, UCIS_Rejected],
+    'Merged': [UCIS_Open, UCIS_Closed, UCIS_Rejected],
     'Close': [UCIS_Edit_Closed_Issue, E_Feature_Reject]
 }
 
@@ -129,15 +130,21 @@ class StateMachine:
     @staticmethod
     def transition_to_state(jira, item, goal, log=None):
         transition_map = TypeToMap[item.fields.issuetype.name]
-        state_map = StateMachine.find_map_to_state(item.fields.status.name, goal.name, transition_map)
-        log.logger.info("Target is at %s, goal is %s, expected transitions are %s",
-                         item.fields.status.name, goal.name, [item.name for item in state_map])
-        for state in state_map:
-            available_transitions = {item['name']: item['id'] for item in jira.jira_client.transitions(item)}
-            for name in state.to_label:
-                if name in available_transitions:
-                    next_id = available_transitions[name]
-                    log.logger.info("Attempt transition from %s, to %s", item.fields.status.name, name)
-                    jira.jira_client.transition_issue(item, next_id)
-                    item = jira.jira_client.issue(item.key)
-        log.logger.info("Final status is %s", item.fields.status.name)
+        visited = []
+        state_map = StateMachine.find_map_to_state(item.fields.status.name, goal.name, transition_map, visited=visited)
+        if state_map is None:
+            log.logger.error("Could not find map to goal: Target %s is at %s, goal is %s",
+                             item.key, item.fields.status.name, goal.name)
+            return
+        else:
+            log.logger.info("Target is at %s, goal is %s, expected transitions are %s",
+                             item.fields.status.name, goal.name, [item.name for item in state_map])
+            for state in state_map:
+                available_transitions = {item['name']: item['id'] for item in jira.jira_client.transitions(item)}
+                for name in state.to_label:
+                    if name in available_transitions:
+                        next_id = available_transitions[name]
+                        log.logger.info("Attempt transition from %s, to %s", item.fields.status.name, name)
+                        jira.jira_client.transition_issue(item, next_id)
+                        item = jira.jira_client.issue(item.key)
+            log.logger.info("Final status is %s", item.fields.status.name)

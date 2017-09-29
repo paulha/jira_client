@@ -164,7 +164,7 @@ servers:  # Required, but not meaningful here...
     # -- AREQ-24757, AREQ-25918
     # command: copy_platform_to_platform
     query_set: "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]"
-    name: jira-t3
+    name: jira01
     user: None
     password: None
     comment:  "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]"
@@ -176,17 +176,17 @@ servers:  # Required, but not meaningful here...
     UPDATE_FIELDS: true
     # -- Should changes be written?
     update: true
-    createmax: 1
+    createmax: 8
     # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
-    verify_copy: true
+    verify_copy: false
     clone_from_sibling: true
     log_level: info
     output: output.txt
     splatform: Broxton-P IVI
     sversion: O
     tplatform: Broxton-P IVI
-    tversion: O-MR1
-    taversion: O-MR1
+    tversion: O-MR2
+    taversion: O-MR2
 
   add_label_to_platform_version:
     # command: add_label_to_platform_version
