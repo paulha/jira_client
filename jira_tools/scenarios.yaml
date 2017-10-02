@@ -169,7 +169,7 @@ servers:  # Required, but not meaningful here...
     password: None
     comment:  "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]"
     verify: false
-    copy_preq: false
+    copy_preq: true
     copy_areq: true
     CREATE_MISSING_UCIS: true
     FIX_GID: true
