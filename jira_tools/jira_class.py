@@ -2,6 +2,7 @@ import re
 from utility_funcs.search import get_server_info
 from gojira import init_jira, jql_issue_gen
 from jirafields import make_field_lookup
+from jira.exceptions import JIRAError
 
 
 def get_query(query_name, queries, group_name, params=None, log=None):
@@ -217,8 +218,14 @@ class Jira:
             'issuetype': {'name': 'E-Feature'},
             and_vers_key: [{'value': scenario['tversion']}],
             platprog_key: [{'value': scenario['tplatform']}],
-            'assignee': {'name': sibling_feature.fields.assignee.name},
-            validation_lead: {'name': val_lead.name if val_lead is not None else "" }
+        }
+
+        update_assignee_dict = {
+            'assignee': {'name': sibling_feature.fields.assignee.name if sibling_feature.fields.assignee is not None else ""},
+        }
+
+        update_lead_dict = {
+            validation_lead: {'name': val_lead.name if val_lead is not None else ""}
         }
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
@@ -257,6 +264,15 @@ class Jira:
         # -- Create the e-feature and update the stuff you can't set directly
         created_e_feature = self.jira_client.create_issue(fields=new_e_feature_dict)
         created_e_feature.update(notify=False, fields=update_fields)
+        try:
+            created_e_feature.update(notify=False, fields=update_assignee_dict)
+        except JIRAError as e:
+            log.logger.error("Jira error %s", e)
+
+        try:
+            created_e_feature.update(notify=False, fields=update_lead_dict)
+        except JIRAError as e:
+            log.logger.error("Jira error %s", e)
 
         # -- Add a comment noting the creation of this feature.
         self.jira_client.add_comment(created_e_feature,
@@ -303,6 +319,14 @@ class Jira:
             validation_lead: {'name': val_lead.name if val_lead is not None else ""}
         }
 
+        assignee_dict = {
+            'assignee': {'name': sibling.fields.assignee.name},
+        }
+
+        lead_dict = {
+            validation_lead: {'name': val_lead.name if val_lead is not None else ""}
+        }
+
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
             # -- This field does not exist in AREQ!
@@ -336,6 +360,16 @@ class Jira:
         # -- Create the e-feature and update the stuff you can't set directly
         created_e_feature = self.jira_client.create_issue(fields=new_e_feature_dict)
         created_e_feature.update(notify=False, fields=update_fields)
+
+        try:
+            created_e_feature.update(notify=False, fields=assignee_dict)
+        except JIRAError as e:
+            log.logger.error("Jira error %s", e)
+
+        try:
+            created_e_feature.update(notify=False, fields=lead_dict)
+        except JIRAError as e:
+            log.logger.error("Jira error %s", e)
 
         # -- Add a comment noting the creation of this feature.
         self.jira_client.add_comment(created_e_feature,

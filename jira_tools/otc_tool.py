@@ -12,6 +12,7 @@ import utility_funcs.logger_yaml as log
 from copy_platform_to_platform import copy_platform_to_platform
 from add_label_to_platform_version import add_label_to_platform_version
 from dng_vs_jira_find_added import find_added_dng_vs_jira
+from areq_superseded_by_preq import areq_superceded_by_preq
 
 LOG_CONFIG_FILE = 'logging.yaml'+pathsep+dirname(realpath(sys.argv[0]))+'/logging.yaml'
 CONFIG_FILE = dirname(realpath(sys.argv[0]))+'/config.yaml'+pathsep+'~/.jira/config.yaml'
@@ -872,13 +873,15 @@ def main():
     project_group.add_argument("--verify", default=None, action="store_true", help="Verify target")
     parser.add_argument("--createmax", nargs='?', help="Max number of E-Features to create.",type=int)
     parser.add_argument("-c","--comment", nargs='?', help="Comment for created items.")
+    parser.add_argument("-i","--input", nargs='?', help="Where to get the input.")
     parser.add_argument("-o","--output", nargs='?', help="Where to store the result.")
     parser.add_argument("-l", "--log_level", choices=['debug', 'info', 'warn', 'error', 'fatal'])
     parser.add_argument("command", choices=['help', 'compare_priorities', 'dump_parents', 'e_feature_scanner',
                                             'scan_areq_for_preq',
                                             'add_label_to_platform_version',
                                             'copy_platform_to_platform',
-                                            'find_added_dng_vs_jira'], default=None)
+                                            'find_added_dng_vs_jira',
+                                            'areq_superceded_by_preq'], default=None)
     args = parser.parse_args()
 
     # todo: Should be combined switches...
@@ -961,6 +964,8 @@ def main():
         add_label_to_platform_version(parser, scenario, config, queries, CONFIG_FILE, log=log)
     elif 'find_added_dng_vs_jira' == command:
         find_added_dng_vs_jira(parser, scenario, config, queries, CONFIG_FILE, log=log)
+    elif 'areq_superceded_by_preq' == command:
+        areq_superceded_by_preq(parser, scenario, config, queries, CONFIG_FILE, log=log)
     else:
         parser.print_help()
         exit(1)

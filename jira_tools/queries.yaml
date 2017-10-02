@@ -180,7 +180,6 @@ servers:
 
         "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]":
             # -- AREQ-24757, AREQ-25918
-            # -- We don't want ANY preq's!
             #preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\\\[AaaG\\\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) AND not status in (Open) order by key'
             #areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\[AaaG\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected AND not status in (Open) order by key'
             preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\\\[AaaG\\\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) order by key'
@@ -207,6 +206,10 @@ servers:
 
         find_added_dng_vs_jira:
             preq_source_query:         'project = "{sproject}" AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
+
+
+        areq_superceded_by_preq:
+            # -- NO QUERIES ARE REQUIRED...
 
     jira-pfh:
         compare_priorities:

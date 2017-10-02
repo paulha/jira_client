@@ -1,5 +1,6 @@
 from jira_class import Jira, get_query
 from navigate import *
+from jira.exceptions import JIRAError
 
 
 def update_fields_and_link(jira, source_preq, target_preq, update, update_count, log=None):
@@ -9,6 +10,8 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
     classification = jira.get_field_name("Classification")
 
     update_fields = {}
+    assignee_fields = {}
+    lead_fields = {}
     # if source_preq.fields.status is not None:
     #     if True or (target_preq.fields.status is not None
     #             and source_preq.fields.status.name != target_preq.fields.status.name) \
@@ -20,10 +23,10 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
     if target_preq.fields.priority is None and source_preq.fields.priority is not None:
         update_fields['priority'] = {'name': source_preq.fields.priority.name}
     if target_preq.fields.assignee is None and source_preq.fields.assignee is not None:
-        update_fields['assignee'] = {'name': source_preq.fields.assignee.name}
+        assignee_fields['assignee'] = {'name': source_preq.fields.assignee.name}
     if getattr(target_preq.fields, validation_lead) is None \
             and getattr(source_preq.fields, validation_lead) is not None:
-        update_fields[validation_lead] = {'name': getattr(source_preq.fields, validation_lead).name}
+        lead_fields[validation_lead] = {'name': getattr(source_preq.fields, validation_lead).name}
 
     if target_preq.fields.issuetype.name not in ['E-Feature']:
         # -- (Can't add classification to E-Feature)
@@ -46,8 +49,19 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
     if len(update_fields) > 0:
         if update:
             # -- only update if we're going to change something...
-            log.logger.info("Updating %s with %s", target_preq.key, update_fields)
+            log.logger.info("Updating %s with %s", target_preq.key, update_fields+assignee_fields+lead_fields)
             target_preq.update(notify=False, fields=update_fields)
+
+            try:
+                target_preq.update(notify=False, fields=assignee_fields)
+            except JIRAError as e:
+                log.logger.error("Jira error %s", e)
+
+            try:
+                target_preq.update(notify=False, fields=lead_fields)
+            except JIRAError as e:
+                log.logger.error("Jira error %s", e)
+
             updated = True
         else:
             log.logger.info("NO UPDATE; SHOULD update %s with %s", target_preq.key, update_fields)
