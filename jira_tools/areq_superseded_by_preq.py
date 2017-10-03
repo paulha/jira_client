@@ -126,6 +126,16 @@ class Supersede:
         _list_update(update_fields, tested_on, self.areq, self.preq, 'value')
 
         # FIXME: What, exactly, is this code doing? (I know I wrote it, but...)
+        #
+        # 1. Get current values from both items
+        # 2. If source doesn't have the target in
+        #    it yet, add it (or set it).
+        # 3. Normalize both source and target to
+        #    a standardized list form
+        # 4. Compare the two. If they are different
+        #    then target must be updated with source
+        # 5. Set the target list.
+        # -----------------------------------------
         # if 'exists_on' in self.scenario:
         #     exists_list = self.scenario['exists_on']
         # elif 'exists_only_on' in self.scenario:
