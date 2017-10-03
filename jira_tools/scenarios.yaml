@@ -225,8 +225,9 @@ servers:  # Required, but not meaningful here...
     comment:  'AREQ has been superseded by PREQ'
     UPDATE_FIELDS: true
     # -- Should changes be written?
-    update: false
+    update: true
     createmax: 1
     log_level: info
-    xls_input: areq_superseded_by_preq.xlsx
+    # xls_input: areq_superseded_by_preq.xlsx
+    xls_input: test.xlsx
 

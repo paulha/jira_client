@@ -24,7 +24,7 @@ class XLS:
         active_heading = self.headings(sheet=sheet)
         active_sheet = self.workbook[sheet]
         result = []
-        for row in range(2, active_sheet.max_row):
+        for row in range(2, active_sheet.max_row+1):
             this_entry = {'ROW': row}
             this_row = active_sheet[row]
             for col in range(0, this_row.__len__()):
@@ -62,12 +62,36 @@ class Supersede:
     def copy_areq_values_to_preq(self):
         """Copy areq to preq, overlaying data if present"""
 
+        # -- TODO: shouldn't copy unless there's actually something to change...
+
         update_occured = 0
 
         # Utility function for copying *_on fields (see below)
-        def _define_update(update_list, field, entry):
-            update_list[field] = [{'value': x.value} for x in getattr(entry.fields, field)] \
-                if getattr(entry, field) is not None else []
+        def _list_update(update_list, field, source, target, tag=None):
+            src = getattr(source.fields, field)
+            tgt = getattr(target.fields, field)
+            if tgt is None or tgt != src:
+                if tag is None:
+                    # -- Good old fashioned assignment
+                    update_list[field] = src
+                else:
+                    update_list[field] = [{tag: getattr(x, tag)} for x in src] \
+                                                                 if src is not None else []
+                return True
+            return False
+
+        def _field_update(update_list, field, source, target, tag=None):
+            src = getattr(source.fields, field)
+            tgt = getattr(target.fields, field)
+            # FIXME: this has a problem because it's an object compare, not a value comparison.
+            if tgt is None or tgt != src:
+                if tag is None:
+                    # -- Good old fashioned assignment
+                    update_list[field] = src
+                else:
+                    update_list[field] = {tag: getattr(src, tag)} if src is not None else {}
+                return True
+            return False
 
         exists_on = self.jira.get_field_name('Exists On')
         verified_on = self.jira.get_field_name('Verified On')
@@ -80,73 +104,92 @@ class Supersede:
         val_lead = getattr(self.areq.fields, validation_lead)
 
         update_assignee_dict = {
-            'assignee': {'name': self.areq.fields.assignee.name},
+            # 'assignee': {'name': self.areq.fields.assignee.name},
         }
+        _field_update(update_assignee_dict, 'assignee', self.areq, self.preq, 'name')
 
         update_lead_dict = {
-            validation_lead: {'name': val_lead.name if val_lead is not None else ""}
+            # validation_lead: {'name': val_lead.name if val_lead is not None else ""}
         }
+        _field_update(update_lead_dict, validation_lead, self.areq, self.preq, 'name')
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
-            'priority': {'name': self.areq.fields.priority.name if self.areq is not None else 'P1-Stopper'},
-            'labels': [x for x in getattr(self.areq.fields, 'labels')],
-            'components': [{'id': x.id} for x in getattr(self.areq.fields, 'components')],
-            classification: [{'id': x.id} for x in getattr(self.areq.fields, classification)]
+            # 'priority': {'name': self.areq.fields.priority.name if self.areq is not None else 'P1-Stopper'},
         }
-        _define_update(update_fields, verified_on, self.areq.fields)
-        _define_update(update_fields, failed_on, self.areq.fields)
-        _define_update(update_fields, blocked_on, self.areq.fields)
-        _define_update(update_fields, tested_on, self.areq.fields)
+        _field_update(update_fields, 'priority', self.areq, self.preq, 'name')
+        _list_update(update_fields, 'components', self.areq, self.preq, 'id')
+        _list_update(update_fields, classification, self.areq, self.preq, 'id')
+        _list_update(update_fields, verified_on, self.areq, self.preq, 'value')
+        _list_update(update_fields, failed_on, self.areq, self.preq, 'value')
+        _list_update(update_fields, blocked_on, self.areq, self.preq, 'value')
+        _list_update(update_fields, tested_on, self.areq, self.preq, 'value')
 
-        if 'exists_on' in self.scenario:
-            target = self.scenario['exists_on']
-        elif 'exists_only_on' in self.scenario:
-            target = self.scenario['exists_only_on']
-        else:
-            target = None
-
-        if target:
-            exists_on_list = [{'value': target}]
-            if 'exists_on' in self.scenario:
-                exists_on_list.__add__([{'value': x.value} for x in getattr(self.areq.fields, exists_on)])
-
-            update_fields[exists_on] = exists_on_list
-
-        self.log.logger.debug("Updating E-Feature values from %s to %s" % (self.areq.key, self.preq.key))
+        # FIXME: What, exactly, is this code doing? (I know I wrote it, but...)
+        # if 'exists_on' in self.scenario:
+        #     exists_list = self.scenario['exists_on']
+        # elif 'exists_only_on' in self.scenario:
+        #     exists_list = self.scenario['exists_only_on']
+        # else:
+        #     exists_list = None
+        #
+        # if exists_list:
+        #     exists_on_list = [{'value': exists_list}]
+        #     if 'exists_on' in self.scenario:
+        #         exists_on_list.__add__([{'value': x.value} for x in getattr(self.areq.fields, exists_on)])
+        #
+        #     update_fields[exists_on] = exists_on_list
 
         # -- Create the e-feature and update the stuff you can't set directly
         if self.update:
-            self.preq.update(notify=False, fields=update_fields)
-            try:
-                self.preq.update(notify=False, fields=update_assignee_dict)
-            except JIRAError as e:
-                self.log.logger.error("Jira error %s", e)
-
-            try:
-                self.preq.update(notify=False, fields=update_lead_dict)
-            except JIRAError as e:
-                self.log.logger.error("Jira error %s", e)
+            if update_fields:
+                self.log.logger.info("Updating Fields from %s to %s" % (self.areq.key, self.preq.key))
+                self.preq.update(notify=False, fields=update_fields)
+                updated = True
+            if update_assignee_dict:
+                try:
+                    self.log.logger.info("Updating Assignee from %s to %s" % (self.areq.key, self.preq.key))
+                    self.preq.update(notify=False, fields=update_assignee_dict)
+                    updated = True
+                except JIRAError as e:
+                    self.log.logger.error("Jira error %s", e)
+            if update_lead_dict:
+                try:
+                    self.log.logger.info("Updating Lead from %s to %s" % (self.areq.key, self.preq.key))
+                    self.preq.update(notify=False, fields=update_lead_dict)
+                    updated = True
+                except JIRAError as e:
+                    self.log.logger.error("Jira error %s", e)
 
             # -- Add a comment noting the creation of this feature.
-            self.jira.jira_client.add_comment(self.preq,
-                                              """This E-Feature was created by {command}.
+            if updated:
+                self.log.logger.info("Leaving comments on %s and %s" % (self.areq.key, self.preq.key))
+                self.jira.jira_client.add_comment(self.areq,
+                                                  """This item was superseded by {command}.
+        
+                                                  Superseded item is %s. 
+                                                  Replacement item is %s
+        
+                                                  %s""".format_map(self.scenario)
+                                                  % (self.areq.key, self.preq.key,
+                                                     self.scenario['comment'] if self.scenario['comment']
+                                                                                 is not None else ""))
+                self.jira.jira_client.add_comment(self.preq,
+                                                  """This item supersedes %s by {command}.
     
-                                              Parent Feature is %s. Source sibling is %s
-                                              Source Platform: '{splatform}' Version '{sversion}'
+                                                  This item is %s
     
-                                              %s""".format_map(self.scenario)
-                                              % (self.preq.key, self.areq.key,
-                                                 self.scenario['comment'] if self.scenario['comment']
-                                                                             is not None else ""))
-            update_occured += 1
+                                                  %s""".format_map(self.scenario)
+                                                  % (self.areq.key, self.preq.key,
+                                                     self.scenario['comment'] if self.scenario['comment']
+                                                                                 is not None else ""))
 
-            self.log.logger.info("Updated PREQ %s for from %s: ", self.preq.key, self.areq.key)
+                self.log.logger.info("Updated PREQ %s from %s: ", self.preq.key, self.areq.key)
 
-        return update_occured > 0
+        return updated
 
     def create_areq_duplicate_of_preq_link(self):
-        update_count = 0
+        updated = False
 
         # -- Check to see if there's a link between this areq and preq
         has_duplicates_link = [link.outwardIssue
@@ -158,35 +201,42 @@ class Supersede:
 
         if not has_duplicates_link:
             if self.update:
-                self.jira.create_issue_link("Duplicate", self.preq, self.areq,
-                                            comment={"body": "Duplicate Feature link added from %s to %s"
-                                                     % (self.preq.key, self.areq.key)})
+                self.log.logger.info("Creating link from %s to %s" % (self.areq.key, self.preq.key))
+                self.jira.create_issue_link("Duplicate", self.areq, self.preq)
                 self.log.logger.info("Created 'Duplicates' link: %s --> %s", self.areq.key, self.preq.key)
                 updated = True
             else:
                 self.log.logger.warning("Link from %s --> %s is MISSING", self.areq.key, self.preq.key)
 
-        if self.update:
-            update_count += 1
-
-        return update_count > 0
+        return updated
 
     def set_areq_to_Rejected(self):
-        update_occured = 0
-        if self.update:
-            StateMachine.transition_to_state(self.jira, self.areq, E_Feature_Reject, self.log)
-            update_occured += 1
 
-        return update_occured > 0
+        updated = False
+        if self.update:
+            if self.areq.fields.status.name != 'Rejected':
+                self.log.logger.info("Setting %s to Rejected" % (self.areq.key))
+                target_state = {
+                    'Feature': Feature_Rejected,
+                    'E-Feature': E_Feature_Reject,
+                    'UCIS': UCIS_Rejected,
+                }[self.areq.fields.issuetype.name]
+                StateMachine.transition_to_state(self.jira, self.areq, target_state, self.log)
+                updated = True
+            else:
+                self.log.logger.info("%s is already Rejected" % (self.areq.key))
+
+        return updated
 
     def supersede(self, items):
         updated = False
         if not self.check_access(items):
             self.log.logger.error("Abandoning row...")
             return False
-        updated = updated or self.copy_areq_values_to_preq()
-        updated = updated or self.create_areq_duplicate_of_preq_link()
-        updated = updated or self.set_areq_to_Rejected()
+        updated = self.copy_areq_values_to_preq() or updated
+        updated = self.create_areq_duplicate_of_preq_link() or updated
+        # todo: You could also set the state of the target...
+        updated = self.set_areq_to_Rejected() or updated
 
         return updated
 
@@ -213,6 +263,7 @@ def areq_superceded_by_preq(parser, scenario, config, queries, search, log=None)
     updates = 0
 
     XLS_FILE = realpath(dirname(realpath(sys.argv[0])) + '/../' + scenario['xls_input'])
+    log.logger.info("input file: %s", XLS_FILE)
     xls = XLS(XLS_FILE)
     items = xls.read()
 
