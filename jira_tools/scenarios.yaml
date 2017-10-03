@@ -222,12 +222,12 @@ servers:  # Required, but not meaningful here...
     name: jira01
     user: None
     password: None
-    comment:  'AREQ has been superseded by PREQ'
+    comment:  'AREQ-26023 -- "20170926 AREQs that need to be removed/marked duplicate"'
     UPDATE_FIELDS: true
     # -- Should changes be written?
     update: true
-    createmax: 1
+    createmax: 0
     log_level: info
-    # xls_input: areq_superseded_by_preq.xlsx
-    xls_input: test.xlsx
+    xls_input: areq_superseded_by_preq.xlsx
+    # xls_input: test.xlsx
 

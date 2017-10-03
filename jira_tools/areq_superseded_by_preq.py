@@ -67,16 +67,44 @@ class Supersede:
         update_occured = 0
 
         # Utility function for copying *_on fields (see below)
-        def _list_update(update_list, field, source, target, tag=None):
+        def _exists_on_update(update_list, field, source, target, tag=None):
             src = getattr(source.fields, field)
+            src = {tag: getattr(x, tag) for x in (src if src is not None else [])}
             tgt = getattr(target.fields, field)
-            if tgt is None or tgt != src:
+            tgt = {tag: getattr(x, tag) for x in (tgt if tgt is not None else [])}
+
+            if 'exists_on' in self.scenario:
+                _exists_on = self.scenario['exists_on']
+                src[_exists_on] = _exists_on
+            elif 'exists_only_on' in self.scenario:
+                _exists_on = self.scenario['exists_only_on']
+                src = {_exists_on: _exists_on}
+            else:
+                pass    # leave it alone!
+
+            if tgt != src:      # tgt and src already can't be None (see above!)
+                if tag is None:
+                    # -- Good old fashioned assignment
+                    update_list[field] = [x for x in src]
+                else:
+                    update_list[field] = [{tag: x} for key, x in src.items()]
+                return True
+            return False
+
+        def _list_update(update_list, field, source, target, tag=None, remap=[]):
+
+            src = getattr(source.fields, field) if getattr(source.fields, field) is not None else []
+            src = [getattr(x, tag) for x in src] if tag is not None else src
+            src = [(remap[x] if x in remap else x) for x in src]
+            tgt = getattr(target.fields, field) if getattr(target.fields, field) is not None else []
+            tgt = [getattr(x, tag) for x in tgt] if tag is not None else tgt
+            if tgt.__str__() != src.__str__():
                 if tag is None:
                     # -- Good old fashioned assignment
                     update_list[field] = src
                 else:
-                    update_list[field] = [{tag: getattr(x, tag)} for x in src] \
-                                                                 if src is not None else []
+                    update_list[field] = [{tag: x} for x in src] \
+                                                   if src is not None else []
                 return True
             return False
 
@@ -84,7 +112,7 @@ class Supersede:
             src = getattr(source.fields, field)
             tgt = getattr(target.fields, field)
             # FIXME: this has a problem because it's an object compare, not a value comparison.
-            if tgt is None or tgt != src:
+            if tgt is None or tgt.__str__() != src.__str__():
                 if tag is None:
                     # -- Good old fashioned assignment
                     update_list[field] = src
@@ -118,8 +146,10 @@ class Supersede:
             # 'priority': {'name': self.areq.fields.priority.name if self.areq is not None else 'P1-Stopper'},
         }
         _field_update(update_fields, 'priority', self.areq, self.preq, 'name')
-        _list_update(update_fields, 'components', self.areq, self.preq, 'id')
-        _list_update(update_fields, classification, self.areq, self.preq, 'id')
+        _list_update(update_fields, 'components', self.areq, self.preq, 'name')
+        _list_update(update_fields, 'labels', self.areq, self.preq)
+        _list_update(update_fields, classification, self.areq, self.preq, 'value',
+                     remap={'Functional': 'Functional Use Case'})
         _list_update(update_fields, verified_on, self.areq, self.preq, 'value')
         _list_update(update_fields, failed_on, self.areq, self.preq, 'value')
         _list_update(update_fields, blocked_on, self.areq, self.preq, 'value')
@@ -149,8 +179,11 @@ class Supersede:
         #         exists_on_list.__add__([{'value': x.value} for x in getattr(self.areq.fields, exists_on)])
         #
         #     update_fields[exists_on] = exists_on_list
+        _exists_on_update(update_fields, exists_on, self.areq, self.preq, 'value')
+
 
         # -- Create the e-feature and update the stuff you can't set directly
+        updated = False
         if self.update:
             if update_fields:
                 self.log.logger.info("Updating Fields from %s to %s" % (self.areq.key, self.preq.key))
@@ -205,8 +238,8 @@ class Supersede:
         has_duplicates_link = [link.outwardIssue
                                for link in self.areq.fields.issuelinks
                                if hasattr(link, "outwardIssue")
-                                  and link.type.name == "Duplicates"
-                                  and self.areq.fields.issuelinks[0].outwardIssue.key == self.preq.key
+                                  and link.type.name == "Duplicate"
+                                  and link.outwardIssue.key == self.preq.key
                                ]
 
         if not has_duplicates_link:
