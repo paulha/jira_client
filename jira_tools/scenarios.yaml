@@ -195,14 +195,18 @@ servers:  # Required, but not meaningful here...
     user: None
     password: None
     comment:  'Add label "PRD0.8_baseline" to [O][Icelake] source project baseline.'
-    label: "PRD0.8_baseline"
+    # A list of zero or more labels to remove, these are REGEX expressions:
+    delete_labels: [^pfh$, test]
+    # This can be a list of zero or more labels to add
+    # NOTE: As written, these will ALWAYS be added to every item found by the query set...
+    add_labels: [PRD0.8_baseline]
     verify: false
     copy_preq: true
     copy_areq: true
     UPDATE_FIELDS: true
     # -- Should changes be written?
-    update: false
-    createmax: 0
+    update: true
+    createmax: 1
     log_level: info
     output: output.txt
     splatform: Icelake-U SDC
