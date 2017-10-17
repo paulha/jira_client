@@ -3,7 +3,7 @@ from navigate import *
 from jira.exceptions import JIRAError
 
 
-def update_fields_and_link(jira, source_preq, target_preq, update, update_count, log=None):
+def update_fields_and_link(jira, source_preq, target_preq, update, update_count, scenario={}, log=None):
     # read existing values, update only if not set...
     updated = False
     validation_lead = jira.get_field_name("Validation Lead")
@@ -12,21 +12,40 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
     update_fields = {}
     assignee_fields = {}
     lead_fields = {}
-    # if source_preq.fields.status is not None:
-    #     if True or (target_preq.fields.status is not None
-    #             and source_preq.fields.status.name != target_preq.fields.status.name) \
-    #             or target_preq.fields.status is None:
-    #         transitions = jira.jira_client.transitions(target_preq)
-    #         # update_fields['status'] = {'name': source_preq.fields.status.name}
-    #         pass
 
-    if target_preq.fields.priority is None and source_preq.fields.priority is not None:
-        update_fields['priority'] = {'name': source_preq.fields.priority.name}
-    if target_preq.fields.assignee is None and source_preq.fields.assignee is not None:
-        assignee_fields['assignee'] = {'name': source_preq.fields.assignee.name}
-    if getattr(target_preq.fields, validation_lead) is None \
-            and getattr(source_preq.fields, validation_lead) is not None:
-        lead_fields[validation_lead] = {'name': getattr(source_preq.fields, validation_lead).name}
+    # FIXME: AREQ-25918 -- Priority should match the priority of the original...
+    def update_value(update_fields, source, target, field_name, tag_name,
+                     scenario=None, override_name="", overwrite_name=""):
+        this_source_field = getattr(source.fields, field_name, None)
+        this_target_field = getattr(target.fields, field_name, None)
+        source_value = scenario[override_name] \
+                    if override_name in scenario\
+                    else getattr(this_source_field, tag_name) \
+                    if this_source_field is not None \
+                    else None
+        target_value = getattr(this_target_field, tag_name) \
+                    if this_target_field is not None \
+                    else None
+        source_str = source_value.__str__() if source_value is not None else ""
+        target_str = target_value.__str__() if target_value is not None else ""
+
+        # -- If overwrite is unspecified OR target is None OR overwrite flag is True
+        if overwrite_name not in scenario or this_target_field is None or scenario[overwrite_name]:
+            if source_value is not None and target_str != source_str:
+                update_fields[field_name] = {tag_name: source_value}
+
+    #if target_preq.fields.priority is None and source_preq.fields.priority is not None:
+    #    update_fields['priority'] = {'name': source_preq.fields.priority.name}
+    update_value(update_fields, source_preq, target_preq, 'priority', 'name', scenario, 'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE')
+
+    #if target_preq.fields.assignee is None and source_preq.fields.assignee is not None:
+    #    assignee_fields['assignee'] = {'name': source_preq.fields.assignee.name}
+    update_value(update_fields, source_preq, target_preq, 'assignee', 'name', scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE')
+
+    # if getattr(target_preq.fields, validation_lead) is None \
+    #         and getattr(source_preq.fields, validation_lead) is not None:
+    #     lead_fields[validation_lead] = {'name': getattr(source_preq.fields, validation_lead).name}
+    update_value(update_fields, source_preq, target_preq, validation_lead, 'name', scenario, 'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE')
 
     if target_preq.fields.issuetype.name not in ['E-Feature']:
         # -- (Can't add classification to E-Feature)
@@ -49,7 +68,7 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
     if len(update_fields) > 0:
         if update:
             # -- only update if we're going to change something...
-            log.logger.info("Updating %s with %s", target_preq.key, update_fields+assignee_fields+lead_fields)
+            log.logger.info("Updating %s with %s", target_preq.key, {**update_fields, **assignee_fields, **lead_fields})
             target_preq.update(notify=False, fields=update_fields)
 
             try:
@@ -233,7 +252,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 # Note that because of where it is, it only affects PREQs, and we want both...
                 #
                 if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                    count = update_fields_and_link(jira, source_preq, existing_preq, update, 0, log)
+                    count = update_fields_and_link(jira, source_preq, existing_preq, update, 0, scenario, log)
                     if count != 0:
                         updated = True
 
@@ -243,6 +262,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 # -- This Target PREQ is missing, so use Source preq as template to create a new UCIS for the platform:
                 log.logger.debug("Need to create new UCIS for: '%s'", target_summary)
                 if update and ('CREATE_MISSING_UCIS' not in scenario or scenario['CREATE_MISSING_UCIS']):
+                    # FIXME: AREQ-25918 -- Priority should match the priority of the original...
+
                     # -- Create a new UCIS(!) PREQ
                     result = jira.create_ucis(target_summary, source_preq, scenario, log)
                     log.logger.info("Created a new UCIS %s for %s", result.key, target_summary)
@@ -275,7 +296,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                     ucis_created += 1
 
                     if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                        count = update_fields_and_link(jira, source_preq, result, update, 0, log)
+                        count = update_fields_and_link(jira, source_preq, result, update, 0, scenario, log)
                         if count != 0:
                             updated = True
 
@@ -320,7 +341,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 log.logger.info("The targeted E-Feature '%s' already exists! %s: %s",
                                 target_summary, existing_feature.key, existing_feature.fields.summary)
                 if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                    count = update_fields_and_link(jira, source_e_feature, existing_feature, update, 0, log)
+                    count = update_fields_and_link(jira, source_e_feature, existing_feature, update, 0, scenario, log)
                     if count != 0:
                         updated = True
             else:
@@ -333,7 +354,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
 
                     if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
                         count = update_fields_and_link(jira, source_e_feature, created_e_feature, update,
-                                                              0, log)
+                                                              0, scenario, log)
                         if count != 0:
                             updated = True
 

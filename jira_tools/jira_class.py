@@ -141,6 +141,7 @@ class Jira:
         update_fields = {
             # -- This field does not exist in AREQ!
             # global_id: getattr(source_feature.fields, global_id),
+            # FIXME: AREQ-25918 -- Priority should match the priority of the original...
             'priority': {'name': 'P1-Stopper'},
             'labels': [x for x in getattr(source_feature.fields, 'labels')],
             'components': [{'id': x.id} for x in getattr(source_feature.fields, 'components')],
