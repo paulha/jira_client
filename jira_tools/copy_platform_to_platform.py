@@ -15,7 +15,8 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
 
     # FIXME: AREQ-25918 -- Priority should match the priority of the original...
     def update_value(update_fields, source, target, field_name, tag_name,
-                     scenario=None, override_name="", overwrite_name=""):
+                     scenario=None,
+                     override_name="", overwrite_name="", inhibit_name=""):
         this_source_field = getattr(source.fields, field_name, None)
         this_target_field = getattr(target.fields, field_name, None)
         source_value = scenario[override_name] \
@@ -31,8 +32,10 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
 
         # -- If overwrite is unspecified OR target is None OR overwrite flag is True
         if overwrite_name not in scenario or this_target_field is None or scenario[overwrite_name]:
-            if source_value is not None and target_str != source_str:
-                update_fields[field_name] = {tag_name: source_value}
+            if inhibit_name \
+                    and source_str not in (scenario[inhibit_name] if inhibit_name in scenario else []):
+                if source_value is not None and target_str != source_str:
+                    update_fields[field_name] = {tag_name: source_value}
 
     #if target_preq.fields.priority is None and source_preq.fields.priority is not None:
     #    update_fields['priority'] = {'name': source_preq.fields.priority.name}

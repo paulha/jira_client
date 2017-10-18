@@ -171,13 +171,15 @@ servers:  # Required, but not meaningful here...
     verify: false
     copy_preq: true
     copy_areq: true
-    CREATE_MISSING_UCIS: false
+    CREATE_MISSING_UCIS: true
     FIX_GID: false
     UPDATE_FIELDS: true
     # PRIORITY_OVERRIDE: 'P1-Stopper'
     PRIORITY_OVERWRITE: true
     ASSIGNEE_OVERWRITE: false
+    ASSIGNEE_INHIBIT: ['hubingqu']
     VALIDATION_LEAD_OVERWRITE: false
+    VALIDATION_LEAD_INHIBIT: ['hubingqu']
     # -- Should changes be written?
     update: true
     createmax: 0
