@@ -182,11 +182,22 @@ servers:
             # -- AREQ-24757, AREQ-25918
             #preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\\\[AaaG\\\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) AND not status in (Open) order by key'
             #areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\[AaaG\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected AND not status in (Open) order by key'
-            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\\\[AaaG\\\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) order by key'
-            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND summary~"\\\\[AaaG\\\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) order by key'
-            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\[AaaG\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected order by key'
-            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) AND summary~"\\[AaaG\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected order by key'
-            target_feature_query:      'project = AREQ AND issuetype=Feature AND summary~"\\[AaaG\\]" AND summary~"%s"'
+            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
+            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) order by key'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) order by key'
+            target_feature_query:      'project = AREQ AND issuetype=Feature AND AND summary~"%s"'
+            target_summary_format:     '[{tversion}][{tplatform}] %s'
+
+        "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI] Rejected and AaaG":
+            # -- AREQ-24757, AREQ-25918
+            #preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\\\[AaaG\\\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) AND not status in (Open) order by key'
+            #areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\[AaaG\\]" AND priority in (P1-Stopper, P2-High, P3-Medium) and status != Rejected AND not status in (Open) order by key'
+            preq_source_query:         '(summary ~ "AaaG" or status in (Rejected) or priority in (P4-Low, Undecided)) AND project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
+            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) order by key'
+            areq_source_e_feature:     '(summary ~ "AaaG" or status in (Rejected) or priority in (P4-Low, Undecided)) AND project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) order by key'
+            target_feature_query:      'project = AREQ AND issuetype=Feature AND AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
         add_label_to_platform_version:

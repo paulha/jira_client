@@ -108,6 +108,73 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
 
     return update_count
 
+
+def set_translated_status(jira, source, translation_table, default, target, log=None):
+    if source.fields.status.name in translation_table:
+        translation = translation_table[source.fields.status.name]
+    else:
+        translation = translation_table[default.name]
+        log.logger.error("Could not find translation for %s %s on %s, set to %s instead",
+                         source.fields.itemtype, source.fields.status.name, target.key,
+                         translation['state'].name)
+
+    status_changed = StateMachine.transition_to_state(jira, target, translation['state'], log)
+    if status_changed and translation['comment']:
+        jira.jira_client.add_comment(target, translation['comment'])
+
+    return status_changed
+
+
+def set_ucis_state(jira, source_preq, target_preq, log=None):
+    e_feature_translation = {
+        UCIS_Start_Progress.name: {'state': UCIS_Start_Progress, 'comment': "Status set to Start Progress"},
+        UCIS_Rejected.name: {'state': UCIS_Rejected, 'comment': "Status set to Rejected"},
+        UCIS_Open.name: {'state': UCIS_Open, 'comment': "Status set to Open"},
+        UCIS_Edit_Closed_Issue.name: {'state': UCIS_Edit_Closed_Issue, 'comment': "Status set to Edit Closed Issues"},
+        UCIS_Blocked.name: {'state': UCIS_Blocked, 'comment': "Status set to Blocked"},
+        UCIS_Merged.name: {'state': UCIS_Merged, 'comment': "Status set to Merged"},
+        UCIS_Closed.name: {'state': UCIS_Merged,
+                           'comment': "Re-opened and set to Merged since this was closed under O-MR0 "
+                                      "and need to track re-validation against O-MR1."},
+    }
+    return set_translated_status(jira, source_preq, e_feature_translation, UCIS_Open, target_preq, log)
+    #
+    # # -- TODO: Update status field of target UCIS
+    # if source_preq.fields.status.name in e_feature_translation:
+    #     translation = e_feature_translation[source_preq.fields.status.name]
+    # else:
+    #     translation = e_feature_translation[UCIS_Open.name]
+    #     log.logger.error("Could not find translation for UCIS %s on %s, set to %s instead",
+    #                      source_preq.fields.status.name, source_preq.key, translation['state'].name)
+    #
+    # StateMachine.transition_to_state(jira, target_preq, translation['state'], log)
+    # if translation['comment']:
+    #     jira.jira_client.add_comment(target_preq, translation['comment'])
+
+
+def set_e_feature_status(jira, source_e_feature, target_e_feature, log=None):
+    e_feature_translation = {
+        E_Feature_Open.name: {'state': E_Feature_Open, 'comment': "Status set to Open"},
+        # E_Feature_Closed.name: {'state': E_Feature_Closed, 'comment': "Status set to Closed"},
+        E_Feature_Reject.name: {'state': E_Feature_Reject, 'comment': "Status set to Rejected"},
+        E_Feature_Rejected.name: {'state': E_Feature_Rejected, 'comment': "Status set to Rejected"},
+        E_Feature_Start_Progress.name: {'state': E_Feature_Start_Progress,
+                                        'comment': "Status set to Start Progress"},
+        E_Feature_In_Progress.name: {'state': E_Feature_In_Progress,
+                                     'comment': "Status set to In Progress"},
+
+        E_Feature_Blocked.name: {'state': E_Feature_Blocked, 'comment': "Status set to Blocked"},
+        E_Feature_Merge.name: {'state': E_Feature_Merge,
+                               'comment': "Status set to Merged"},
+        E_Feature_Reopen.name: {'state': E_Feature_Reopen, 'comment': "Status set to Re-Opened"},
+
+        E_Feature_Closed.name: {'state': E_Feature_Merge,
+                                'comment': "Re-opened and set to Merged since this was closed under O-MR0 "
+                                           "and need to track re-validation against O-MR1."},
+    }
+    return set_translated_status(jira, source_e_feature, e_feature_translation, UCIS_Open, target_e_feature, log)
+
+
 def copy_platform_to_platform(parser, scenario, config, queries, search, log=None):
     """Copy platform to platform, based on the UCIS and E-Feature entries of the source platform"""
 
@@ -259,6 +326,10 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                     if count != 0:
                         updated = True
 
+                if update and 'UPDATE_STATUS' in scenario and scenario['UPDATE_STATUS']:
+                    if set_e_feature_status(jira, source_preq, existing_preq, log):
+                        updated = True
+
                 # ===================================================================================================
                 pass
             else:
@@ -271,29 +342,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                     result = jira.create_ucis(target_summary, source_preq, scenario, log)
                     log.logger.info("Created a new UCIS %s for %s", result.key, target_summary)
 
-                    e_feature_translation = {
-                        UCIS_Start_Progress.name : {'state': UCIS_Start_Progress, 'comment':"Status set to Start Progress"},
-                        UCIS_Rejected.name : {'state': UCIS_Rejected, 'comment':"Status set to Rejected"},
-                        UCIS_Open.name : {'state': UCIS_Open, 'comment': "Status set to Open"},
-                        UCIS_Edit_Closed_Issue.name: {'state': UCIS_Edit_Closed_Issue, 'comment':"Status set to Edit Closed Issues"},
-                        UCIS_Blocked.name: {'state': UCIS_Blocked, 'comment':"Status set to Blocked"},
-                        UCIS_Merged.name: {'state': UCIS_Merged, 'comment':"Status set to Merged"},
-                        UCIS_Closed.name: {'state': UCIS_Merged,
-                                          'comment':"Re-opened and set to Merged since this was closed under O-MR0 "
-                                                    "and need to track re-validation against O-MR1."},
-                    }
-
-                    # -- TODO: Update status field of target UCIS
-                    if source_preq.fields.status.name in e_feature_translation:
-                        translation = e_feature_translation[source_preq.fields.status.name]
-                    else:
-                        translation = e_feature_translation[UCIS_Open.name]
-                        log.logger.error("Could not find translation for UCIS %s on %s, set to %s instead",
-                                         source_preq.fields.status.name, source_preq.key, translation['state'].name)
-
-                    StateMachine.transition_to_state(jira, result, translation['state'], log)
-                    if translation['comment']:
-                        jira.jira_client.add_comment(result, translation['comment'])
+                    set_ucis_state(jira, source_preq, result, log)
 
                     updated = True
                     ucis_created += 1
@@ -302,6 +351,9 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                         count = update_fields_and_link(jira, source_preq, result, update, 0, scenario, log)
                         if count != 0:
                             updated = True
+
+                    if set_e_feature_status(jira, source_preq, result, log):
+                        updated = True
 
                 else:
                     log.logger.warning("Target UCIS is missing, sourced from %s: '%s'", source_preq.key, target_summary)
@@ -347,6 +399,10 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                     count = update_fields_and_link(jira, source_e_feature, existing_feature, update, 0, scenario, log)
                     if count != 0:
                         updated = True
+
+                if update and 'UPDATE_STATUS' in scenario and scenario['UPDATE_STATUS']:
+                    if set_e_feature_status(jira, source_e_feature, existing_feature, log):
+                        updated = True
             else:
                 if update:
                     log.logger.info("Creating a new E-Feature for Feature %s: %s", parent_feature.key, target_summary)
@@ -354,6 +410,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                         created_e_feature = jira.clone_e_feature_from_e_feature(target_summary, parent_feature, source_e_feature, scenario, log=log)
                     else:
                         created_e_feature = jira.clone_e_feature_from_parent(target_summary, parent_feature, scenario, sibling=source_e_feature, log=log)
+                    updated = True
+                    e_features_created += 1
 
                     if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
                         count = update_fields_and_link(jira, source_e_feature, created_e_feature, update,
@@ -361,40 +419,9 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                         if count != 0:
                             updated = True
 
-                    e_feature_translation = {
-                        E_Feature_Open.name: {'state': E_Feature_Open, 'comment': "Status set to Open"},
-                        E_Feature_Closed.name: {'state': E_Feature_Closed, 'comment': "Status set to Closed"},
-                        E_Feature_Reject.name: {'state': E_Feature_Reject, 'comment': "Status set to Rejected"},
-                        E_Feature_Start_Progress.name: {'state': E_Feature_Start_Progress,
-                                                        'comment': "Status set to Start Progress"},
-                        E_Feature_In_Progress.name: {'state': E_Feature_In_Progress,
-                                                        'comment': "Status set to In Progress"},
+                    if set_e_feature_status(jira, source_e_feature, created_e_feature, log):
+                        updated = True
 
-                        E_Feature_Blocked.name: {'state': E_Feature_Blocked, 'comment': "Status set to Blocked"},
-                        E_Feature_Merge.name: {'state': E_Feature_Merge,
-                                                      'comment': "Status set to Merged"},
-                        E_Feature_Reopen.name: {'state': E_Feature_Reopen, 'comment': "Status set to Re-Opened"},
-
-                        E_Feature_Closed.name: {'state': E_Feature_Merge,
-                                          'comment': "Re-opened and set to Merged since this was closed under O-MR0 "
-                                                     "and need to track re-validation against O-MR1."},
-                    }
-
-                    # -- TODO: Update status field of target UCIS
-                    if source_e_feature.fields.status.name in e_feature_translation:
-                        translation = e_feature_translation[source_e_feature.fields.status.name]
-                    else:
-                        translation = e_feature_translation[UCIS_Open.name]
-                        log.logger.error("Could not find translation for UCIS %s on %s, set to %s instead",
-                                         source_e_feature.fields.status.name, created_e_feature.key,
-                                         translation['state'].name)
-
-                    StateMachine.transition_to_state(jira, created_e_feature, translation['state'], log)
-                    if translation['comment']:
-                        jira.jira_client.add_comment(created_e_feature, translation['comment'])
-
-                    e_features_created += 1
-                    updated = True
                 else:
                     log.logger.info("Target E-Feature is missing for Source E-Feature %s, Feature %s: '%s'",
                                     source_e_feature.key, parent_feature.key, target_summary)

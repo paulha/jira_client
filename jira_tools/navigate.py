@@ -26,6 +26,7 @@ Feature_map = {
 E_Feature_Open = State('Open', ['Open'])
 E_Feature_Closed = State('Closed', ['Close'])
 E_Feature_Reject = State('Reject', ['Reject'])
+E_Feature_Rejected = State('Rejected', ['Reject'])
 E_Feature_Start_Progress = State('Start Progress', ['Start Progress'])
 E_Feature_In_Progress = State('In Progress', ['In Progress'])
 E_Feature_Blocked = State('Blocked', ['Blocked'])
@@ -35,17 +36,19 @@ E_Feature_Update_From_Parent = State("Update From Parent", ["Update From Parent"
 
 E_Feature_map = {
     # -- NOTE: That transition values depend on the starting state, even when the end state is the same!
-    'Open': [E_Feature_Update_From_Parent, E_Feature_Start_Progress, E_Feature_Reject],
+    'Open': [E_Feature_Rejected, E_Feature_Update_From_Parent, E_Feature_Start_Progress, E_Feature_Reject],
     'Reject': [E_Feature_Open, E_Feature_Update_From_Parent],
+    'Rejected': [E_Feature_Open, E_Feature_Update_From_Parent],
     # -- note: Update From Parent (sometimes!) leaves you in 'Start Progress'
     'Update From Parent': [E_Feature_Start_Progress],
-    'Start Progress': [E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_Merge, E_Feature_Reject],
-    'Blocked': [E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_In_Progress, E_Feature_Reject],
-    'In Progress': [E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_Merge, E_Feature_Reject],
-    'Merge': [E_Feature_Closed, E_Feature_Update_From_Parent, E_Feature_Reject, E_Feature_Reopen],
+    'Start Progress': [E_Feature_Reject, E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_Merge],
+    'Blocked': [E_Feature_Reject, E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_In_Progress],
+    'In Progress': [E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_Merge],
+    'Merge': [E_Feature_Reject, E_Feature_Closed, E_Feature_Update_From_Parent, E_Feature_Reopen],
     # -- note: this is the same as Start Progress
     'Reopen': [E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_Merge, E_Feature_Reject],
     'Close': [E_Feature_Update_From_Parent, E_Feature_Reject],
+    'Closed': [E_Feature_Update_From_Parent, E_Feature_Reject],
 }
 
 UCIS_Open = State('Open', ['Open', "Reopen"])
@@ -135,7 +138,7 @@ class StateMachine:
         if state_map is None:
             log.logger.error("Could not find map to goal: Target %s is at %s, goal is %s",
                              item.key, item.fields.status.name, goal.name)
-            return
+            return False
         else:
             log.logger.info("Target is at %s, goal is %s, expected transitions are %s",
                              item.fields.status.name, goal.name, [item.name for item in state_map])
@@ -148,3 +151,4 @@ class StateMachine:
                         jira.jira_client.transition_issue(item, next_id)
                         item = jira.jira_client.issue(item.key)
             log.logger.info("Final status is %s", item.fields.status.name)
+        return True if state_map else False
