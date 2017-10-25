@@ -164,17 +164,17 @@ servers:  # Required, but not meaningful here...
     # -- AREQ-24757, AREQ-25918
     # command: copy_platform_to_platform
     # query_set: "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]"
-    query_set: "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI] Rejected and AaaG"
+    query_set: "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]"
     name: jira01
     user: None
     password: None
-    comment:  "Add Rejected and AaaG entries"
+    comment:  "Correct Status"
     verify: false
     copy_preq: false
     copy_areq: true
-    CREATE_MISSING_UCIS: true
+    CREATE_MISSING_UCIS: false
     FIX_GID: false
-    UPDATE_FIELDS: true
+    UPDATE_FIELDS: false
     UPDATE_STATUS: true
     # PRIORITY_OVERRIDE: 'P1-Stopper'
     PRIORITY_OVERWRITE: true
@@ -195,6 +195,42 @@ servers:  # Required, but not meaningful here...
     tplatform: Broxton-P IVI
     tversion: O-MR1
     taversion: O-MR1
+
+
+  "AREQ-26896 Clone Broxton-Joule AREQs to KBL-AIA":
+    query_set: "AREQ-26896 Clone Broxton-Joule AREQs to KBL-AIA"
+    name: jira-t3
+    user: None
+    password: None
+    comment:  "Clone Broxton-Joule AREQs to KBL-AIA"
+    verify: false
+    copy_preq: false
+    copy_areq: true
+    CREATE_MISSING_UCIS: false
+    FIX_GID: false
+    UPDATE_FIELDS: true
+    UPDATE_STATUS: true
+    STATUS_OVERRIDE: "Open"
+    # PRIORITY_OVERRIDE: 'P1-Stopper'
+    # PRIORITY_OVERWRITE: true
+    # ASSIGNEE_OVERWRITE: false
+    # ASSIGNEE_INHIBIT: ['hubingqu']
+    # VALIDATION_LEAD_OVERWRITE: false
+    # VALIDATION_LEAD_INHIBIT: ['hubingqu']
+    # -- Should changes be written?
+    update: true
+    createmax: 0
+    # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
+    verify_copy: false
+    clone_from_sibling: true
+    log_level: info
+    output: output.txt
+    splatform: Broxton-Joule
+    sversion: O
+    tplatform: KBL-AIA
+    tversion: O-MR0
+    taversion: O-MR0
+
 
   add_label_to_platform_version:
     # command: add_label_to_platform_version

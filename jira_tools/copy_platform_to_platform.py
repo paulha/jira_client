@@ -4,19 +4,12 @@ from jira.exceptions import JIRAError
 
 
 def update_fields_and_link(jira, source_preq, target_preq, update, update_count, scenario={}, log=None):
-    # read existing values, update only if not set...
-    updated = False
-    validation_lead = jira.get_field_name("Validation Lead")
-    classification = jira.get_field_name("Classification")
-
-    update_fields = {}
-    assignee_fields = {}
-    lead_fields = {}
 
     # FIXME: AREQ-25918 -- Priority should match the priority of the original...
-    def update_value(update_fields, source, target, field_name, tag_name,
+    def _update_value(update_fields, source, target, field_name, tag_name,
                      scenario=None,
                      override_name="", overwrite_name="", inhibit_name=""):
+        """OVERRIDE means 'use this value', OVERWRITE means 'replace the value in target'"""
         this_source_field = getattr(source.fields, field_name, None)
         this_target_field = getattr(target.fields, field_name, None)
         source_value = scenario[override_name] \
@@ -37,18 +30,28 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
                 if source_value is not None and target_str != source_str:
                     update_fields[field_name] = {tag_name: source_value}
 
-    #if target_preq.fields.priority is None and source_preq.fields.priority is not None:
-    #    update_fields['priority'] = {'name': source_preq.fields.priority.name}
-    update_value(update_fields, source_preq, target_preq, 'priority', 'name', scenario, 'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE')
+    # read existing values, update only if not set...
+    updated = False
+    classification = jira.get_field_name("Classification")
 
-    #if target_preq.fields.assignee is None and source_preq.fields.assignee is not None:
-    #    assignee_fields['assignee'] = {'name': source_preq.fields.assignee.name}
-    update_value(update_fields, source_preq, target_preq, 'assignee', 'name', scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE')
+    update_fields = {}
+    assignee_fields = {}
+    lead_fields = {}
 
-    # if getattr(target_preq.fields, validation_lead) is None \
-    #         and getattr(source_preq.fields, validation_lead) is not None:
-    #     lead_fields[validation_lead] = {'name': getattr(source_preq.fields, validation_lead).name}
-    update_value(update_fields, source_preq, target_preq, validation_lead, 'name', scenario, 'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE')
+    _update_value(update_fields, source_preq, target_preq,
+                  'priority', 'name',
+                  scenario, 'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE')
+    # (changed from name to key...)
+    _update_value(update_fields, source_preq, target_preq,
+                  'assignee', 'key',
+                  scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE')
+    # (changed from name to key...)
+    _update_value(update_fields, source_preq, target_preq,
+                  jira.get_field_name("Validation Lead"), 'key',
+                  scenario, 'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE')
+    _update_value(update_fields, source_preq, target_preq,
+                  jira.get_field_name("Planned Release"), 'value',
+                  scenario, 'PLANNED_RELEASE_OVERRIDE', 'PLANNED_RELEASE_OVERWRITE')
 
     if target_preq.fields.issuetype.name not in ['E-Feature']:
         # -- (Can't add classification to E-Feature)
@@ -109,7 +112,10 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
     return update_count
 
 
-def set_translated_status(jira, source, translation_table, default, target, log=None):
+def set_translated_status(jira, source, translation_table, default, target, log=None, scenario=None):
+    #if 'STATUS_OVERRIDE' in scenario and scenario['STATUS_OVERRIDE']:
+    #    pass
+    #else:
     if source.fields.status.name in translation_table:
         translation = translation_table[source.fields.status.name]
     else:
@@ -125,7 +131,7 @@ def set_translated_status(jira, source, translation_table, default, target, log=
     return status_changed
 
 
-def set_ucis_state(jira, source_preq, target_preq, log=None):
+def set_ucis_status(jira, source_preq, target_preq, log=None, scenario=None):
     e_feature_translation = {
         UCIS_Start_Progress.name: {'state': UCIS_Start_Progress, 'comment': "Status set to Start Progress"},
         UCIS_Rejected.name: {'state': UCIS_Rejected, 'comment': "Status set to Rejected"},
@@ -137,22 +143,10 @@ def set_ucis_state(jira, source_preq, target_preq, log=None):
                            'comment': "Re-opened and set to Merged since this was closed under O-MR0 "
                                       "and need to track re-validation against O-MR1."},
     }
-    return set_translated_status(jira, source_preq, e_feature_translation, UCIS_Open, target_preq, log)
-    #
-    # # -- TODO: Update status field of target UCIS
-    # if source_preq.fields.status.name in e_feature_translation:
-    #     translation = e_feature_translation[source_preq.fields.status.name]
-    # else:
-    #     translation = e_feature_translation[UCIS_Open.name]
-    #     log.logger.error("Could not find translation for UCIS %s on %s, set to %s instead",
-    #                      source_preq.fields.status.name, source_preq.key, translation['state'].name)
-    #
-    # StateMachine.transition_to_state(jira, target_preq, translation['state'], log)
-    # if translation['comment']:
-    #     jira.jira_client.add_comment(target_preq, translation['comment'])
+    return set_translated_status(jira, source_preq, e_feature_translation, UCIS_Open, target_preq, log, scenario)
 
 
-def set_e_feature_status(jira, source_e_feature, target_e_feature, log=None):
+def set_e_feature_status(jira, source_e_feature, target_e_feature, log=None, scenario=None):
     e_feature_translation = {
         E_Feature_Open.name: {'state': E_Feature_Open, 'comment': "Status set to Open"},
         # E_Feature_Closed.name: {'state': E_Feature_Closed, 'comment': "Status set to Closed"},
@@ -166,13 +160,15 @@ def set_e_feature_status(jira, source_e_feature, target_e_feature, log=None):
         E_Feature_Blocked.name: {'state': E_Feature_Blocked, 'comment': "Status set to Blocked"},
         E_Feature_Merge.name: {'state': E_Feature_Merge,
                                'comment': "Status set to Merged"},
+        E_Feature_Merged.name: {'state': E_Feature_Merge,
+                               'comment': "Status set to Merged"},
         E_Feature_Reopen.name: {'state': E_Feature_Reopen, 'comment': "Status set to Re-Opened"},
 
         E_Feature_Closed.name: {'state': E_Feature_Merge,
                                 'comment': "Re-opened and set to Merged since this was closed under O-MR0 "
                                            "and need to track re-validation against O-MR1."},
     }
-    return set_translated_status(jira, source_e_feature, e_feature_translation, UCIS_Open, target_e_feature, log)
+    return set_translated_status(jira, source_e_feature, e_feature_translation, E_Feature_Open, target_e_feature, log, scenario)
 
 
 def copy_platform_to_platform(parser, scenario, config, queries, search, log=None):
@@ -313,11 +309,6 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                         existing_preq.update(notify=False, fields=update_fields)
                         updated = True
 
-                # ===================================================================================================
-                # TODO: AREQ-25319
-                # -- AREQ-25319: Copy the priority, assignee, and validation lead from source_preq
-                #                Set "Classification" to "Functional Use Case".
-                #                Set [AaaG] item to original (existing_preq to source_preq, here)
                 #
                 # Note that because of where it is, it only affects PREQs, and we want both...
                 #
@@ -327,7 +318,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                         updated = True
 
                 if update and 'UPDATE_STATUS' in scenario and scenario['UPDATE_STATUS']:
-                    if set_e_feature_status(jira, source_preq, existing_preq, log):
+                    if set_e_feature_status(jira, source_preq, existing_preq, log, scenario):
                         updated = True
 
                 # ===================================================================================================
@@ -336,24 +327,21 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 # -- This Target PREQ is missing, so use Source preq as template to create a new UCIS for the platform:
                 log.logger.debug("Need to create new UCIS for: '%s'", target_summary)
                 if update and ('CREATE_MISSING_UCIS' not in scenario or scenario['CREATE_MISSING_UCIS']):
-                    # FIXME: AREQ-25918 -- Priority should match the priority of the original...
-
                     # -- Create a new UCIS(!) PREQ
                     result = jira.create_ucis(target_summary, source_preq, scenario, log)
                     log.logger.info("Created a new UCIS %s for %s", result.key, target_summary)
 
-                    set_ucis_state(jira, source_preq, result, log)
-
                     updated = True
                     ucis_created += 1
+
+                    if update and 'UPDATE_STATUS' in scenario and scenario['UPDATE_STATUS']:
+                        if set_ucis_status(jira, source_preq, result, log, scenario):
+                           updated = True
 
                     if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
                         count = update_fields_and_link(jira, source_preq, result, update, 0, scenario, log)
                         if count != 0:
                             updated = True
-
-                    if set_e_feature_status(jira, source_preq, result, log):
-                        updated = True
 
                 else:
                     log.logger.warning("Target UCIS is missing, sourced from %s: '%s'", source_preq.key, target_summary)
@@ -401,7 +389,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                         updated = True
 
                 if update and 'UPDATE_STATUS' in scenario and scenario['UPDATE_STATUS']:
-                    if set_e_feature_status(jira, source_e_feature, existing_feature, log):
+                    if set_e_feature_status(jira, source_e_feature, existing_feature, log, scenario):
                         updated = True
             else:
                 if update:
@@ -419,8 +407,9 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                         if count != 0:
                             updated = True
 
-                    if set_e_feature_status(jira, source_e_feature, created_e_feature, log):
-                        updated = True
+                    if update and 'UPDATE_STATUS' in scenario and scenario['UPDATE_STATUS']:
+                        if set_e_feature_status(jira, source_e_feature, created_e_feature, log, scenario):
+                            updated = True
 
                 else:
                     log.logger.info("Target E-Feature is missing for Source E-Feature %s, Feature %s: '%s'",
