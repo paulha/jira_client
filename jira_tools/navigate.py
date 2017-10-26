@@ -9,8 +9,11 @@ class State:
 
 Open = 'Open'
 In_Progress = 'In Progress'
+Close = 'Close'
 Closed = 'Closed'
+Merge = 'Merge'
 Merged = 'Merged'
+Reject = 'Reject'
 Rejected = 'Rejected'
 Blocked = 'Blocked'
 New = 'New'
@@ -25,18 +28,19 @@ Feature_Rejected = State('Rejected', ['Reject', 'Rejected'])
 Feature_Candidate = State('Candidate', ['Candidate'])
 Feature_Deprecated = State('Deprecated', ['Deprecated'])
 
-Feature_map = {
+"""Feature_map = {
     'New': [Feature_In_Review, Feature_Blocked, Feature_Rejected],
     'Rejected': [Feature_In_Review, Feature_New, Feature_Blocked],
     'Blocked': [Feature_Blocked, Feature_In_Review, Feature_Rejected],
     'In Review': [Feature_Candidate, Feature_Blocked, Feature_New, Feature_Rejected],
     'Candidate': [Feature_In_Review, Feature_Deprecated],
     'Deprecated': [Feature_Candidate]
-}
+}"""
 
 Feature_Targets = {
     (New, New): [],
     (New, Blocked): [Feature_Blocked],
+    (New, Reject): [Feature_Rejected],
     (New, Rejected): [Feature_Rejected],
     (New, In_Review): [Feature_In_Review],
     (New, Candidate): [Feature_In_Review, Feature_Candidate],
@@ -90,7 +94,7 @@ E_Feature_Merged = State('Merged', ['Merge'])
 E_Feature_Reopen = State('Reopen', ['Reopen'])
 E_Feature_Update_From_Parent = State("Update From Parent", ["Update From Parent"])
 
-E_Feature_map = {
+"""E_Feature_map = {
     # -- NOTE: That transition values depend on the starting state, even when the end state is the same!
     'Open': [E_Feature_Rejected, E_Feature_Update_From_Parent, E_Feature_Start_Progress, E_Feature_Reject],
     'Reject': [E_Feature_Open, E_Feature_Update_From_Parent],
@@ -106,7 +110,7 @@ E_Feature_map = {
     'Reopen': [E_Feature_Blocked, E_Feature_Update_From_Parent, E_Feature_Merge, E_Feature_Reject],
     'Close': [E_Feature_Update_From_Parent, E_Feature_Reject],
     'Closed': [E_Feature_Update_From_Parent, E_Feature_Reject],
-}
+}"""
 
 
 E_Feature_Targets = {
@@ -153,7 +157,7 @@ E_Feature_Targets = {
     (Closed, Blocked): [E_Feature_Open, E_Feature_In_Progress, E_Feature_Blocked],
 }
 
-UCIS_Open = State('Open', ['Open', "Reopen"])
+UCIS_Open = State('Open', ['To Open', 'Open', "Reopen"])
 UCIS_Start_Progress = State('Start Progress', ['Start Progress'])
 UCIS_Rejected = State('Rejected', ['Rejected', "To Rejected"])
 UCIS_Blocked = State('Blocked', ['Blocked', "To Blocked"])
@@ -161,6 +165,7 @@ UCIS_Merged = State('Merged', ['Merged', "To Merged"])
 UCIS_Closed = State('Closed', ["Edit Closed Issues", "Close Issue"])
 UCIS_Edit_Closed_Issue = State("Edit Closed Issues", ["Edit Closed Issues"])
 
+"""
 UCIS_map = {
     'Open': [UCIS_Start_Progress, UCIS_Rejected],
     'Start Progress': [UCIS_Blocked, UCIS_Rejected, UCIS_Merged],
@@ -168,7 +173,7 @@ UCIS_map = {
     'Blocked': [UCIS_Rejected, UCIS_Start_Progress, UCIS_Merged],
     'Merged': [UCIS_Open, UCIS_Closed, UCIS_Rejected],
     'Close': [UCIS_Edit_Closed_Issue, E_Feature_Reject]
-}
+}"""
 
 UCIS_Targets = {
     (Open, Open): [],
@@ -178,7 +183,7 @@ UCIS_Targets = {
     (Open, Merged): [UCIS_Start_Progress, UCIS_Merged],
     (Open, Closed): [UCIS_Start_Progress, UCIS_Merged, UCIS_Closed],
 
-    (In_Progress, Open): [UCIS_Open],
+    (In_Progress, Open): [UCIS_Rejected, UCIS_Open],
     (In_Progress, In_Progress): [],
     (In_Progress, Rejected): [UCIS_Rejected],
     (In_Progress, Blocked): [UCIS_Blocked],
@@ -199,7 +204,7 @@ UCIS_Targets = {
     (Blocked, Merged): [UCIS_Merged],
     (Blocked, Closed): [UCIS_Merged, UCIS_Closed],
 
-    (Merged, Open): [UCIS_Closed, UCIS_Open],
+    (Merged, Open): [UCIS_Rejected, UCIS_Open],
     (Merged, In_Progress): [UCIS_Start_Progress],
     (Merged, Rejected): [UCIS_Rejected],
     (Merged, Blocked): [UCIS_Start_Progress, UCIS_Blocked],
@@ -215,94 +220,79 @@ UCIS_Targets = {
 
 }
 
-TypeToMap = {
+"""TypeToMap = {
     'UCIS': UCIS_map,
     'Feature': Feature_map,
     'E-Feature': E_Feature_map
+}"""
+
+TypeToStateMap = {
+    'UCIS': UCIS_Targets,
+    'Feature': Feature_Targets,
+    'E-Feature': E_Feature_Targets
 }
 
 
-class StateMachine:
-    Open = State('Open', 'to_open')
-    Closed = State('Closed', 'close')
-    InProgress = State('In Progress', 'in_progress')
-    Rejected = State('Rejected', 'reject')
-    Blocked = State('Blocked', 'block')
-    Merged = State('Merged', 'to_merge')
+aliases = {
+    'Start Progress': 'In Progress',
+    'Closed': 'Close',
+    'Merge': 'Merged',
+    'Reopened': 'Reopen',
+    'Reject': 'Rejected'
+}
 
-    state_map = {
-        None: [Open],
-        Open.name: [InProgress, Rejected],
-        Rejected.name: [Open],
-        InProgress.name: [Merged, Blocked, Rejected],
-        Blocked.name: [InProgress, Merged, Rejected],
-        Merged.name: [Closed],
-        Closed.name: []  # I think!
-    }
+def alias(name):
+    if name in aliases:
+        name = aliases[name]
+    return name
 
-    def __init__(self, state_map=state_map, start=None):
-        self.current_state = start
-        self.transition_map = state_map
+# @staticmethod
+def transition_to_state(jira, item, goal, log=None):
+    # -- TODO: A deterministic algorithm
+    # -- TODO: Flag an error if the achieved status is not the same as the desired status
+    # -- TODO: Notice that this doesn't always detect when item and goal status are identical
+    if item.fields.issuetype.name in TypeToStateMap:
+        transition_map = TypeToStateMap[item.fields.issuetype.name]
+    else:
+        log.logger.error("Unable to match item type '%s' to a transition category", item.fields.issuetype.name)
 
-    def get_state(self):
-        return self.current_state
+    state_pair = (alias(item.fields.status.name), alias(goal.name))
+    if state_pair in transition_map:
+        state_list = transition_map[state_pair]
+    else:
+        state_list = None
+        log.logger.error("Unable to match start and end status '%s' to transition list for %s",
+                         state_pair, item.fields.issuetype.name)
 
-    def goto_state(self, next_state):
-        if self.current_state is None:
-            self.current_state = self.transition_map[self.current_state][0]
-        if next_state in self.transition_map[self.current_state]:
-            self.current_state = next_state
-        else:
-            raise Exception("Forbidden Transition")
-        return self.current_state
+    if state_list is None:
+        log.logger.error("Could not find map to goal: Target %s is at %s, goal is %s",
+                         item.key, item.fields.status.name, goal.name)
+        return False
+    else:
+        log.logger.info("Target is at %s, goal is %s, expected transitions are %s",
+                        item.fields.status.name, goal.name, [item.name for item in state_list])
+        for state in state_list:
+            available_transitions = {item['name']: item['id'] for item in jira.jira_client.transitions(item)}
+            next_id = None
+            for name in state.to_label:
+                if name in available_transitions:
+                    next_id = available_transitions[name]
 
-    @staticmethod
-    def find_map_to_state(start, goal, transition_map, accum=None, visited=[]):
-        if start == goal:
-            return []
-        for trial in transition_map[start]:
-            if trial.name in visited:
-                continue
-            visited.append(trial.name)
-            search = [item for item in transition_map[start] if goal == item.name]
-            if search:
-                return search
+            if next_id is not None:
+                log.logger.info("Attempt transition from %s, to %s", item.fields.status.name, name)
+                jira.jira_client.transition_issue(item, next_id)
+                item = jira.jira_client.issue(item.key)
+                # -- abort if transition is not successful!
+                if alias(item.fields.status.name) != alias(state.name):
+                    log.logger.error("Status for %s did not transition correctly. Should have been '%s' and is '%s'",
+                                     item.key, state.name, item.fields.status.name)
+                    break
             else:
-                result = StateMachine.find_map_to_state(trial.name, goal, transition_map, accum, visited)
-                if result is not None:
-                    result.insert(0, trial)
-                    return result
-                else:
-                    return None
+                log.logger.error("In pair %s Target state '%s' for '%s' not found in available transitions: %s",
+                                 state_pair, name, item.fields.issuetype.name, available_transitions)
+        log.logger.info("Final status is %s", item.fields.status.name)
 
-        return None
-
-    @staticmethod
-    def transition_to_state(jira, item, goal, log=None):
-        # -- TODO: A deterministic algorithm
-        # -- TODO: Flag an error if the achieved status is not the same as the desired status
-        # -- TODO: Notice that this doesn't always detect when item and goal status are identical
-        transition_map = TypeToMap[item.fields.issuetype.name]
-        visited = []
-        if item.fields.status.name == goal.name:
-            state_map = []
-        else:
-            state_map = StateMachine.find_map_to_state(item.fields.status.name, goal.name, transition_map, visited=visited)
-
-        if state_map is None:
-            log.logger.error("Could not find map to goal: Target %s is at %s, goal is %s",
-                             item.key, item.fields.status.name, goal.name)
-            return False
-        else:
-            log.logger.info("Target is at %s, goal is %s, expected transitions are %s",
-                             item.fields.status.name, goal.name, [item.name for item in state_map])
-            for state in state_map:
-                available_transitions = {item['name']: item['id'] for item in jira.jira_client.transitions(item)}
-                for name in state.to_label:
-                    if name in available_transitions:
-                        next_id = available_transitions[name]
-                        log.logger.info("Attempt transition from %s, to %s", item.fields.status.name, name)
-                        jira.jira_client.transition_issue(item, next_id)
-                        item = jira.jira_client.issue(item.key)
-            log.logger.info("Final status is %s", item.fields.status.name)
-        return True if state_map else False
+        if alias(item.fields.status.name) != alias(goal.name):
+            log.logger.error("Status for %s was not set correctly. Should have been '%s' and is '%s'",
+                             item.key, goal.name, item.fields.status.name)
+    return True if state_list else False

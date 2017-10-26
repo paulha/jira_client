@@ -124,7 +124,7 @@ def set_translated_status(jira, source, translation_table, default, target, log=
                          source.fields.itemtype, source.fields.status.name, target.key,
                          translation['state'].name)
 
-    status_changed = StateMachine.transition_to_state(jira, target, translation['state'], log)
+    status_changed = transition_to_state(jira, target, translation['state'], log)
     if status_changed and translation['comment']:
         jira.jira_client.add_comment(target, translation['comment'])
 
@@ -206,6 +206,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     processing_errors = 0
 
     update_count = 0
+    preq_count = 0
+    areq_count = 0
 
     def compare_items(item_kind, source_name, source_query, target_name, target_query, log=None):
         def read_items(query, log=None):
@@ -280,6 +282,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     # (Get the list of already existing PREQs for this platform and version!)
     if 'copy_preq' not in scenario or scenario['copy_preq']:    # e.g., copy_preq is undefined or copy_preq = True
         for source_preq in jira.do_query(preq_source_query):
+            preq_count += 1
             updated = False
             # # -- Remove old version and platform, prepend new version and platform
             source_preq_scanned += 1
@@ -289,7 +292,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
             existing_preq = jira.get_item(preq_summary=target_summary, log=log)
             if existing_preq is not None:
                 # -- This is good, PREQ is already there so nothing to do.
-                log.logger.info("Found existing UCIS: %s '%s'", existing_preq.key, existing_preq.fields.summary)
+                log.logger.info("%s Found existing UCIS: %s '%s'",
+                                preq_count, existing_preq.key, existing_preq.fields.summary)
                 # -- Note: Patch the GID entry of this item...
                 if 'FIX_GID' in scenario and scenario['FIX_GID']:
                     update_fields = {}
@@ -329,7 +333,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 if update and ('CREATE_MISSING_UCIS' not in scenario or scenario['CREATE_MISSING_UCIS']):
                     # -- Create a new UCIS(!) PREQ
                     result = jira.create_ucis(target_summary, source_preq, scenario, log)
-                    log.logger.info("Created a new UCIS %s for %s", result.key, target_summary)
+                    log.logger.info("%s Created a new UCIS %s for %s", areq_count, result.key, target_summary)
 
                     updated = True
                     ucis_created += 1
@@ -361,6 +365,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     if 'copy_areq' not in scenario or scenario['copy_areq']:    # e.g., copy_areq is undefined or copy_areq = True
         features = [feature for feature in jira.do_query(areq_source_e_feature_query)]
         for source_e_feature in features:
+            areq_count += 1
             updated = False
             # -- The parent for this one should already be in source_features
             source_areq_scanned += 1
@@ -381,8 +386,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
 
             if existing_feature is not None:
                 # -- This E-Feature already exists, don't touch it!
-                log.logger.info("The targeted E-Feature '%s' already exists! %s: %s",
-                                target_summary, existing_feature.key, existing_feature.fields.summary)
+                log.logger.info("%s The targeted E-Feature '%s' already exists! %s: %s",
+                                areq_count, target_summary, existing_feature.key, existing_feature.fields.summary)
                 if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
                     count = update_fields_and_link(jira, source_e_feature, existing_feature, update, 0, scenario, log)
                     if count != 0:
@@ -393,7 +398,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                         updated = True
             else:
                 if update:
-                    log.logger.info("Creating a new E-Feature for Feature %s: %s", parent_feature.key, target_summary)
+                    log.logger.info("%s Creating a new E-Feature for Feature %s: %s",
+                                    areq_count, parent_feature.key, target_summary)
                     if 'clone_from_sibling' in scenario and scenario['clone_from_sibling']:
                         created_e_feature = jira.clone_e_feature_from_e_feature(target_summary, parent_feature, source_e_feature, scenario, log=log)
                     else:
@@ -412,8 +418,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                             updated = True
 
                 else:
-                    log.logger.info("Target E-Feature is missing for Source E-Feature %s, Feature %s: '%s'",
-                                    source_e_feature.key, parent_feature.key, target_summary)
+                    log.logger.info("%s Target E-Feature is missing for Source E-Feature %s, Feature %s: '%s'",
+                                    areq_count, source_e_feature.key, parent_feature.key, target_summary)
                     # -- Create a new E-Feature(!) PREQ
 
             if updated:

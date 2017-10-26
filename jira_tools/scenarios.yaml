@@ -165,22 +165,22 @@ servers:  # Required, but not meaningful here...
     # command: copy_platform_to_platform
     # query_set: "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]"
     query_set: "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]"
-    name: jira01
+    name: jira-t3
     user: None
     password: None
     comment:  "Correct Status"
     verify: false
-    copy_preq: false
-    copy_areq: true
-    CREATE_MISSING_UCIS: false
-    FIX_GID: false
-    UPDATE_FIELDS: false
+    copy_preq: true
+    copy_areq: false
+    CREATE_MISSING_UCIS: true
+    FIX_GID: true
+    UPDATE_FIELDS: true
     UPDATE_STATUS: true
     # PRIORITY_OVERRIDE: 'P1-Stopper'
     PRIORITY_OVERWRITE: true
-    ASSIGNEE_OVERWRITE: false
+    ASSIGNEE_OVERWRITE: true
     ASSIGNEE_INHIBIT: ['hubingqu']
-    VALIDATION_LEAD_OVERWRITE: false
+    VALIDATION_LEAD_OVERWRITE: true
     VALIDATION_LEAD_INHIBIT: ['hubingqu']
     # -- Should changes be written?
     update: true
