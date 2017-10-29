@@ -113,19 +113,21 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
 
 
 def set_translated_status(jira, source, translation_table, default, target, log=None, scenario=None):
-    #if 'STATUS_OVERRIDE' in scenario and scenario['STATUS_OVERRIDE']:
-    #    pass
-    #else:
-    if source.fields.status.name in translation_table:
-        translation = translation_table[source.fields.status.name]
+    translation = None
+    if 'STATUS_OVERRIDE' in scenario and scenario['STATUS_OVERRIDE']:
+        name = normalize(scenario['STATUS_OVERRIDE'])
+    else:
+        name = normalize(source.fields.status.name)
+    if name in translation_table:
+        translation = translation_table[name]
     else:
         translation = translation_table[default.name]
         log.logger.error("Could not find translation for %s %s on %s, set to %s instead",
-                         source.fields.itemtype, source.fields.status.name, target.key,
+                         source.fields.issuetype, source.fields.status.name, target.key,
                          translation['state'].name)
 
     status_changed = transition_to_state(jira, target, translation['state'], log)
-    if status_changed and translation['comment']:
+    if status_changed and translation is not None and translation['comment']:
         jira.jira_client.add_comment(target, translation['comment'])
 
     return status_changed
@@ -134,12 +136,11 @@ def set_translated_status(jira, source, translation_table, default, target, log=
 def set_ucis_status(jira, source_preq, target_preq, log=None, scenario=None):
     e_feature_translation = {
         UCIS_Start_Progress.name: {'state': UCIS_Start_Progress, 'comment': "Status set to Start Progress"},
-        UCIS_Rejected.name: {'state': UCIS_Rejected, 'comment': "Status set to Rejected"},
+        UCIS_Reject.name: {'state': UCIS_Rejected, 'comment': "Status set to Rejected"},
         UCIS_Open.name: {'state': UCIS_Open, 'comment': "Status set to Open"},
-        UCIS_Edit_Closed_Issue.name: {'state': UCIS_Edit_Closed_Issue, 'comment': "Status set to Edit Closed Issues"},
         UCIS_Blocked.name: {'state': UCIS_Blocked, 'comment': "Status set to Blocked"},
         UCIS_Merged.name: {'state': UCIS_Merged, 'comment': "Status set to Merged"},
-        UCIS_Closed.name: {'state': UCIS_Merged,
+        UCIS_Close.name: {'state': UCIS_Merged,
                            'comment': "Re-opened and set to Merged since this was closed under O-MR0 "
                                       "and need to track re-validation against O-MR1."},
     }
@@ -149,9 +150,8 @@ def set_ucis_status(jira, source_preq, target_preq, log=None, scenario=None):
 def set_e_feature_status(jira, source_e_feature, target_e_feature, log=None, scenario=None):
     e_feature_translation = {
         E_Feature_Open.name: {'state': E_Feature_Open, 'comment': "Status set to Open"},
-        # E_Feature_Closed.name: {'state': E_Feature_Closed, 'comment': "Status set to Closed"},
+        E_Feature_Close.name: {'state': E_Feature_Merge, 'comment': "Status set to Closed"},
         E_Feature_Reject.name: {'state': E_Feature_Reject, 'comment': "Status set to Rejected"},
-        E_Feature_Rejected.name: {'state': E_Feature_Rejected, 'comment': "Status set to Rejected"},
         E_Feature_Start_Progress.name: {'state': E_Feature_Start_Progress,
                                         'comment': "Status set to Start Progress"},
         E_Feature_In_Progress.name: {'state': E_Feature_In_Progress,
@@ -160,13 +160,7 @@ def set_e_feature_status(jira, source_e_feature, target_e_feature, log=None, sce
         E_Feature_Blocked.name: {'state': E_Feature_Blocked, 'comment': "Status set to Blocked"},
         E_Feature_Merge.name: {'state': E_Feature_Merge,
                                'comment': "Status set to Merged"},
-        E_Feature_Merged.name: {'state': E_Feature_Merge,
-                               'comment': "Status set to Merged"},
         E_Feature_Reopen.name: {'state': E_Feature_Reopen, 'comment': "Status set to Re-Opened"},
-
-        E_Feature_Closed.name: {'state': E_Feature_Merge,
-                                'comment': "Re-opened and set to Merged since this was closed under O-MR0 "
-                                           "and need to track re-validation against O-MR1."},
     }
     return set_translated_status(jira, source_e_feature, e_feature_translation, E_Feature_Open, target_e_feature, log, scenario)
 

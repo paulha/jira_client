@@ -177,6 +177,7 @@ servers:  # Required, but not meaningful here...
     UPDATE_FIELDS: true
     UPDATE_STATUS: true
     # PRIORITY_OVERRIDE: 'P1-Stopper'
+    # STATUS_OVERRIDE: "Blocked"
     PRIORITY_OVERWRITE: true
     ASSIGNEE_OVERWRITE: true
     ASSIGNEE_INHIBIT: ['hubingqu']
@@ -199,7 +200,7 @@ servers:  # Required, but not meaningful here...
 
   "AREQ-26896 Clone Broxton-Joule AREQs to KBL-AIA":
     query_set: "AREQ-26896 Clone Broxton-Joule AREQs to KBL-AIA"
-    name: jira-t3
+    name: jira01
     user: None
     password: None
     comment:  "Clone Broxton-Joule AREQs to KBL-AIA"
@@ -214,9 +215,9 @@ servers:  # Required, but not meaningful here...
     # PRIORITY_OVERRIDE: 'P1-Stopper'
     # PRIORITY_OVERWRITE: true
     # ASSIGNEE_OVERWRITE: false
-    # ASSIGNEE_INHIBIT: ['hubingqu']
+    ASSIGNEE_INHIBIT: ['hubingqu']
     # VALIDATION_LEAD_OVERWRITE: false
-    # VALIDATION_LEAD_INHIBIT: ['hubingqu']
+    VALIDATION_LEAD_INHIBIT: ['hubingqu']
     # -- Should changes be written?
     update: true
     createmax: 0
@@ -228,8 +229,8 @@ servers:  # Required, but not meaningful here...
     splatform: Broxton-Joule
     sversion: O
     tplatform: KBL-AIA
-    tversion: O-MR0
-    taversion: O-MR0
+    tversion: O
+    taversion: O
 
 
   add_label_to_platform_version:

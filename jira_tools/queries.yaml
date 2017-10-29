@@ -104,9 +104,9 @@ servers:
         "Copy [O][Broxton-P IVI] to [O-MR1][Broxton-P IVI]":
             # -- AREQ-24757, AREQ-25918
             #preq_source_query:         'key="PREQ-23800" and project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
-            areq_source_e_feature:     'key="AREQ-21218" and project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
+            #areq_source_e_feature:     'key="AREQ-21218" and project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
             preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
-            #areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
             # preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
             preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) order by key'
             # areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
@@ -204,10 +204,10 @@ servers:
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
         "AREQ-26896 Clone Broxton-Joule AREQs to KBL-AIA":
-            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
-            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) order by key'
-            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
-            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) order by key'
+            preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Exists On" = BXT-Joule order by key'
+            preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Exists On" = BXT-Joule order by key'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Exists On" = BXT-Joule order by key'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Exists On" = BXT-Joule order by key'
             target_feature_query:      'project = AREQ AND issuetype=Feature AND AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
