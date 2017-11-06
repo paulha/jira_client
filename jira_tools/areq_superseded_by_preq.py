@@ -261,7 +261,7 @@ class Supersede:
                 self.log.logger.info("Setting %s to Rejected" % (self.areq.key))
                 target_state = {
                     'Feature': Feature_Rejected,
-                    'E-Feature': E_Feature_Reject,
+                    'E-Feature': E_Feature_Rejected,
                     'UCIS': UCIS_Rejected,
                 }[self.areq.fields.issuetype.name]
                 StateMachine.transition_to_state(self.jira, self.areq, target_state, self.log)

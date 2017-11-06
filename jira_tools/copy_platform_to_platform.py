@@ -135,7 +135,7 @@ def set_translated_status(jira, source, translation_table, default, target, log=
 
 def set_ucis_status(jira, source_preq, target_preq, log=None, scenario=None):
     e_feature_translation = {
-        UCIS_Start_Progress.name: {'state': UCIS_Start_Progress, 'comment': "Status set to Start Progress"},
+        UCIS_In_Progress.name: {'state': UCIS_In_Progress, 'comment': "Status set to Start Progress"},
         UCIS_Reject.name: {'state': UCIS_Rejected, 'comment': "Status set to Rejected"},
         UCIS_Open.name: {'state': UCIS_Open, 'comment': "Status set to Open"},
         UCIS_Blocked.name: {'state': UCIS_Blocked, 'comment': "Status set to Blocked"},
@@ -151,7 +151,7 @@ def set_e_feature_status(jira, source_e_feature, target_e_feature, log=None, sce
     e_feature_translation = {
         E_Feature_Open.name: {'state': E_Feature_Open, 'comment': "Status set to Open"},
         E_Feature_Close.name: {'state': E_Feature_Merge, 'comment': "Status set to Closed"},
-        E_Feature_Reject.name: {'state': E_Feature_Reject, 'comment': "Status set to Rejected"},
+        E_Feature_Rejected.name: {'state': E_Feature_Rejected, 'comment': "Status set to Rejected"},
         E_Feature_Start_Progress.name: {'state': E_Feature_Start_Progress,
                                         'comment': "Status set to Start Progress"},
         E_Feature_In_Progress.name: {'state': E_Feature_In_Progress,
