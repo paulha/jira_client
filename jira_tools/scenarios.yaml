@@ -233,6 +233,42 @@ servers:  # Required, but not meaningful here...
     taversion: O
 
 
+  "AREQ-27297 Clone the XLS list of AREQS to [O][KBL-AIA]":
+    xls_source: "AREQs_AIA_ToPaul_Final.xlsx"
+    query_set: "AREQ-27297 Clone the XLS list of AREQS to [O][KBL-AIA]"
+    name: jira01
+    user: None
+    password: None
+    comment:  "Copy using spreadsheet..."
+    verify: false
+    copy_preq: true
+    copy_areq: true
+    CREATE_MISSING_UCIS: false
+    FIX_GID: false
+    UPDATE_FIELDS: true
+    UPDATE_STATUS: true
+    STATUS_OVERRIDE: "Open"
+    # PRIORITY_OVERRIDE: 'P1-Stopper'
+    # PRIORITY_OVERWRITE: true
+    # ASSIGNEE_OVERWRITE: false
+    ASSIGNEE_INHIBIT: ['hubingqu']
+    # VALIDATION_LEAD_OVERWRITE: false
+    VALIDATION_LEAD_INHIBIT: ['hubingqu']
+    # -- Should changes be written?
+    update: false
+    createmax: 1
+    # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
+    verify_copy: false
+    clone_from_sibling: true
+    log_level: info
+    output: output.txt
+    splatform: Broxton-Joule
+    sversion: O
+    tplatform: KBL-AIA
+    tversion: O
+    taversion: O
+
+
   add_label_to_platform_version:
     # command: add_label_to_platform_version
     # query_set: "add_label_to_platform_version_AaaG"

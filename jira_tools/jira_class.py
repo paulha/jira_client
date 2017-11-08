@@ -22,8 +22,8 @@ def get_query(query_name, queries, group_name, params=None, log=None):
 
     # -- Make sure search query is defined
     if query_name not in items:
-        log.logger.fatal("Search query for %s.search is missing: %s", query_name, queries)
-        exit(-1)
+        log.logger.warning("Search query for %s search is not found: %s", query_name, queries)
+        return None
 
     query = items[query_name]
     if params is not None:
@@ -384,6 +384,9 @@ class Jira:
                                         scenario['comment'] if scenario['comment'] is not None else ""))
         log.logger.info("Created E-Feature %s for Feature %s: ", created_e_feature.key, parent_feature.key)
         return created_e_feature
+
+    def issue(self, id, fields=None, expand=None):
+        return self.jira_client.issue(id, fields, expand)
 
     # -- Static utility functions...
     @staticmethod

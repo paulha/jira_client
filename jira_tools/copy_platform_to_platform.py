@@ -1,3 +1,5 @@
+import sys
+from os.path import expanduser, pathsep, dirname, realpath
 from jira_class import Jira, get_query
 from navigate import *
 from jira.exceptions import JIRAError
@@ -168,9 +170,37 @@ def set_e_feature_status(jira, source_e_feature, target_e_feature, log=None, sce
 def copy_platform_to_platform(parser, scenario, config, queries, search, log=None):
     """Copy platform to platform, based on the UCIS and E-Feature entries of the source platform"""
 
-    preq_source_query = get_query('preq_source_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
+    #
+    # -- Some sleight of hand here... Original code iterates the results of a JQL query.
+    #    If xls_source, this will read in an XLS file, look for a column named "Key" and
+    #    read those key values from Jira as source items.
+    #
+    if 'xls_source' in scenario:
+        import pandas as pd
+        source_file = realpath(dirname(realpath(sys.argv[0])) + '/../' + scenario['xls_source'])
+        data_frame = pd.read_excel(source_file, sheetname=0)
+        def preq_item_list(jira):
+            for key in data_frame['Key']:
+                if key.upper().startswith('PREQ'):
+                    yield jira.issue(key)
+
+        def areq_e_feature_list(jira):
+            for key in data_frame['Key']:
+                if key.upper().startswith('AREQ'):
+                    yield jira.issue(key)
+    else:
+        preq_source_query = get_query('preq_source_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
+        if preq_source_query is not None:
+            def preq_item_list(jira):
+                return jira.do_query(preq_source_query)
+
+        areq_source_e_feature_query = get_query('areq_source_e_feature', queries, copy_platform_to_platform.__name__,
+                                                params=scenario, log=log)
+        if areq_source_e_feature_query is not None:
+            def areq_e_feature_list(jira):
+                return jira.do_query(areq_source_e_feature_query)
+
     preq_target_query = get_query('preq_target_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
-    areq_source_e_feature_query = get_query('areq_source_e_feature', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
     areq_target_e_feature_query = get_query('areq_target_e_feature', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
     target_feature_query = get_query('target_feature_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
     target_summary_format = get_query('target_summary_format', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
@@ -275,7 +305,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     # -- Copy source preqs to target:
     # (Get the list of already existing PREQs for this platform and version!)
     if 'copy_preq' not in scenario or scenario['copy_preq']:    # e.g., copy_preq is undefined or copy_preq = True
-        for source_preq in jira.do_query(preq_source_query):
+        for source_preq in preq_item_list(jira):
             preq_count += 1
             updated = False
             # # -- Remove old version and platform, prepend new version and platform
@@ -357,8 +387,9 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     # -- copy source e-features to output
     #    This keeps having an exception because the total number of items seems to be changing...
     if 'copy_areq' not in scenario or scenario['copy_areq']:    # e.g., copy_areq is undefined or copy_areq = True
-        features = [feature for feature in jira.do_query(areq_source_e_feature_query)]
-        for source_e_feature in features:
+        # features = [feature for feature in areq_e_feature_list(jira)]
+        # for source_e_feature in features:
+        for source_e_feature in areq_e_feature_list(jira):
             areq_count += 1
             updated = False
             # -- The parent for this one should already be in source_features
@@ -380,8 +411,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
 
             if existing_feature is not None:
                 # -- This E-Feature already exists, don't touch it!
-                log.logger.info("%s The targeted E-Feature '%s' already exists! %s: %s",
-                                areq_count, target_summary, existing_feature.key, existing_feature.fields.summary)
+                log.logger.info("%s The targeted E-Feature '%s' already exists! %s, %s: %s",
+                                areq_count, target_summary, source_e_feature.key, existing_feature.key, existing_feature.fields.summary)
                 if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
                     count = update_fields_and_link(jira, source_e_feature, existing_feature, update, 0, scenario, log)
                     if count != 0:
