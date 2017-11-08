@@ -251,11 +251,13 @@ servers:  # Required, but not meaningful here...
     # PRIORITY_OVERRIDE: 'P1-Stopper'
     # PRIORITY_OVERWRITE: true
     # ASSIGNEE_OVERWRITE: false
-    ASSIGNEE_INHIBIT: ['hubingqu']
+    ASSIGNEE_OVERRIDE: ""
+    # ASSIGNEE_INHIBIT: ['hubingqu']
+    VALIDATION_LEAD_OVERRide: ""
     # VALIDATION_LEAD_OVERWRITE: false
-    VALIDATION_LEAD_INHIBIT: ['hubingqu']
+    # VALIDATION_LEAD_INHIBIT: ['hubingqu']
     # -- Should changes be written?
-    update: false
+    update: true
     createmax: 1
     # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
     verify_copy: false
