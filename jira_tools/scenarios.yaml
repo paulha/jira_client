@@ -243,11 +243,16 @@ servers:  # Required, but not meaningful here...
     verify: false
     copy_preq: true
     copy_areq: true
-    CREATE_MISSING_UCIS: false
-    FIX_GID: false
+    CREATE_MISSING_UCIS: true
+    FIX_GID: true
     UPDATE_FIELDS: true
     UPDATE_STATUS: true
-    STATUS_OVERRIDE: "Open"
+    # OVERRIDE means 'use this value', OVERWRITE means 'replace the value in target'
+    # INHIBIT means 'suppress writing these values' (replace with empty)
+    # ASSIGNEE, VALIDATION_LEAD, PRIORITY
+    # Note: What about Status?
+    # STATUS_OVERRIDE: "Open"
+    STATUS_MAP: {open: open, 'in process': in process, blocked: blocked, rejected: rejected, merged: merged, closed: closed}
     # PRIORITY_OVERRIDE: 'P1-Stopper'
     # PRIORITY_OVERWRITE: true
     # ASSIGNEE_OVERWRITE: false
@@ -267,8 +272,8 @@ servers:  # Required, but not meaningful here...
     splatform: Broxton-Joule
     sversion: O
     tplatform: KBL-AIA
-    tversion: O
-    taversion: O
+    tversion: O-MR2
+    taversion: O-MR2
 
 
   add_label_to_platform_version:

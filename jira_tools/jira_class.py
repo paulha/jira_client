@@ -109,18 +109,26 @@ class Jira:
             else None
         source_str = source_value.__str__() if source_value is not None else ""
 
-        target_str = target_value = this_target_field = None
         if target is not None:
+            # Retrieve the current value of the target field, for write optimization
             this_target_field = getattr(target.fields, field_name, None)
             target_value = getattr(this_target_field, tag_name) \
                 if this_target_field is not None \
                 else None
             target_str = target_value.__str__() if target_value is not None else ""
+        else:
+            target_str = target_value = this_target_field = None
 
-        # -- If overwrite is unspecified OR target is None OR overwrite flag is True
-        if overwrite_name not in scenario or this_target_field is not None or scenario[overwrite_name]:
-            if inhibit_name \
-                    and source_str not in (scenario[inhibit_name] if inhibit_name in scenario else []):
+        # -- If overwrite is sepcified AND it is true...
+        #    OR it is not specified
+        # an override value was provided
+        #    OR
+        if (overwrite_name in scenario and scenario[overwrite_name]) \
+            or overwrite_name not in scenario:
+            # Override value does not change possibility that a write is going to happen...
+
+            # -- if the inhibit list contains the current source_str, suppress the write...
+            if not (inhibit_name and inhibit_name in scenario and source_str in scenario[inhibit_name]):
                 if source_value is not None and source_str != target_str:
                     update_fields[field_name] = {tag_name: source_value}
 
@@ -175,11 +183,14 @@ class Jira:
             # -- This field does not exist in AREQ!
             # global_id: getattr(source_feature.fields, global_id),
             # FIXME: AREQ-25918 -- Priority should match the priority of the original...
-            'priority': {'name': 'P1-Stopper'},
+            #'priority': {'name': 'P1-Stopper'},
             'labels': [x for x in getattr(source_feature.fields, 'labels')],
             'components': [{'id': x.id} for x in getattr(source_feature.fields, 'components')],
             classification: [{'id': x.id} for x in getattr(source_feature.fields, classification)]
         }
+        self.update_value(update_fields, source_feature, None,
+                          'priority', 'name', scenario,
+                          'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE', 'PRIORITY_INHIBIT')
         # _define_update(update_fields, exists_on, source_feature)
         _define_update(update_fields, verified_on, source_feature)
         _define_update(update_fields, failed_on, source_feature)
@@ -243,7 +254,6 @@ class Jira:
         if True:
             pass
 
-        val_lead = getattr(sibling_feature.fields, validation_lead)
         new_e_feature_dict = {
             'project': {
                 'key': sibling_feature.fields.project.key if sibling_feature is not None else parent_feature.fields.project.key},
@@ -255,24 +265,35 @@ class Jira:
         }
 
         update_assignee_dict = {
-            'assignee': {'name': sibling_feature.fields.assignee.name if sibling_feature.fields.assignee is not None else ""},
+            # 'assignee': {'name': sibling_feature.fields.assignee.name if sibling_feature.fields.assignee is not None else ""},
         }
+        self.update_value(update_assignee_dict, sibling_feature, None,
+                          'assignee', 'name', scenario,
+                          'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
 
+        # val_lead = getattr(sibling_feature.fields, validation_lead)
         update_lead_dict = {
-            validation_lead: {'name': val_lead.name if val_lead is not None else ""}
+            # validation_lead: {'name': val_lead.name if val_lead is not None else ""}
         }
+        self.update_value(update_lead_dict, sibling_feature, None,
+                          validation_lead, 'name', scenario,
+                          'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE', 'VALIDATION_LEAD_INHIBIT')
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
             # -- This field does not exist in AREQ!
             # global_id: getattr(sibling_feature.fields, global_id),
             # 'summary': summary,
-            'priority': {'name': sibling_feature.fields.priority.name if sibling_feature is not None else 'P1-Stopper'},
+            # TODO: Deal with the 'P1-Stopper' clause if not set in the sibling..
+            #'priority': {'name': sibling_feature.fields.priority.name if sibling_feature is not None else 'P1-Stopper'},
             'labels': [x for x in getattr(sibling_feature.fields, 'labels')],
             # -- Components and classification are inherited from the Feature...
             # 'components': [{'id': x.id} for x in getattr(sibling_feature.fields, 'components')],
             # classification: [{'id': x.id} for x in getattr(sibling_feature.fields, classification)]
         }
+        self.update_value(update_fields, sibling_feature, None,
+                          'priority', 'name', scenario,
+                          'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE', 'PRIORITY_INHIBIT')
         # -- Note: Should not copy verified_on...
         # _define_update(update_fields, verified_on, sibling_feature if sibling_feature is not None else parent_feature)
         _define_update(update_fields, failed_on, sibling_feature if sibling_feature is not None else parent_feature)
@@ -349,26 +370,41 @@ class Jira:
             'issuetype': {'name': 'E-Feature'},
             and_vers_key: [{'value': scenario['tversion']}],
             platprog_key: [{'value': scenario['tplatform']}],
-            'assignee': {'name': sibling.fields.assignee.name},
+            # 'assignee': {'name': sibling.fields.assignee.name},
             validation_lead: {'name': val_lead.name if val_lead is not None else ""}
         }
+        self.update_value(new_e_feature_dict, sibling, None,
+                          'assignee', 'name', scenario,
+                          'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
 
         assignee_dict = {
-            'assignee': {'name': sibling.fields.assignee.name},
+            # 'assignee': {'name': sibling.fields.assignee.name},
         }
+        self.update_value(assignee_dict, sibling, None,
+                          'assignee', 'name', scenario,
+                          'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
 
         lead_dict = {
-            validation_lead: {'name': val_lead.name if val_lead is not None else ""}
+            # validation_lead: {'name': val_lead.name if val_lead is not None else ""}
         }
+        self.update_value(lead_dict, sibling, None,
+                          validation_lead, 'name', scenario,
+                          'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE', 'VALIDATION_LEAD_INHIBIT')
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
             # -- This field does not exist in AREQ!
             # global_id: getattr(parent_feature.fields, global_id),
             'summary': summary,
-            'priority': {'name': 'P1-Stopper'},
+            # NOTE: Have to use OVERRIDE to set to P1-Stopper by default...
+            # 'priority': {'name': 'P1-Stopper'},
             'labels': [x for x in getattr(parent_feature.fields, 'labels')],
         }
+
+        self.update_value(update_fields, sibling_feature, None,
+                          'priority', 'name', scenario,
+                          'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE', 'PRIORITY_INHIBIT')
+
         # -- Note: Should not copy verified_on...
         # _define_update(update_fields, verified_on, sibling if sibling is not None else parent_feature)
         _define_update(update_fields, failed_on, sibling if sibling is not None else parent_feature)

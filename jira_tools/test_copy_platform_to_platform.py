@@ -115,7 +115,19 @@ class MyUpdateCase(TestCase):
                                scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
         self.assertEqual(update_fields, {'assignee': {'name': 'assignee_override'}})
 
-    def test_06_assignee_override_false(self):
+    def test_06a_assignee_override_true(self):
+        """Override always inserts the given value..."""
+        scenario = {
+            'ASSIGNEE_OVERRIDE': True,
+            # 'ASSIGNEE_OVERWRITE': 'assignee_overwrite',
+            # 'ASSIGNEE_INHIBIT': ['inhibit_list']
+        }
+        update_fields = {}
+        self.jira.update_value(update_fields, self.source_ucis, self.target_ucis, 'assignee', 'name',
+                               scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
+        self.assertEqual(update_fields, {'assignee': {'name': True}})
+
+    def test_06b_assignee_override_false(self):
         """Override always inserts the given value..."""
         scenario = {
             'ASSIGNEE_OVERRIDE': False,
@@ -127,7 +139,7 @@ class MyUpdateCase(TestCase):
                                scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
         self.assertEqual(update_fields, {'assignee': {'name': False}})
 
-    def test_07_assignee_inhibit_matches(self):
+    def test_07_assignee_inhibit_match(self):
         """If inhibit is specified, output should be suppressed if source matches..."""
         scenario = {
             # 'ASSIGNEE_OVERRIDE': 'assignee_override',
@@ -139,7 +151,7 @@ class MyUpdateCase(TestCase):
                                scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
         self.assertEqual(update_fields, {})
 
-    def test_08_assignee_inhibit_mismatches(self):
+    def test_08_assignee_inhibit_mismatch(self):
         """If inhibit is specified, output should be suppressed if source matches..."""
         scenario = {
             # 'ASSIGNEE_OVERRIDE': 'assignee_override',
@@ -249,7 +261,19 @@ class MyUpdateCaseWhenTargetIsNone(TestCase):
                                scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
         self.assertEqual(update_fields, {'assignee': {'name': 'assignee_override'}})
 
-    def test_06_assignee_override_false(self):
+    def test_06a_assignee_override_true(self):
+        """Override always inserts the given value..."""
+        scenario = {
+            'ASSIGNEE_OVERRIDE': True,
+            # 'ASSIGNEE_OVERWRITE': 'assignee_overwrite',
+            # 'ASSIGNEE_INHIBIT': ['inhibit_list']
+        }
+        update_fields = {}
+        self.jira.update_value(update_fields, self.source_ucis, self.target_ucis, 'assignee', 'name',
+                               scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
+        self.assertEqual(update_fields, {'assignee': {'name': True}})
+
+    def test_06b_assignee_override_false(self):
         """Override always inserts the given value..."""
         scenario = {
             'ASSIGNEE_OVERRIDE': False,
@@ -261,7 +285,7 @@ class MyUpdateCaseWhenTargetIsNone(TestCase):
                                scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
         self.assertEqual(update_fields, {'assignee': {'name': False}})
 
-    def test_07_assignee_inhibit_matches(self):
+    def test_07_assignee_inhibit_match(self):
         """If inhibit is specified, output should be suppressed if source matches..."""
         scenario = {
             # 'ASSIGNEE_OVERRIDE': 'assignee_override',
@@ -273,7 +297,7 @@ class MyUpdateCaseWhenTargetIsNone(TestCase):
                                scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
         self.assertEqual(update_fields, {})
 
-    def test_08_assignee_inhibit_mismatches(self):
+    def test_08_assignee_inhibit_mismatch(self):
         """If inhibit is specified, output should be suppressed if source matches..."""
         scenario = {
             # 'ASSIGNEE_OVERRIDE': 'assignee_override',

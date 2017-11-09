@@ -13,8 +13,6 @@ class State:
 Open = 'Open'
 In_Progress = 'In Progress'
 Closed = 'Closed'
-# Closed = 'Closed'
-# Merge = 'Merge'
 Merged = 'Merged'
 Rejected = 'Rejected'
 Blocked = 'Blocked'
@@ -47,6 +45,14 @@ def normalize(name):
     if name in aliases:
         name = aliases[name]
     return name
+
+
+def get(scenario, map_name):
+    if map_name in scenario:
+        map = {normalize(key): normalize(value) for key, value in scenario[map_name].items()}
+    else:
+        map = {}
+    return map
 
 
 E_Feature_New = State(New, [New])

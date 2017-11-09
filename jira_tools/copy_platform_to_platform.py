@@ -96,6 +96,11 @@ def set_translated_status(jira, source, translation_table, default, target, log=
         name = normalize(scenario['STATUS_OVERRIDE'])
     else:
         name = normalize(source.fields.status.name)
+
+    status_remap = get(scenario, 'STATUS_MAP')
+    if name in status_remap:
+        name = status_remap[name]
+
     if name in translation_table:
         translation = translation_table[name]
     else:
@@ -114,13 +119,11 @@ def set_translated_status(jira, source, translation_table, default, target, log=
 def set_ucis_status(jira, source_preq, target_preq, log=None, scenario=None):
     e_feature_translation = {
         UCIS_In_Progress.name: {'state': UCIS_In_Progress, 'comment': "Status set to Start Progress"},
-        UCIS_Reject.name: {'state': UCIS_Rejected, 'comment': "Status set to Rejected"},
+        UCIS_Reject.name: {'state': UCIS_Reject, 'comment': "Status set to Rejected"},
         UCIS_Open.name: {'state': UCIS_Open, 'comment': "Status set to Open"},
         UCIS_Blocked.name: {'state': UCIS_Blocked, 'comment': "Status set to Blocked"},
         UCIS_Merged.name: {'state': UCIS_Merged, 'comment': "Status set to Merged"},
-        UCIS_Close.name: {'state': UCIS_Merged,
-                           'comment': "Re-opened and set to Merged since this was closed under O-MR0 "
-                                      "and need to track re-validation against O-MR1."},
+        UCIS_Close.name: {'state': UCIS_Close, 'comment': "Status set to closed"},
     }
     return set_translated_status(jira, source_preq, e_feature_translation, UCIS_Open, target_preq, log, scenario)
 
@@ -154,27 +157,29 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     if 'xls_source' in scenario:
         import pandas as pd
         source_file = realpath(dirname(realpath(sys.argv[0])) + '/../' + scenario['xls_source'])
-        data_frame = pd.read_excel(source_file, sheetname=0)
+        xls_data_frame = pd.read_excel(source_file, sheetname=0)
         def preq_item_list(jira):
-            for key in data_frame['Key']:
+            for i, item in xls_data_frame.iterrows():
+                key = item['Key']
                 if key.upper().startswith('PREQ'):
-                    yield jira.issue(key)
+                    yield jira.issue(key), item
 
         def areq_e_feature_list(jira):
-            for key in data_frame['Key']:
+            for i, item in xls_data_frame.iterrows():
+                key = item['Key']
                 if key.upper().startswith('AREQ'):
-                    yield jira.issue(key)
+                    yield jira.issue(key), item
     else:
         preq_source_query = get_query('preq_source_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
         if preq_source_query is not None:
             def preq_item_list(jira):
-                return jira.do_query(preq_source_query)
+                return jira.do_query(preq_source_query), None
 
         areq_source_e_feature_query = get_query('areq_source_e_feature', queries, copy_platform_to_platform.__name__,
                                                 params=scenario, log=log)
         if areq_source_e_feature_query is not None:
             def areq_e_feature_list(jira):
-                return jira.do_query(areq_source_e_feature_query)
+                return jira.do_query(areq_source_e_feature_query), None
 
     preq_target_query = get_query('preq_target_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
     areq_target_e_feature_query = get_query('areq_target_e_feature', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
@@ -281,7 +286,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     # -- Copy source preqs to target:
     # (Get the list of already existing PREQs for this platform and version!)
     if 'copy_preq' not in scenario or scenario['copy_preq']:    # e.g., copy_preq is undefined or copy_preq = True
-        for source_preq in preq_item_list(jira):
+        for source_preq, data_frame in preq_item_list(jira):
             preq_count += 1
             updated = False
             # # -- Remove old version and platform, prepend new version and platform
@@ -365,7 +370,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
     if 'copy_areq' not in scenario or scenario['copy_areq']:    # e.g., copy_areq is undefined or copy_areq = True
         # features = [feature for feature in areq_e_feature_list(jira)]
         # for source_e_feature in features:
-        for source_e_feature in areq_e_feature_list(jira):
+        for source_e_feature, data_frame in areq_e_feature_list(jira):
             areq_count += 1
             updated = False
             # -- The parent for this one should already be in source_features
