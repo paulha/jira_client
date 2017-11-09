@@ -253,7 +253,7 @@ servers:  # Required, but not meaningful here...
     # ASSIGNEE_OVERWRITE: false
     ASSIGNEE_OVERRIDE: ""
     # ASSIGNEE_INHIBIT: ['hubingqu']
-    VALIDATION_LEAD_OVERRide: ""
+    VALIDATION_LEAD_OVERRIDE: ""
     # VALIDATION_LEAD_OVERWRITE: false
     # VALIDATION_LEAD_INHIBIT: ['hubingqu']
     # -- Should changes be written?

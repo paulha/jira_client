@@ -5,32 +5,8 @@ from navigate import *
 from jira.exceptions import JIRAError
 
 
+# FIXME: AREQ-25918 -- Priority should match the priority of the original...
 def update_fields_and_link(jira, source_preq, target_preq, update, update_count, scenario={}, log=None):
-
-    # FIXME: AREQ-25918 -- Priority should match the priority of the original...
-    def _update_value(update_fields, source, target, field_name, tag_name,
-                     scenario=None,
-                     override_name="", overwrite_name="", inhibit_name=""):
-        """OVERRIDE means 'use this value', OVERWRITE means 'replace the value in target'"""
-        this_source_field = getattr(source.fields, field_name, None)
-        this_target_field = getattr(target.fields, field_name, None)
-        source_value = scenario[override_name] \
-                    if override_name in scenario\
-                    else getattr(this_source_field, tag_name) \
-                    if this_source_field is not None \
-                    else None
-        target_value = getattr(this_target_field, tag_name) \
-                    if this_target_field is not None \
-                    else None
-        source_str = source_value.__str__() if source_value is not None else ""
-        target_str = target_value.__str__() if target_value is not None else ""
-
-        # -- If overwrite is unspecified OR target is None OR overwrite flag is True
-        if overwrite_name not in scenario or this_target_field is None or scenario[overwrite_name]:
-            if inhibit_name \
-                    and source_str not in (scenario[inhibit_name] if inhibit_name in scenario else []):
-                if source_value is not None and target_str != source_str:
-                    update_fields[field_name] = {tag_name: source_value}
 
     # read existing values, update only if not set...
     updated = False
@@ -40,18 +16,18 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
     assignee_fields = {}
     lead_fields = {}
 
-    _update_value(update_fields, source_preq, target_preq,
+    jira.update_value(update_fields, source_preq, target_preq,
                   'priority', 'name',
                   scenario, 'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE')
     # (changed from name to key...)
-    _update_value(update_fields, source_preq, target_preq,
+    jira.update_value(update_fields, source_preq, target_preq,
                   'assignee', 'key',
                   scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE')
     # (changed from name to key...)
-    _update_value(update_fields, source_preq, target_preq,
+    jira.update_value(update_fields, source_preq, target_preq,
                   jira.get_field_name("Validation Lead"), 'key',
                   scenario, 'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE')
-    _update_value(update_fields, source_preq, target_preq,
+    jira.update_value(update_fields, source_preq, target_preq,
                   jira.get_field_name("Planned Release"), 'value',
                   scenario, 'PLANNED_RELEASE_OVERRIDE', 'PLANNED_RELEASE_OVERWRITE')
 
