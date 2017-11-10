@@ -106,7 +106,7 @@ class MyUpdateCase(TestCase):
     def test_05_assignee_override(self):
         """If override is specified, override value should replace original..."""
         scenario = {
-            'ASSIGNEE_OVERRIDE': 'assignee_override',
+            'ASSIGNEE_OVERRIDE': "'assignee_override'",
             # 'ASSIGNEE_OVERWRITE': 'assignee_overwrite',
             # 'ASSIGNEE_INHIBIT': ['inhibit_list']
         }
@@ -118,7 +118,7 @@ class MyUpdateCase(TestCase):
     def test_06a_assignee_override_true(self):
         """Override always inserts the given value..."""
         scenario = {
-            'ASSIGNEE_OVERRIDE': True,
+            'ASSIGNEE_OVERRIDE': "True",
             # 'ASSIGNEE_OVERWRITE': 'assignee_overwrite',
             # 'ASSIGNEE_INHIBIT': ['inhibit_list']
         }
@@ -130,7 +130,7 @@ class MyUpdateCase(TestCase):
     def test_06b_assignee_override_false(self):
         """Override always inserts the given value..."""
         scenario = {
-            'ASSIGNEE_OVERRIDE': False,
+            'ASSIGNEE_OVERRIDE': "False",
             # 'ASSIGNEE_OVERWRITE': 'assignee_overwrite',
             # 'ASSIGNEE_INHIBIT': ['inhibit_list']
         }
@@ -138,6 +138,20 @@ class MyUpdateCase(TestCase):
         self.jira.update_value(update_fields, self.source_ucis, self.target_ucis, 'assignee', 'name',
                                scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
         self.assertEqual(update_fields, {'assignee': {'name': False}})
+
+    def test_06c_assignee_override_eval(self):
+        """Override always inserts the given value..."""
+        xxx = 12345
+        scenario = {
+            'ASSIGNEE_OVERRIDE': "xxx",
+            # 'ASSIGNEE_OVERWRITE': 'assignee_overwrite',
+            # 'ASSIGNEE_INHIBIT': ['inhibit_list']
+        }
+        update_fields = {}
+        self.jira.update_value(update_fields, self.source_ucis, self.target_ucis, 'assignee', 'name',
+                               scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT',
+                               data_frame=locals())
+        self.assertEqual(update_fields, {'assignee': {'name': 12345}})
 
     def test_07_assignee_inhibit_match(self):
         """If inhibit is specified, output should be suppressed if source matches..."""
@@ -216,7 +230,7 @@ class MyUpdateCaseWhenTargetIsNone(TestCase):
     def test_02_assignee_overwrite_true(self):
         """Source copies to target if overwrite is True"""
         scenario = {
-            # 'ASSIGNEE_OVERRIDE': 'assignee_override',
+            # 'ASSIGNEE_OVERRIDE': "'assignee_override'",
             'ASSIGNEE_OVERWRITE': True,
             # 'ASSIGNEE_INHIBIT': ['inhibit_list']
         }
@@ -252,7 +266,7 @@ class MyUpdateCaseWhenTargetIsNone(TestCase):
     def test_05_assignee_override(self):
         """If override is specified, override value should replace original..."""
         scenario = {
-            'ASSIGNEE_OVERRIDE': 'assignee_override',
+            'ASSIGNEE_OVERRIDE': '"assignee_override"',
             # 'ASSIGNEE_OVERWRITE': 'assignee_overwrite',
             # 'ASSIGNEE_INHIBIT': ['inhibit_list']
         }
@@ -264,7 +278,7 @@ class MyUpdateCaseWhenTargetIsNone(TestCase):
     def test_06a_assignee_override_true(self):
         """Override always inserts the given value..."""
         scenario = {
-            'ASSIGNEE_OVERRIDE': True,
+            'ASSIGNEE_OVERRIDE': "True",
             # 'ASSIGNEE_OVERWRITE': 'assignee_overwrite',
             # 'ASSIGNEE_INHIBIT': ['inhibit_list']
         }
@@ -276,7 +290,7 @@ class MyUpdateCaseWhenTargetIsNone(TestCase):
     def test_06b_assignee_override_false(self):
         """Override always inserts the given value..."""
         scenario = {
-            'ASSIGNEE_OVERRIDE': False,
+            'ASSIGNEE_OVERRIDE': "False",
             # 'ASSIGNEE_OVERWRITE': 'assignee_overwrite',
             # 'ASSIGNEE_INHIBIT': ['inhibit_list']
         }

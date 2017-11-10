@@ -1,3 +1,4 @@
+import pandas as pd
 import re
 from utility_funcs.search import get_server_info
 from gojira import init_jira, jql_issue_gen
@@ -99,14 +100,16 @@ class Jira:
 
     def update_value(self, update_fields, source, target, field_name, tag_name,
                       scenario=None,
-                      override_name="", overwrite_name="", inhibit_name=""):
+                      override_name="", overwrite_name="", inhibit_name="", data_frame=None):
         """OVERRIDE means 'use this value', OVERWRITE means 'replace the value in target'"""
         this_source_field = getattr(source.fields, field_name, None)
-        source_value = scenario[override_name] \
-            if override_name in scenario \
-            else getattr(this_source_field, tag_name) \
-            if this_source_field is not None \
-            else None
+        source_value = getattr(this_source_field, tag_name) if this_source_field is not None else None
+        override = (scenario[override_name]) if override_name in scenario else None
+        # -- If this is the name of a valid key in the data frame, substitute it!
+        if override is not None:
+            pass
+        override = eval(override, globals(), data_frame) if override is not None else override
+        source_value = override if override is not None else source_value
         source_str = source_value.__str__() if source_value is not None else ""
 
         if target is not None:
@@ -132,7 +135,7 @@ class Jira:
                 if source_value is not None and source_str != target_str:
                     update_fields[field_name] = {tag_name: source_value}
 
-    def create_ucis(self, summary, source_feature, scenario, log=None):
+    def create_ucis(self, summary, source_feature, scenario, data_frame=None, log=None):
         """Create UCIS from source"""
 
         # -- FIXME: NEED TO COPY GLOBAL ID TO MAINTAIN TRACEABILITY
@@ -172,10 +175,11 @@ class Jira:
 
         self.update_value(new_e_feature_dict, source_feature, None,
                           'assignee', 'name', scenario,
-                          'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
+                          'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT', data_frame=data_frame)
         self.update_value(new_e_feature_dict, source_feature, None,
                           validation_lead, 'name', scenario,
-                          'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE', 'VALIDATION_LEAD_INHIBIT')
+                          'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE', 'VALIDATION_LEAD_INHIBIT',
+                          data_frame=data_frame)
 
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
@@ -190,7 +194,7 @@ class Jira:
         }
         self.update_value(update_fields, source_feature, None,
                           'priority', 'name', scenario,
-                          'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE', 'PRIORITY_INHIBIT')
+                          'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE', 'PRIORITY_INHIBIT', data_frame=data_frame)
         # _define_update(update_fields, exists_on, source_feature)
         _define_update(update_fields, verified_on, source_feature)
         _define_update(update_fields, failed_on, source_feature)
@@ -230,7 +234,8 @@ class Jira:
         log.logger.info("Created UCIS %s for Feature %s: ", created_ucis.key, source_feature.key)
         return created_ucis
 
-    def clone_e_feature_from_e_feature(self, summary, parent_feature, sibling_feature, scenario, log=None):
+    def clone_e_feature_from_e_feature(self, summary, parent_feature, sibling_feature, scenario,
+                                       log=None, data_frame=None):
         """Create e-feature from parent, overlaying sibling data if present"""
 
         # -- FIXME: NEED TO COPY GLOBAL ID TO MAINTAIN TRACEABILITY
@@ -269,7 +274,7 @@ class Jira:
         }
         self.update_value(update_assignee_dict, sibling_feature, None,
                           'assignee', 'name', scenario,
-                          'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
+                          'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT', data_frame=data_frame)
 
         # val_lead = getattr(sibling_feature.fields, validation_lead)
         update_lead_dict = {
@@ -277,7 +282,8 @@ class Jira:
         }
         self.update_value(update_lead_dict, sibling_feature, None,
                           validation_lead, 'name', scenario,
-                          'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE', 'VALIDATION_LEAD_INHIBIT')
+                          'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE', 'VALIDATION_LEAD_INHIBIT',
+                          data_frame=data_frame)
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
@@ -293,7 +299,7 @@ class Jira:
         }
         self.update_value(update_fields, sibling_feature, None,
                           'priority', 'name', scenario,
-                          'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE', 'PRIORITY_INHIBIT')
+                          'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE', 'PRIORITY_INHIBIT', data_frame=data_frame)
         # -- Note: Should not copy verified_on...
         # _define_update(update_fields, verified_on, sibling_feature if sibling_feature is not None else parent_feature)
         _define_update(update_fields, failed_on, sibling_feature if sibling_feature is not None else parent_feature)
@@ -342,7 +348,7 @@ class Jira:
         log.logger.info("Created E-Feature %s for Feature %s: ", created_e_feature.key, parent_feature.key)
         return created_e_feature
 
-    def clone_e_feature_from_parent(self, summary, parent_feature, scenario, log=None, sibling=None):
+    def clone_e_feature_from_parent(self, summary, parent_feature, scenario, log=None, sibling=None, data_frame=None):
         """Create e-feature from parent, overlaying sibling data if present"""
 
         # Utility function for copying *_on fields (see below)
@@ -375,7 +381,7 @@ class Jira:
         }
         self.update_value(new_e_feature_dict, sibling, None,
                           'assignee', 'name', scenario,
-                          'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT')
+                          'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', 'ASSIGNEE_INHIBIT', data_frame=data_frame)
 
         assignee_dict = {
             # 'assignee': {'name': sibling.fields.assignee.name},
@@ -389,7 +395,8 @@ class Jira:
         }
         self.update_value(lead_dict, sibling, None,
                           validation_lead, 'name', scenario,
-                          'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE', 'VALIDATION_LEAD_INHIBIT')
+                          'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE', 'VALIDATION_LEAD_INHIBIT',
+                          data_frame=data_frame)
 
         # -- Having created the issue, now other fields of the E-Feature can be updated:
         update_fields = {
@@ -403,7 +410,7 @@ class Jira:
 
         self.update_value(update_fields, sibling_feature, None,
                           'priority', 'name', scenario,
-                          'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE', 'PRIORITY_INHIBIT')
+                          'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE', 'PRIORITY_INHIBIT', data_frame=data_frame)
 
         # -- Note: Should not copy verified_on...
         # _define_update(update_fields, verified_on, sibling if sibling is not None else parent_feature)

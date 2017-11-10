@@ -250,20 +250,20 @@ servers:  # Required, but not meaningful here...
     # OVERRIDE means 'use this value', OVERWRITE means 'replace the value in target'
     # INHIBIT means 'suppress writing these values' (replace with empty)
     # ASSIGNEE, VALIDATION_LEAD, PRIORITY
-    # Note: What about Status?
-    # STATUS_OVERRIDE: "Open"
+    STATUS_OVERRIDE: "Open"
     STATUS_MAP: {open: open, 'in process': in process, blocked: blocked, rejected: rejected, merged: merged, closed: closed}
+    PRIORITY_OVERRIDE: 'data_frame["Priority"] if data_frame is not None else None'
     # PRIORITY_OVERRIDE: 'P1-Stopper'
     # PRIORITY_OVERWRITE: true
     # ASSIGNEE_OVERWRITE: false
-    ASSIGNEE_OVERRIDE: ""
+    ASSIGNEE_OVERRIDE: "''"
     # ASSIGNEE_INHIBIT: ['hubingqu']
-    VALIDATION_LEAD_OVERRIDE: ""
+    VALIDATION_LEAD_OVERRIDE: "''"
     # VALIDATION_LEAD_OVERWRITE: false
     # VALIDATION_LEAD_INHIBIT: ['hubingqu']
     # -- Should changes be written?
     update: true
-    createmax: 1
+    createmax: 0
     # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
     verify_copy: false
     clone_from_sibling: true

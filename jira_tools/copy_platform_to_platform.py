@@ -6,7 +6,7 @@ from jira.exceptions import JIRAError
 
 
 # FIXME: AREQ-25918 -- Priority should match the priority of the original...
-def update_fields_and_link(jira, source_preq, target_preq, update, update_count, scenario={}, log=None):
+def update_fields_and_link(jira, source_preq, target_preq, update, update_count, scenario={}, log=None, data_frame=None):
 
     # read existing values, update only if not set...
     updated = False
@@ -18,18 +18,18 @@ def update_fields_and_link(jira, source_preq, target_preq, update, update_count,
 
     jira.update_value(update_fields, source_preq, target_preq,
                   'priority', 'name',
-                  scenario, 'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE')
+                  scenario, 'PRIORITY_OVERRIDE', 'PRIORITY_OVERWRITE', data_frame=data_frame)
     # (changed from name to key...)
     jira.update_value(update_fields, source_preq, target_preq,
                   'assignee', 'key',
-                  scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE')
+                  scenario, 'ASSIGNEE_OVERRIDE', 'ASSIGNEE_OVERWRITE', data_frame=data_frame)
     # (changed from name to key...)
     jira.update_value(update_fields, source_preq, target_preq,
                   jira.get_field_name("Validation Lead"), 'key',
-                  scenario, 'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE')
+                  scenario, 'VALIDATION_LEAD_OVERRIDE', 'VALIDATION_LEAD_OVERWRITE', data_frame=data_frame)
     jira.update_value(update_fields, source_preq, target_preq,
                   jira.get_field_name("Planned Release"), 'value',
-                  scenario, 'PLANNED_RELEASE_OVERRIDE', 'PLANNED_RELEASE_OVERWRITE')
+                  scenario, 'PLANNED_RELEASE_OVERRIDE', 'PLANNED_RELEASE_OVERWRITE', data_frame=data_frame)
 
     if target_preq.fields.issuetype.name not in ['E-Feature']:
         # -- (Can't add classification to E-Feature)
@@ -322,7 +322,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 # Note that because of where it is, it only affects PREQs, and we want both...
                 #
                 if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                    count = update_fields_and_link(jira, source_preq, existing_preq, update, 0, scenario, log)
+                    count = update_fields_and_link(jira, source_preq, existing_preq, update, 0, scenario,
+                                                   log=log, data_frame=locals())
                     if count != 0:
                         updated = True
 
@@ -337,7 +338,7 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 log.logger.debug("Need to create new UCIS for: '%s'", target_summary)
                 if update and ('CREATE_MISSING_UCIS' not in scenario or scenario['CREATE_MISSING_UCIS']):
                     # -- Create a new UCIS(!) PREQ
-                    result = jira.create_ucis(target_summary, source_preq, scenario, log)
+                    result = jira.create_ucis(target_summary, source_preq, scenario, log=log, data_frame=locals())
                     log.logger.info("%s Created a new UCIS %s for %s", areq_count, result.key, target_summary)
 
                     updated = True
@@ -348,7 +349,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                            updated = True
 
                     if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                        count = update_fields_and_link(jira, source_preq, result, update, 0, scenario, log)
+                        count = update_fields_and_link(jira, source_preq, result, update, 0, scenario,
+                                                       log=log, data_frame=locals())
                         if count != 0:
                             updated = True
 
@@ -395,7 +397,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                 log.logger.info("%s The targeted E-Feature '%s' already exists! %s, %s: %s",
                                 areq_count, target_summary, source_e_feature.key, existing_feature.key, existing_feature.fields.summary)
                 if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
-                    count = update_fields_and_link(jira, source_e_feature, existing_feature, update, 0, scenario, log)
+                    count = update_fields_and_link(jira, source_e_feature, existing_feature, update, 0, scenario,
+                                                   log=log, data_frame=locals())
                     if count != 0:
                         updated = True
 
@@ -407,15 +410,19 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
                     log.logger.info("%s Creating a new E-Feature for Feature %s: %s",
                                     areq_count, parent_feature.key, target_summary)
                     if 'clone_from_sibling' in scenario and scenario['clone_from_sibling']:
-                        created_e_feature = jira.clone_e_feature_from_e_feature(target_summary, parent_feature, source_e_feature, scenario, log=log)
+                        created_e_feature = jira.clone_e_feature_from_e_feature(target_summary, parent_feature,
+                                                                                source_e_feature, scenario,
+                                                                                log=log, data_frame=locals())
                     else:
-                        created_e_feature = jira.clone_e_feature_from_parent(target_summary, parent_feature, scenario, sibling=source_e_feature, log=log)
+                        created_e_feature = jira.clone_e_feature_from_parent(target_summary, parent_feature,
+                                                                             scenario, sibling=source_e_feature,
+                                                                             log=log, data_frame=locals())
                     updated = True
                     e_features_created += 1
 
                     if 'UPDATE_FIELDS' in scenario and scenario['UPDATE_FIELDS']:
                         count = update_fields_and_link(jira, source_e_feature, created_e_feature, update,
-                                                              0, scenario, log)
+                                                              0, scenario, log=log, data_frame=locals())
                         if count != 0:
                             updated = True
 
