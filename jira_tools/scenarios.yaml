@@ -241,11 +241,11 @@ servers:  # Required, but not meaningful here...
     password: None
     comment:  "Copy using spreadsheet..."
     verify: false
-    copy_preq: true
+    copy_preq: false
     copy_areq: true
     CREATE_MISSING_UCIS: true
     FIX_GID: true
-    UPDATE_FIELDS: true
+    UPDATE_FIELDS: false
     UPDATE_STATUS: true
     # OVERRIDE means 'use this value', OVERWRITE means 'replace the value in target'
     # INHIBIT means 'suppress writing these values' (replace with empty)
@@ -272,8 +272,8 @@ servers:  # Required, but not meaningful here...
     splatform: Broxton-Joule
     sversion: O
     tplatform: KBL-AIA
-    tversion: O-MR2
-    taversion: O-MR2
+    tversion: O
+    taversion: O
 
 
   add_label_to_platform_version:
