@@ -276,8 +276,7 @@ servers:  # Required, but not meaningful here...
     tversion: O-MR1
     taversion: O-MR1
 
-
- "AREQ-27297 Clone the XLS list of AREQS to [O][KBL-AIA]":
+  "AREQ-27297 Clone the XLS list of AREQS to [O][KBL-AIA]":
     xls_source: "AREQs_AIA_ToPaul_Final.xlsx"
     query_set: "AREQ-27297 Clone the XLS list of AREQS to [O][KBL-AIA]"
     name: jira01
