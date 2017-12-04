@@ -172,13 +172,15 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
         preq_source_query = get_query('preq_source_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
         if preq_source_query is not None:
             def preq_item_list(jira):
-                return jira.do_query(preq_source_query), None
+                for preq_item in jira.do_query(preq_source_query):
+                    yield preq_item, None
 
         areq_source_e_feature_query = get_query('areq_source_e_feature', queries, copy_platform_to_platform.__name__,
                                                 params=scenario, log=log)
         if areq_source_e_feature_query is not None:
             def areq_e_feature_list(jira):
-                return jira.do_query(areq_source_e_feature_query), None
+                for e_feature in jira.do_query(areq_source_e_feature_query):
+                    yield e_feature, None
 
     preq_target_query = get_query('preq_target_query', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
     areq_target_e_feature_query = get_query('areq_target_e_feature', queries, copy_platform_to_platform.__name__, params=scenario, log=log)
