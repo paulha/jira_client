@@ -5,7 +5,6 @@ from navigate import *
 from jira.exceptions import JIRAError
 
 
-# FIXME: AREQ-25918 -- Priority should match the priority of the original...
 def update_fields_and_link(jira, source_preq, target_preq, update, update_count, scenario={}, log=None, data_frame=None):
 
     # read existing values, update only if not set...
@@ -216,12 +215,8 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
 
     def compare_items(item_kind, source_name, source_query, target_name, target_query, log=None):
         def read_items(query, log=None):
-            """Read items into summary based dictionary, warning on duplicates
+            """Read items into summary based dictionary, warning on duplicates"""
 
-            There's a strange thing happening: Some values (e.g., objects)
-            are being returned from the query more than once, making it look
-            like there are duplications when there are not. Made the duplication
-            detecting logic smarter than it was before... :-("""
             dictionary = {}
             for item in jira.do_query(query):
                 item_key = Jira.remove_version_and_platform(Jira.strip_non_ascii(item.fields.summary))
@@ -379,11 +374,14 @@ def copy_platform_to_platform(parser, scenario, config, queries, search, log=Non
             source_areq_scanned += 1
             lookup = source_e_feature.fields.parent.key
             try:
-                parent_feature = jira.get_item(key=lookup, log=log)
+                # todo: This could actually just be:
+                parent_feature = jira.issue(lookup)
+                # parent_feature = jira.get_item(key=lookup, log=log)
             except Exception as e:
                 parent_feature = None   # This should never happen!
-                log.logger.fatal("%s: Could not find parent %s of E-Feature %s, looked for '%s'. continuing", e, source_e_feature.fields.parent.key, source_e_feature.key, lookup)
-                # -- Note: Well, if we couldn't find the parent, we can't continue
+                log.logger.fatal("%s: Could not locate parent %s of E-Feature %s, looked for '%s'. continuing",
+                                 e, source_e_feature.fields.parent.key, source_e_feature.key, lookup)
+                # -- Well, if we couldn't find the parent, we can't continue
                 warnings_issued += 1
                 continue
 

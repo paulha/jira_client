@@ -219,6 +219,15 @@ servers:
             target_feature_query:      'project = AREQ AND issuetype=Feature AND AND summary~"%s"'
             target_summary_format:     '[{tversion}][{tplatform}] %s'
 
+        "OPM-112 Create O-MR1 AaaG-CWP AREQs":
+            # -- PREQ not used...
+            # preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Exists On" = BXT-Joule order by key'
+            # preq_target_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Exists On" = BXT-Joule order by key'
+            areq_source_e_feature:     'project = AREQ AND issuetype = E-Feature AND status in (Open, Blocked, "In Progress", Closed, Merged) AND priority in (P1-Stopper, P2-High) AND "Android Version(s)" = {sversion} AND "Platform/Program" in ("{splatform}")'
+            areq_target_e_feature:     'project = AREQ AND issuetype = E-Feature AND "Platform/Program" = "{tplatform}" AND "Android Version(s)" in ({tversion}) order by key'
+            target_feature_query:      'project = AREQ AND issuetype=Feature AND AND summary~"%s"'
+            target_summary_format:     '[{tversion}][{tplatform}] %s'
+
         add_label_to_platform_version:
             # Note that this EXCLUDES [AaaG], P-4's and Rejected items.
             preq_source_query:         'project = PREQ AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) AND summary!~"\\\\[AaaG\\\\]" AND priority in (P1-Stopper, P2-High, P3-Medium, P4-Low) order by key'

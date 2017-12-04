@@ -344,6 +344,8 @@ class Jira:
 
                                      %s""".format_map(scenario)
                                      % (parent_feature.key, sibling_feature.key if sibling_feature is not None else "",
+                                        getattr(sibling_feature.fields, platprog_key),
+                                        getattr(sibling_feature.fields, and_vers_key),
                                         scenario['comment'] if scenario['comment'] is not None else ""))
         log.logger.info("Created E-Feature %s for Feature %s: ", created_e_feature.key, parent_feature.key)
         return created_e_feature
@@ -453,11 +455,14 @@ class Jira:
                                      """This E-Feature was created by {command}.
 
                                      Parent Feature is %s. Source sibling is %s
-                                     Source Platform: '{splatform}' Version '{sversion}'
+                                     Source Platform: '%s' Version '%s'
 
                                      %s""".format_map(scenario)
                                      % (parent_feature.key, sibling.key if sibling is not None else "",
-                                        scenario['comment'] if scenario['comment'] is not None else ""))
+                                        getattr(sibling.fields, platprog_key),
+                                        getattr(sibling.fields, and_vers_key),
+                                        scenario['comment'] if scenario['comment'] is not None else "",
+                                        ))
         log.logger.info("Created E-Feature %s for Feature %s: ", created_e_feature.key, parent_feature.key)
         return created_e_feature
 

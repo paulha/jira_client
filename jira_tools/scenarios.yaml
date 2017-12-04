@@ -233,7 +233,51 @@ servers:  # Required, but not meaningful here...
     taversion: O
 
 
-  "AREQ-27297 Clone the XLS list of AREQS to [O][KBL-AIA]":
+  "OPM-112 Create O-MR1 AaaG-CWP AREQs":
+    # xls_source: "AREQs_AIA_ToPaul_Final.xlsx"
+    query_set: "OPM-112 Create O-MR1 AaaG-CWP AREQs"
+    name: jira01
+    user: None
+    password: None
+    comment:  "OPM-112 Create O-MR1 AaaG-CWP AREQs"
+    verify: false
+    copy_preq: false
+    copy_areq: true
+    CREATE_MISSING_UCIS: true
+    FIX_GID: true
+    UPDATE_FIELDS: false
+    UPDATE_STATUS: true
+    # OVERRIDE means 'use this value', OVERWRITE means 'replace the value in target'
+    # INHIBIT means 'suppress writing these values' (replace with empty)
+    # ASSIGNEE, VALIDATION_LEAD, PRIORITY
+    STATUS_OVERRIDE: "Open"
+    # STATUS_MAP: {open: open, 'in process': in process, blocked: blocked, rejected: rejected, merged: merged, closed: closed}
+    # -- Copy Priority
+    # PRIORITY_OVERRIDE: 'data_frame["Priority"] if data_frame is not None else None'
+    # PRIORITY_OVERRIDE: 'P1-Stopper'
+    # PRIORITY_OVERWRITE: true
+    # ASSIGNEE_OVERWRITE: false
+    # ASSIGNEE_OVERRIDE: "''"
+    # ASSIGNEE_INHIBIT: ['hubingqu']
+    # VALIDATION_LEAD_OVERRIDE: "''"
+    # VALIDATION_LEAD_OVERWRITE: false
+    # VALIDATION_LEAD_INHIBIT: ['hubingqu']
+    # -- Should changes be written?
+    update: false
+    createmax: 10
+    # -- Avoid false duplicate items warnings caused by [AaaG] duplicates of [O][Icelake-U SDC] items...
+    verify_copy: false
+    clone_from_sibling: true
+    log_level: info
+    output: output.txt
+    splatform: Broxton-P IVI
+    sversion: O-MR1
+    tplatform: Broxton-P IVI (AaaG-CWP)
+    tversion: O-MR1
+    taversion: O-MR1
+
+
+ "AREQ-27297 Clone the XLS list of AREQS to [O][KBL-AIA]":
     xls_source: "AREQs_AIA_ToPaul_Final.xlsx"
     query_set: "AREQ-27297 Clone the XLS list of AREQS to [O][KBL-AIA]"
     name: jira01
@@ -274,7 +318,6 @@ servers:  # Required, but not meaningful here...
     tplatform: KBL-AIA
     tversion: O
     taversion: O
-
 
   add_label_to_platform_version:
     # command: add_label_to_platform_version
