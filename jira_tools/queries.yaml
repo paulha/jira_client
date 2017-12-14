@@ -46,6 +46,16 @@ servers:
             preq_source_query:         'project = "{sproject}" AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
 
     jira-t3:
+        E_Feature_by_Parent:
+            # The list of Features who might be parents to the E-Features we want to update
+            areq_feature_query:         'project = AREQ AND issuetype = Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
+            # The list of possible E-Features who might be children of the Features we've selected to update
+            areq_e_feature_query:       '"Android Version(s)" in (O, O-MR1) AND project = AREQ AND issuetype = E-Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
+            # The intersection of the above two groups where the Feature is the parent of the
+            # E-Feature, is the group of items we want to update...
+            platform/program:           ["Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Broxton-P IVI (AaaG-Xen)", "Icelake-U SDC", "Tigerlake SDC"]
+            android_version:            ["O", "O-MR1"]
+
         compare_priorities:
             search:     'project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC'
             # TODO: Check: shouldn't this qualify by project as well?
@@ -122,6 +132,18 @@ servers:
             preq_source_query:         'project = "{sproject}" AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
 
     jira01:
+        E_Feature_by_Parent:
+            # The list of Features who might be parents to the E-Features we want to update
+            areq_feature_query:         'project = AREQ AND issuetype = Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Broxton-P IVI (AaaG-Xen)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
+            # areq_feature_query:         'project = AREQ AND issuetype = Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
+            # The list of possible E-Features who might be children of the Features we've selected to update
+            areq_e_feature_query:       '"Android Version(s)" in (O, O-MR1) AND project = AREQ AND issuetype = E-Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Broxton-P IVI (AaaG-Xen)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
+            # areq_e_feature_query:       '"Android Version(s)" in (O, O-MR1) AND project = AREQ AND issuetype = E-Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
+            # The intersection of the above two groups where the Feature is the parent of the
+            # E-Feature, is the group of items we want to update...
+            # platform/program:           ["Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Broxton-P IVI (AaaG-Xen)", "Icelake-U SDC", "Tigerlake SDC"]
+            # android_version:            ["O", "O-MR1"]
+
         compare_priorities:
             search:     'project = "{sproject}" AND "Platform/Program" = "{splatform}" ORDER BY "Global ID" ASC'
             # TODO: Check: shouldn't this qualify by project as well?

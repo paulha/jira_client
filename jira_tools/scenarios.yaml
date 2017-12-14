@@ -365,3 +365,13 @@ servers:  # Required, but not meaningful here...
     xls_input: areq_superseded_by_preq.xlsx
     # xls_input: test.xlsx
 
+  "OPM-129 Set E-Feature category to Functional":
+    query_set: E_Feature_by_Parent
+    name: jira01
+    user: None
+    password: None
+    comment:  "Testing"
+    update: false
+    createmax: 0
+
+
