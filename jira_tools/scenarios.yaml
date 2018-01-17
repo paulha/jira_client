@@ -374,4 +374,25 @@ servers:  # Required, but not meaningful here...
     update: false
     createmax: 0
 
+  "OPM-128":
+    # 'OPM-128 Label non-Rejected Icelake AREQ items with "FROP"':
+    slabel: FROP
+    sproject: AREQ
+    splatform: '"Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)"'
+    sversion: "O-MR1"
+    tlabel: FROP
+    # -- Alternative to tlabel:
+    # delete_labels: []
+    # add_labels: []
+    tproject: AREQ
+    tplatform: '"Icelake-U SDC"'
+    tversion: "O"
+    query_set: label_from_labeled_items
+    update: true
+    createmax: 0
+    name: jira01
+    user: None
+    password: None
+    comment:  "FROP Label added because it exists on 'Broxton-P IVI' or 'Broxton-P IVI (AaaG-CWP)' E-Feature sibling"
+
 

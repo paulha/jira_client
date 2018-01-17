@@ -134,11 +134,10 @@ servers:
     jira01:
         E_Feature_by_Parent:
             # The list of Features who might be parents to the E-Features we want to update
-            areq_feature_query:         'project = AREQ AND issuetype = Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Broxton-P IVI (AaaG-Xen)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
-            # areq_feature_query:         'project = AREQ AND issuetype = Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
+            # areq_feature_query:         'project = AREQ AND issuetype = Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Broxton-P IVI (AaaG-Xen)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
+            areq_feature_query:         'project = AREQ AND issuetype = Feature AND status = Candidate AND component = Kernel AND labels = PKT AND assignee in (arocchia, currentUser()) order by key'
             # The list of possible E-Features who might be children of the Features we've selected to update
-            areq_e_feature_query:       '"Android Version(s)" in (O, O-MR1) AND project = AREQ AND issuetype = E-Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Broxton-P IVI (AaaG-Xen)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
-            # areq_e_feature_query:       '"Android Version(s)" in (O, O-MR1) AND project = AREQ AND issuetype = E-Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'
+            areq_e_feature_query:       '"Android Version(s)" in (O, O-MR1) AND project = AREQ AND issuetype = E-Feature AND component = Kernel order by key'
             # The intersection of the above two groups where the Feature is the parent of the
             # E-Feature, is the group of items we want to update...
             # platform/program:           ["Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Broxton-P IVI (AaaG-Xen)", "Icelake-U SDC", "Tigerlake SDC"]
@@ -271,6 +270,10 @@ servers:
 
         areq_superceded_by_preq:
             # -- NO QUERIES ARE REQUIRED...
+
+        label_from_labeled_items:
+            items_with_label_query:     'project={sproject} and "Platform/Program" in ({splatform}) and "Android Version(s)" in ({sversion}) and type in (E-Feature) and labels in ({slabel}) and status not in (Rejected)'
+            targets_for_label_query:    'project={tproject} and "Platform/Program" in ({tplatform}) and "Android Version(s)" in ({tversion}) and type in (E-Feature) and status not in (Rejected)'
 
     jira-pfh:
         compare_priorities:

@@ -72,8 +72,20 @@ def e_feature_by_parent(parser, scenario, config, queries, search, log=None):
     log.logger.info("Found %d E-Features to process", len(children))
     log.logger.info("Found %d E-Features not set to Kernel", len(disagreement))
 
+    log.logger.info("")
+    log.logger.info("Feature Keys:")
+    log.logger.info("")
+    # (parents is a dict, so parent is just the key...)
+    log.logger.info(", ".join([parent for parent in parents]))
+    log.logger.info("")
+    log.logger.info("E-Features to process:")
+    log.logger.info("")
+    log.logger.info(", ".join([child.key for child in children]))
+    log.logger.info("")
+
     # --> Process the E-Features, setting classification to "Functional"
-    for e_feature in children:
+    """
+        for e_feature in children:
         if target_preq.fields.issuetype.name not in ['E-Feature']:
             # -- (Can't add classification to E-Feature)
             classification_value = getattr(target_preq.fields, classification)
@@ -112,6 +124,7 @@ def e_feature_by_parent(parser, scenario, config, queries, search, log=None):
                 updated = True
             else:
                 log.logger.info("NO UPDATE; SHOULD update %s with %s", target_preq.key, update_fields)
+    """
 
     # --> Process Features, setting classification to "Functional"
 

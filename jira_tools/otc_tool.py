@@ -13,6 +13,7 @@ from copy_platform_to_platform import copy_platform_to_platform
 from add_label_to_platform_version import add_label_to_platform_version
 from dng_vs_jira_find_added import find_added_dng_vs_jira
 from areq_superseded_by_preq import areq_superceded_by_preq
+from label_from_labeled_items import LabelFromLabeledItems
 
 LOG_CONFIG_FILE = 'logging.yaml'+pathsep+dirname(realpath(sys.argv[0]))+'/logging.yaml'
 CONFIG_FILE = dirname(realpath(sys.argv[0]))+'/config.yaml'+pathsep+'~/.jira/config.yaml'
@@ -881,7 +882,9 @@ def main():
                                             'add_label_to_platform_version',
                                             'copy_platform_to_platform',
                                             'find_added_dng_vs_jira',
-                                            'areq_superceded_by_preq'], default=None)
+                                            'areq_superceded_by_preq',
+                                            'label_from_labeled_items',
+                                            ], default=None)
     args = parser.parse_args()
 
     # todo: Should be combined switches...
@@ -920,6 +923,7 @@ def main():
         log.logger.fatal("Can't open configuration file: %s"%f)
         exit(-1)
 
+    queries = ''
     try:
         queries = get_server_info(scenario['name'], QUERIES_FILE)   # possible FileNotFoundError
     except FileNotFoundError as f:
@@ -966,6 +970,9 @@ def main():
         find_added_dng_vs_jira(parser, scenario, config, queries, CONFIG_FILE, log=log)
     elif 'areq_superceded_by_preq' == command:
         areq_superceded_by_preq(parser, scenario, config, queries, CONFIG_FILE, log=log)
+    elif 'label_from_labeled_items' == command:
+        labeler = LabelFromLabeledItems(parser, scenario, config, queries, CONFIG_FILE, log=log)
+        labeler.label_from_labeled_items()
     else:
         parser.print_help()
         exit(1)
