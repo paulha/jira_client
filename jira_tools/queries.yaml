@@ -132,6 +132,10 @@ servers:
             preq_source_query:         'project = "{sproject}" AND issuetype in standardIssueTypes() AND "Platform/Program" = "{splatform}" AND "Android Version(s)" in ({sversion}) order by key'
 
     jira01:
+        project_to_csv:
+            items_query:     'project={sproject} and "Platform/Program" in ({splatform}) and "Software Version" in ({sversion}) and type in (Epic)'
+
+
         E_Feature_by_Parent:
             # The list of Features who might be parents to the E-Features we want to update
             # areq_feature_query:         'project = AREQ AND issuetype = Feature AND component = Kernel AND "Platform/Program" in ("Broxton-P IVI", "Broxton-P IVI (AaaG-CWP)", "Broxton-P IVI (AaaG-Xen)", "Icelake-U SDC", "Tigerlake SDC") ORDER BY "Platform/Program", "Android Version(s)", key'

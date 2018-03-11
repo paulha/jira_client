@@ -395,4 +395,32 @@ servers:  # Required, but not meaningful here...
     password: None
     comment:  "FROP Label added because it exists on 'Broxton-P IVI' or 'Broxton-P IVI (AaaG-CWP)' E-Feature sibling"
 
+  "Project-to-CSV":
+    name: jira01
+    platforms:
+      "Android-AIA-2.0":
+        sproject: OAM
+        splatform: "Android-AIA-2.0"
+        sversion: "O-MR1"
+        fields:   ["key","Epic Name"]
+
+      "Elkhart-Lake":
+        sproject: OAM
+        splatform: "Elkhart-Lake"
+        sversion: "O-MR1"
+        fields:   ["key","Epic Name"]
+
+      "Icelake-U SDC":
+        sproject: OAM
+        splatform: "Icelake-U SDC"
+        sversion: "O-MR1"
+        fields:   ["key","Epic Name"]
+
+      "Tigerlake SDC":
+        sproject: OAM
+        splatform: "Tigerlake SDC"
+        sversion: "O-MR1"
+        fields:   ["key","Epic Name"]
+
+
 
