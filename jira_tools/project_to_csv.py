@@ -35,32 +35,35 @@ class ProjectToCSV:
             items_query = get_query('items_query', self.queries, __name__, params=query_values, log=self.logger)
             # items_query = items_query.format_map(query_values)
 
-            item_count = 0
-            print(f"{platform['splatform']},")
-            print(",")
+            with open(platform['splatform'] + '.csv', local_mode) as f:
+                f.write(f"{platform['splatform']}\n")
+                f.write(f"\n")
+                item_count = 0
+                print(f"{platform['splatform']},")
+                print(",")
 
-            for item in self.jira.do_query(items_query):
-                # Process the list of fields...
-                value_list = []
-                for field_name in field_list:
-                    if hasattr(item, field_name):
-                        local_value = getattr(item, field_name)
-                    elif hasattr(item.fields, field_name):
-                        local_value = getattr(item.fields, field_name)
-                    else:
-                        local_name = self.jira.get_field_name(field_name)
-                        if hasattr(item, local_name):
-                            local_value = getattr(item, local_name)
-                        elif hasattr(item.fields, local_name):
-                            local_value = getattr(item.fields, local_name)
+                for item in self.jira.do_query(items_query):
+                    value_list = []
+                    for field_name in field_list:
+                        if hasattr(item, field_name):
+                            local_value = getattr(item, field_name)
+                        elif hasattr(item.fields, field_name):
+                            local_value = getattr(item.fields, field_name)
                         else:
-                            local_value = None
+                            local_name = self.jira.get_field_name(field_name)
+                            if hasattr(item, local_name):
+                                local_value = getattr(item, local_name)
+                            elif hasattr(item.fields, local_name):
+                                local_value = getattr(item.fields, local_name)
+                            else:
+                                local_value = None
 
-                    value_list.append(local_value)
+                        value_list.append(local_value)
 
-                result = ",".join(value_list)
-                print(result)
-                item_count += 1
+                    result = ",".join(value_list)
+
+                    f.write(f"{result}\n")
+                    item_count += 1
 
             self.logger.info(f"{item_count} entries written to {platform['splatform']}")
 
