@@ -15,6 +15,7 @@ from dng_vs_jira_find_added import find_added_dng_vs_jira
 from areq_superseded_by_preq import areq_superceded_by_preq
 from label_from_labeled_items import LabelFromLabeledItems
 from project_to_csv import ProjectToCSV
+from time import strftime
 
 LOG_CONFIG_FILE = 'logging.yaml'+pathsep+dirname(realpath(sys.argv[0]))+'/logging.yaml'
 CONFIG_FILE = dirname(realpath(sys.argv[0]))+'/config.yaml'+pathsep+'~/.jira/config.yaml'
@@ -854,7 +855,8 @@ def scan_areq_and_check_for_preq(parser, scenario, config, queries):
 
 
 def main():
-    log.setup_logging(LOG_CONFIG_FILE, override={'handlers': {'info_file_handler': {'filename': 'otc_tool.log'}}})
+    log.setup_logging(LOG_CONFIG_FILE,
+                      override={'handlers': {'info_file_handler': {'filename': '%s otc_tool.log'%strftime("%Y-%m-%d")}}})
     parser = argparse.ArgumentParser(description="This is an OTC tool for working with Jira projects.")
     connection_group=parser.add_argument_group(title="Connection control", description="About the connectionn to the server")
     connection_group.add_argument("-n", "--name", nargs='?', help="Alias for the target host" )
