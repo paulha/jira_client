@@ -35,12 +35,10 @@ class ProjectToCSV:
             items_query = get_query('items_query', self.queries, __name__, params=query_values, log=self.logger)
             # items_query = items_query.format_map(query_values)
 
-            with open(platform['splatform'] + '.csv', local_mode) as f:
+            with open(platform['splatform'] + '.csv', "w") as f:
                 f.write(f"{platform['splatform']}\n")
                 f.write(f"\n")
                 item_count = 0
-                print(f"{platform['splatform']},")
-                print(",")
 
                 for item in self.jira.do_query(items_query):
                     value_list = []
