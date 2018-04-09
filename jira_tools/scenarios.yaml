@@ -401,26 +401,30 @@ servers:  # Required, but not meaningful here...
       "Android-AIA-2.0":
         sproject: OAM
         splatform: "Android-AIA-2.0"
+        sexists_on: "AIA-IVI-APL"
         sversion: "O-MR1"
-        fields:   ["key","Epic Name"]
+        fields:   ["Epic Name", "id", "External Link"]
 
       "Elkhart-Lake":
         sproject: OAM
         splatform: "Elkhart-Lake"
+        sexists_on: "EHL-VP"
         sversion: "O-MR1"
-        fields:   ["key","Epic Name"]
+        fields:   ["Epic Name", "id", "External Link"]
 
-      "Icelake-U SDC":
+      "Keystone Lake Refresh":
         sproject: OAM
-        splatform: "Icelake-U SDC"
+        splatform: "Keystone Lake Refresh"
+        sexists_on: "TGL-U-SIMICS"
         sversion: "O-MR1"
-        fields:   ["key","Epic Name"]
+        fields:   ["Epic Name", "id", "External Link"]
 
-      "Tigerlake SDC":
+      "Kings Falls":
         sproject: OAM
-        splatform: "Tigerlake SDC"
+        splatform: "Kings Falls"
+        sexists_on: "KGF-VP"
         sversion: "O-MR1"
-        fields:   ["key","Epic Name"]
+        fields:   ["Epic Name", "id", "External Link"]
 
 
 

@@ -28,6 +28,7 @@ class ProjectToCSV:
             query_values = {
                 'sproject': '"'+platform['sproject']+'"',
                 'splatform': '"'+platform['splatform']+'"',
+                'sexists_on': '"'+platform['sexists_on']+'"',
                 'sversion': platform['sversion']
             }
             field_list = platform['fields']

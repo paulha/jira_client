@@ -133,7 +133,8 @@ servers:
 
     jira01:
         project_to_csv:
-            items_query:     'project={sproject} and "Platform/Program" in ({splatform}) and "Software Version" in ({sversion}) and type in (Epic) order by key'
+            # items_query:     'project={sproject} and "Platform/Program" in ({splatform}) and "Software Version" in ({sversion}) and type in (Epic) order by key'
+            items_query:     'project={sproject} and "Exists On" in ({sexists_on}) and "Software Version" in ({sversion}) and type in (Epic) order by "Epic Name"'
 
 
         E_Feature_by_Parent:
