@@ -1,0 +1,7 @@
+#
+# Configuration file for DNG_Jira_Crosscheck:
+#
+test:
+    jira_server: jira01
+    jira_query: project=OAM and summary~'Keystone Lake Refresh | Bare Metal | O-MR1' order by key
+

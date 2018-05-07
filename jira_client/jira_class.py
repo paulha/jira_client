@@ -1,8 +1,7 @@
-import pandas as pd
 import re
 from utility_funcs.search import get_server_info
-from gojira import init_jira, jql_issue_gen
-from jirafields import make_field_lookup
+from .gojira import init_jira, jql_issue_gen
+from .jirafields import make_field_lookup
 from jira.exceptions import JIRAError
 
 
