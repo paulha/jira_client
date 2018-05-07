@@ -1,6 +1,7 @@
 from jira_class import Jira, get_query
 from re import search
 
+
 def update_labels(jira, scenario, source_preq, update, update_count, log=None):
     updated = False
     delete_list = [x for x in scenario['delete_labels']] if 'delete_labels' in scenario else []
