@@ -2,9 +2,9 @@ from distutils.core import setup
 
 install_requires = {
     'jira',
-    'git+https://github.com/paulha/utility_funcs.git',
     'pytest',
-    'PyYAML'
+    'PyYAML',
+    'git+https://github.com/paulha/utility_funcs.git',
 }
 
 setup(
